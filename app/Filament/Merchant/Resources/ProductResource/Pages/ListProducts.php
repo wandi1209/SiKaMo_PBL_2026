@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\ProductResource\Pages;
+namespace App\Filament\Merchant\Resources\ProductResource\Pages;
 
-use App\Filament\Resources\ProductResource;
-use Filament\Actions;
+use App\Filament\Merchant\Resources\ProductResource;
 use Filament\Resources\Pages\ListRecords;
 
 class ListProducts extends ListRecords
@@ -13,7 +12,7 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            \Filament\Actions\CreateAction::make(),
         ];
     }
 }

@@ -10,7 +10,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -60,14 +59,15 @@ class UserResource extends Resource
 
                 Forms\Components\Section::make('Role & Status')
                     ->schema([
-                        Forms\Components\Select::make('roles')
+                        Forms\Components\Select::make('role')
                             ->label('Role')
-                            ->relationship('roles', 'name')
-                            ->options(Role::all()->pluck('name', 'id'))
-                            ->multiple()
-                            ->preload()
-                            ->searchable()
-                            ->required(),
+                            ->options([
+                                'admin' => 'Admin',
+                                'owner' => 'Owner',
+                                'cashier' => 'Kasir',
+                            ])
+                            ->required()
+                            ->default('cashier'),
 
                         Forms\Components\Toggle::make('is_active')
                             ->label('Aktif')
@@ -96,13 +96,20 @@ class UserResource extends Resource
                     ->copyable()
                     ->copyMessage('Email disalin!'),
 
-                Tables\Columns\TextColumn::make('roles.name')
+                Tables\Columns\TextColumn::make('role')
                     ->label('Role')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'admin' => 'danger',
-                        'operator' => 'warning',
+                        'owner' => 'warning',
+                        'cashier' => 'gray',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'admin' => 'Admin',
+                        'owner' => 'Owner',
+                        'cashier' => 'Kasir',
+                        default => ucfirst($state),
                     })
                     ->searchable(),
 
@@ -121,11 +128,13 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('roles')
+                Tables\Filters\SelectFilter::make('role')
                     ->label('Filter Role')
-                    ->relationship('roles', 'name')
-                    ->multiple()
-                    ->preload(),
+                    ->options([
+                        'admin' => 'Admin',
+                        'owner' => 'Owner',
+                        'cashier' => 'Kasir',
+                    ]),
 
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Status')

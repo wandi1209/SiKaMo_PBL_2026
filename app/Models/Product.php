@@ -10,17 +10,24 @@ class Product extends Model
     protected $table = 'm_products';
 
     protected $fillable = [
+        'merchant_id',
         'category_id',
         'name',
         'barcode',
         'price',
         'stock',
         'low_stock_threshold',
-        'image'
+        'image',
     ];
+
+    public function merchant(): BelongsTo
+    {
+        return $this->belongsTo(Merchant::class);
+    }
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
 }
+

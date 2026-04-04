@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\CategoryResource\Pages;
+namespace App\Filament\Merchant\Resources\CategoryResource\Pages;
 
-use App\Filament\Resources\CategoryResource;
-use Filament\Actions;
+use App\Filament\Merchant\Resources\CategoryResource;
 use Filament\Resources\Pages\ListRecords;
 
 class ListCategories extends ListRecords
@@ -13,7 +12,7 @@ class ListCategories extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            \Filament\Actions\CreateAction::make(),
         ];
     }
 }
