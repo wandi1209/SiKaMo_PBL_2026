@@ -67,7 +67,16 @@ class UserResource extends Resource
                                 'cashier' => 'Kasir',
                             ])
                             ->required()
-                            ->default('cashier'),
+                            ->default('cashier')
+                            ->live(),
+
+                        Forms\Components\Select::make('merchant_id')
+                            ->label('Merchant (Opsional)')
+                            ->relationship('employedAt', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->visible(fn (Forms\Get $get) => in_array($get('role'), ['cashier', 'owner'])),
 
                         Forms\Components\Toggle::make('is_active')
                             ->label('Aktif')

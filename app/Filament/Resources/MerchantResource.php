@@ -45,7 +45,7 @@ class MerchantResource extends Resource
                     ->options(\App\Models\User::where('role', 'owner')->pluck('name', 'id'))
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->nullable(),
 
                 Forms\Components\Toggle::make('is_active')
                     ->label('Aktif')

@@ -22,6 +22,7 @@ class CashierResource extends Resource
     protected static ?string $pluralModelLabel = 'Kasir';
     protected static ?string $slug = 'cashiers';
     protected static ?int $navigationSort = 3;
+    protected static ?string $tenantOwnershipRelationshipName = 'employedAt';
 
     // ─── Scope: hanya tampilkan kasir milik merchant ini ─────────
     public static function getEloquentQuery(): Builder
@@ -65,6 +66,9 @@ class CashierResource extends Resource
                 // Hidden: auto-diisi dari tenant saat ini
                 Forms\Components\Hidden::make('merchant_id')
                     ->default(fn () => filament()->getTenant()?->id),
+                    
+                Forms\Components\Hidden::make('role')
+                    ->default('cashier'),
             ])->columns(2),
         ]);
     }
