@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('category_id'); // Foreign key to m_categories
             $table->string('name');
-            $table->string('barcode')->unique();
+            $table->string('barcode')->unique()->nullable();
             $table->integer('price')->unsigned();
             $table->integer('stock')->unsigned();
             $table->integer('low_stock_threshold')->unsigned();
