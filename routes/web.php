@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Landing page — selalu tampil, tombol adaptif sesuai status login (@auth di Blade)
 Route::get('/', function () {
-    return redirect()->route('filament.auth.auth.login');
+    return view('landing');
 });

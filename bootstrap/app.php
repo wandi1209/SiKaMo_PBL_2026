@@ -12,6 +12,18 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn () => route('filament.auth.auth.login'));
+        
+        $middleware->redirectUsersTo(function () {
+            if (auth()->check()) {
+                $user = auth()->user();
+                if ($user->role === 'admin') {
+                    return '/admin';
+                } elseif (in_array($user->role, ['owner', 'cashier'])) {
+                    return '/merchant';
+                }
+            }
+            return '/';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
