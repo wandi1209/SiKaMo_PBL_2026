@@ -3,21 +3,25 @@
 namespace App\Filament\Merchant\Resources;
 
 use App\Filament\Merchant\Resources\DailyReportResource\Pages;
+use App\Exports\DailyReportExport;
 use App\Models\DailyReport;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DailyReportResource extends Resource
 {
     protected static ?string $model = DailyReport::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
-    protected static ?string $navigationLabel = 'Laporan Harian';
-    protected static ?string $modelLabel = 'Laporan Harian';
-    protected static ?string $pluralModelLabel = 'Laporan Harian';
+    protected static ?string $navigationLabel = 'Riwayat Transaksi';
+    protected static ?string $modelLabel = 'Riwayat Transaksi';
+    protected static ?string $pluralModelLabel = 'Riwayat Transaksi';
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
@@ -49,7 +53,7 @@ class DailyReportResource extends Resource
             Forms\Components\Toggle::make('sent_to_whatsapp')
                 ->label('Terkirim via WhatsApp')
                 ->default(false),
-                
+
             Forms\Components\DateTimePicker::make('sent_at')
                 ->label('Waktu Terkirim')
                 ->nullable(),
@@ -85,15 +89,48 @@ class DailyReportResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Filter::make('report_date')
+                    ->form([
+                        Forms\Components\DatePicker::make('start_date')
+                            ->label('Dari Tanggal'),
+                        Forms\Components\DatePicker::make('end_date')
+                            ->label('Sampai Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['start_date'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('report_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['end_date'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('report_date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if ($data['start_date'] ?? null) {
+                            $indicators['start_date'] = 'Dari: ' . \Carbon\Carbon::parse($data['start_date'])->format('d M Y');
+                        }
+
+                        if ($data['end_date'] ?? null) {
+                            $indicators['end_date'] = 'Sampai: ' . \Carbon\Carbon::parse($data['end_date'])->format('d M Y');
+                        }
+
+                        return $indicators;
+                    }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->hidden(),
+                Tables\Actions\DeleteAction::make()
+                    ->hidden(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->hidden(),
                 ]),
             ]);
     }
@@ -102,8 +139,8 @@ class DailyReportResource extends Resource
     {
         return [
             'index' => Pages\ListDailyReports::route('/'),
-            'create' => Pages\CreateDailyReport::route('/create'),
-            'edit' => Pages\EditDailyReport::route('/{record}/edit'),
+            // 'create' => Pages\CreateDailyReport::route('/create'),
+            // 'edit' => Pages\EditDailyReport::route('/{record}/edit'),
         ];
     }
 }
