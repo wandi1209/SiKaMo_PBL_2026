@@ -20,6 +20,13 @@ class DailyReport extends Model
         'sent_at',
     ];
 
+    protected $casts = [
+        'report_date' => 'date',
+        'sent_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function merchant(): BelongsTo
     {
         return $this->belongsTo(Merchant::class);
@@ -30,4 +37,3 @@ class DailyReport extends Model
         return $this->hasMany(WhatsappLog::class, 'report_id');
     }
 }
-
