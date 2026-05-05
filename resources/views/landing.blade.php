@@ -109,6 +109,16 @@
         .typed-cursor {
             color: #22c55e;
         }
+
+        /* Prevent Horizontal Scroll */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden !important;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-white text-slate-800 overflow-x-hidden">
@@ -190,17 +200,17 @@
                         Platform POS #1 untuk UMKM Indonesia
                     </div>
 
-                    <h1 class="text-5xl lg:text-6xl font-outfit font-black text-slate-900 leading-[1.08] tracking-tight mb-6 animate-fade-in-up" style="animation-delay:100ms">
+                    <h1 class="text-3xl sm:text-4xl lg:text-6xl font-outfit font-black text-slate-900 leading-[1.15] lg:leading-[1.08] tracking-tight mb-6 animate-fade-in-up" style="animation-delay:100ms">
                         Kasir Digital
                         <br>
-                        <span class="relative inline-block min-w-[280px]">
+                        <span class="relative inline-block min-w-[180px] sm:min-w-[280px]">
                             <span class="relative z-10" style="background:linear-gradient(135deg,#15803d,#22c55e,#65a30d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" id="typed-text"></span>
-                            <svg class="absolute -bottom-2 left-0 w-full animate-pulse" viewBox="0 0 280 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="-webkit-text-fill-color:initial;"><path d="M2 9C47 3 100 1 160 4C200 6.5 242 9 278 7" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/></svg>
+                            <svg class="absolute -bottom-2 left-0 w-full animate-pulse opacity-70" viewBox="0 0 280 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="-webkit-text-fill-color:initial;"><path d="M2 9C47 3 100 1 160 4C200 6.5 242 9 278 7" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/></svg>
                         </span>
                         <br>untuk UMKM Anda.
                     </h1>
 
-                    <p class="text-lg text-slate-500 leading-relaxed mb-10 max-w-lg animate-fade-in-up font-inter" style="animation-delay:200ms">
+                    <p class="text-base sm:text-lg text-slate-500 leading-relaxed mb-10 max-w-lg animate-fade-in-up font-inter" style="animation-delay:200ms">
                         Sederhanakan kasir, inventaris, dan laporan omzet dalam <strong class="text-slate-700 font-semibold">satu platform cloud</strong> yang mudah digunakan oleh siapa saja.
                     </p>
 
@@ -364,17 +374,17 @@
             </div>
 
             {{-- Stats row --}}
-            <div class="grid grid-cols-3 gap-4 mt-20 border-t border-green-100 pt-12">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-4 mt-20 border-t border-green-100 pt-12">
                 <div class="text-center" data-aos="zoom-in-up" data-aos-delay="500">
-                    <div class="text-3xl md:text-4xl font-outfit font-black text-green-700"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="2500" data-purecounter-duration="2">0</span><span class="text-green-500">+</span></div>
+                    <div class="text-4xl font-outfit font-black text-green-700"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="2500" data-purecounter-duration="2">0</span><span class="text-green-500">+</span></div>
                     <div class="text-slate-500 text-sm mt-1 font-inter">UMKM Aktif</div>
                 </div>
                 <div class="text-center" data-aos="zoom-in-up" data-aos-delay="700">
-                    <div class="text-3xl md:text-4xl font-outfit font-black text-green-700"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="1.2" data-purecounter-decimals="1" data-purecounter-duration="2">0</span><span class="text-green-500">JT+</span></div>
+                    <div class="text-4xl font-outfit font-black text-green-700"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="1.2" data-purecounter-decimals="1" data-purecounter-duration="2">0</span><span class="text-green-500">JT+</span></div>
                     <div class="text-slate-500 text-sm mt-1 font-inter">Transaksi/Bulan</div>
                 </div>
                 <div class="text-center" data-aos="zoom-in-up" data-aos-delay="900">
-                    <div class="text-3xl md:text-4xl font-outfit font-black text-green-700"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="99.9" data-purecounter-decimals="1" data-purecounter-duration="2">0</span><span class="text-green-500">%</span></div>
+                    <div class="text-4xl font-outfit font-black text-green-700"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="99.9" data-purecounter-decimals="1" data-purecounter-duration="2">0</span><span class="text-green-500">%</span></div>
                     <div class="text-slate-500 text-sm mt-1 font-inter">Uptime Server</div>
                 </div>
             </div>
