@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Merchant\Resources\ProductResource\Pages\ListProducts;
 use App\Models\Merchant;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -11,12 +12,14 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class MerchantPanelProvider extends PanelProvider
@@ -69,6 +72,19 @@ class MerchantPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => Blade::render(
+                    '<script type="module" src="{{ $src }}" data-sikamo-barcode-scanner="true"></script>',
+                    [
+                        'src' => asset('build/' . json_decode(
+                            file_get_contents(public_path('build/manifest.json')),
+                            true,
+                        )['resources/js/barcode-scanner.js']['file']),
+                    ],
+                ),
+                scopes: ListProducts::class,
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -85,4 +101,3 @@ class MerchantPanelProvider extends PanelProvider
             ]);
     }
 }
-
