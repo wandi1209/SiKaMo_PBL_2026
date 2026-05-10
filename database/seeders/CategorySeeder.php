@@ -13,6 +13,12 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        $merchant = \App\Models\Merchant::where('slug', 'toko-budi')->first();
+        if (! $merchant) {
+            $this->command->error('Merchant "Toko Budi" tidak ditemukan. Jalankan UserSeeder terlebih dahulu.');
+            return;
+        }
+
         $categories = [
             ['name' => 'Sembako', 'description' => 'Bahan pokok kebutuhan dapur.'],
             ['name' => 'Makanan Ringan', 'description' => 'Berbagai jenis camilan kemasan.'],
@@ -22,7 +28,25 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            Category::updateOrCreate(['name' => $category['name']], $category);
+            $existingCategory = Category::where('name', $category['name'])
+                ->where(function ($query) use ($merchant) {
+                    $query->whereNull('merchant_id')
+                        ->orWhere('merchant_id', $merchant->id);
+                })
+                ->first();
+
+            if ($existingCategory) {
+                $existingCategory->update([
+                    'merchant_id' => $merchant->id,
+                    'description' => $category['description'],
+                ]);
+            } else {
+                Category::create([
+                    'merchant_id' => $merchant->id,
+                    'name' => $category['name'],
+                    'description' => $category['description'],
+                ]);
+            }
         }
     }
 }

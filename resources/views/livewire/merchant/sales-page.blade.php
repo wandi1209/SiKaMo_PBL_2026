@@ -1,333 +1,375 @@
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="fi-header flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <h1 class="text-3xl font-bold tracking-tight text-gray-950 dark:text-white">
-            Penjualan / Kasir
-        </h1>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800" x-data="checkoutData()" x-cloak>
+    @if (session()->has('success') || session()->has('error'))
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="rounded-xl p-4 shadow-sm text-sm {{ session()->has('success') ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200' }}">
+                {{ session()->get(session()->has('success') ? 'success' : 'error') }}
+            </div>
+        </div>
+    @endif
+
+    <!-- Header dengan tombol kembali -->
+    <div class="sticky top-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="@php
+                    $merchant = auth()->user()?->merchant;
+                    echo $merchant ? route('filament.merchant.pages.dashboard', ['tenant' => $merchant->id]) : '#';
+                @endphp" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Kembali ke Dashboard
+                </a>
+                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Transaksi Penjualan</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Toko: <span class="font-medium">{{ auth()->user()?->merchant?->name ?? 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" x-data="cartData()" x-cloak>
-        <!-- Kolom Produk -->
-        <div class="lg:col-span-2">
-            <div
-                class="rounded-xl border border-gray-950/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-                <div class="mb-6">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Daftar Produk</h2>
-                    <input type="text" wire:model.live="search"
-                        class="w-full mb-4 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 px-4 py-2"
-                        placeholder="Cari produk berdasarkan nama atau barcode...">
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4"
-                    wire:key="products-grid-{{ $products->currentPage() }}-{{ md5($search) }}">
-                    @if ($products->isEmpty())
-                        <div class="col-span-full text-center py-8">
-                            <p class="text-gray-500 dark:text-gray-400">
-                                @if ($search)
-                                    Produk "{{ $search }}" tidak ditemukan
-                                @else
-                                    Tidak ada produk tersedia
-                                @endif
-                            </p>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Product List -->
+            <div class="lg:col-span-2">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Produk</h2>
+                        <div class="flex items-center gap-2">
+                            <input wire:model.live.debounce.300ms="search" type="text"
+                                   placeholder="Cari produk..."
+                                   class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
                         </div>
-                    @else
-                        @foreach ($products as $product)
-                            <div class="product-card border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition cursor-pointer dark:bg-gray-800"
-                                data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"
-                                data-product-barcode="{{ $product->barcode ?? '' }}"
-                                data-product-price="{{ $product->price }}" data-product-stock="{{ $product->stock }}">
+                    </div>
 
-                                @if ($product->image)
-                                    <div class="mb-3 h-44 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700">
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
-                                            class="h-44 w-full object-cover">
-                                    </div>
-                                @else
-                                    <div
-                                        class="mb-3 h-44 overflow-hidden flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
-                                        <img src="https://dummyimage.com/600x400/000/fff" alt=""
-                                            class="h-44 w-full object-cover">
-                                    </div>
-                                @endif
-
-                                <h3 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 my-2">
-                                    {{ $product->name }}
-                                </h3>
-
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                                    {{ $product->category?->name }}
-                                </p>
-
-                                <p class="text-lg font-bold text-green-600 dark:text-green-400 mb-3">
-                                    Rp {{ number_format($product->price, 0, ',', '.') }}
-                                </p>
-
-                                <div class="flex items-center justify-between mb-3">
-                                    <span class="text-xs text-gray-600 dark:text-gray-400">
-                                        Stok: <span
-                                            class="font-semibold @if ($product->stock <= $product->low_stock_threshold) text-red-600 @endif">
-                                            {{ $product->stock }}
-                                        </span>
-                                    </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                        @foreach($products as $product)
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
+                                <div class="aspect-square bg-gray-200 dark:bg-gray-600 rounded-lg mb-3 flex items-center justify-center">
+                                    @if($product->image)
+                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover rounded-lg">
+                                    @else
+                                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 01-2 2H9a2 2 0 01-2-2v-3.03"></path>
+                                        </svg>
+                                    @endif
                                 </div>
-
-                                <button
-                                    @click="addToCart({
-                                                id: {{ $product->id }}, 
-                                                name: '{{ addslashes($product->name) }}',
-                                                price: {{ $product->price }},
-                                                stock: {{ $product->stock }}})"
-                                    :disabled="getProductStock({{ $product->id }}) <= 0"
-                                    class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-2 px-3 rounded-lg transition text-sm">
-                                    <span x-show="getProductStock({{ $product->id }}) <= 0">Stok Habis</span>
-                                    <span x-show="getProductStock({{ $product->id }}) > 0">+ Keranjang</span>
+                                <h3 class="font-medium text-gray-900 dark:text-white text-sm mb-1">{{ $product->name }}</h3>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">{{ $product->category?->name ?? 'Uncategorized' }}</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-green-600 dark:text-green-400">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Stok: {{ $product->stock }}</span>
+                                </div>
+                                <button wire:click="addToCart({{ $product->id }})"
+                                        @if($product->stock <= 0) disabled @endif
+                                        class="w-full mt-3 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-xs font-medium rounded-lg transition-colors">
+                                    @if($product->stock <= 0)
+                                        Stok Habis
+                                    @else
+                                        Tambah ke Keranjang
+                                    @endif
                                 </button>
                             </div>
                         @endforeach
+                    </div>
+
+                    @if($products->hasPages())
+                        <div class="mt-6">
+                            {{ $products->links() }}
+                        </div>
                     @endif
                 </div>
+            </div>
 
-                <!-- Pagination -->
-                @if ($products->hasPages())
-                    <div class="mt-6"
-                        wire:key="products-pagination-{{ $products->currentPage() }}-{{ md5($search) }}">
-                        <nav
-                            class="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-gray-50/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-gray-800/60">
-                            <div class="text-sm text-gray-600 dark:text-gray-300">
-                                Menampilkan {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }} dari
-                                {{ $products->total() }} produk
+            <!-- Cart -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sticky top-24">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Keranjang Belanja</h2>
+
+                    @if(count($cart) > 0)
+                        <div class="space-y-3 mb-4 max-h-96 overflow-y-auto">
+                            @foreach($cart as $item)
+                                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900 dark:text-white text-sm">{{ $item['name'] }}</h4>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Rp {{ number_format($item['price'], 0, ',', '.') }} × {{ $item['quantity'] }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button wire:click="updateQuantity({{ $item['id'] }}, {{ $item['quantity'] - 1 }})"
+                                                class="w-6 h-6 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded text-xs font-medium">-</button>
+                                        <span class="text-sm font-medium w-8 text-center">{{ $item['quantity'] }}</span>
+                                        <button wire:click="updateQuantity({{ $item['id'] }}, {{ $item['quantity'] + 1 }})"
+                                                class="w-6 h-6 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded text-xs font-medium">+</button>
+                                    </div>
+                                    <button wire:click="removeFromCart({{ $item['id'] }})"
+                                            class="text-red-500 hover:text-red-700 ml-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600 pt-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="font-semibold text-gray-900 dark:text-white">Total:</span>
+                                <span class="font-bold text-lg text-green-600 dark:text-green-400">Rp {{ number_format($total, 0, ',', '.') }}</span>
                             </div>
-                            <div class="flex flex-wrap items-center justify-center gap-2">
-                                @if ($products->onFirstPage())
-                                    <button type="button" disabled
-                                        class="rounded-xl border border-gray-200/80 bg-gray-100/80 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm cursor-not-allowed dark:border-white/10 dark:bg-white/4 dark:text-gray-700">&larr;
-                                        Sebelumnya</button>
-                                @else
-                                    <button type="button" wire:click="previousPage('page')"
-                                        class="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 dark:border-gray-700 dark:bg-gray-900/70 dark:text-gray-200 dark:hover:border-sky-800 dark:hover:bg-sky-950/40 dark:hover:text-sky-300">&larr;
-                                        Sebelumnya</button>
-                                @endif
 
-                                @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
-                                    @if ($page == $products->currentPage())
-                                        <button type="button"
-                                            class="min-w-10 rounded-xl border border-sky-200 bg-sky-100 px-3 py-2 text-sm font-semibold text-sky-700 shadow-sm dark:border-sky-900 dark:bg-sky-950/60 dark:text-sky-300">{{ $page }}</button>
-                                    @else
-                                        <button type="button" wire:click="gotoPage({{ $page }}, 'page')"
-                                            class="min-w-10 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 dark:border-gray-700 dark:bg-gray-900/70 dark:text-gray-200 dark:hover:border-sky-800 dark:hover:bg-sky-950/40 dark:hover:text-sky-300">{{ $page }}</button>
-                                    @endif
-                                @endforeach
-
-                                @if ($products->hasMorePages())
-                                    <button type="button" wire:click="nextPage('page')"
-                                        class="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 dark:border-gray-700 dark:bg-gray-900/70 dark:text-gray-200 dark:hover:border-sky-800 dark:hover:bg-sky-950/40 dark:hover:text-sky-300">Selanjutnya
-                                        &rarr;</button>
-                                @else
-                                    <button type="button" disabled
-                                        class="rounded-xl border border-gray-200/80 bg-gray-100/80 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm cursor-not-allowed dark:border-white/10 dark:bg-white/4 dark:text-gray-700">Selanjutnya
-                                        &rarr;</button>
-                                @endif
-                            </div>
-                        </nav>
-                    </div>
-                @endif
+                            <button @click="cartTotal = $wire.total; showPaymentModal = true; paymentStep = 1"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                                Bayar Sekarang
+                            </button>
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13l-1.1 5M7 13h10m0 0v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-3.03"></path>
+                            </svg>
+                            <p class="text-gray-500 dark:text-gray-400">Keranjang kosong</p>
+                            <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Tambahkan produk untuk memulai transaksi</p>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Kolom Keranjang -->
-        <div class="lg:col-span-1">
-            <div
-                class="rounded-xl border border-gray-950/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900 sticky top-20">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Keranjang</h2>
-
-                <div class="space-y-3 mb-4 max-h-96 overflow-y-auto">
-                    <template x-if="cart.length === 0">
-                        <p class="text-gray-500 dark:text-gray-400 text-center py-8">Keranjang kosong</p>
-                    </template>
-
-                    <template x-for="item in cart" :key="item.id">
-                        <div
-                            class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
-                            <div class="flex-1">
-                                <p class="font-semibold text-gray-900 dark:text-white text-sm" x-text="item.name"></p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    Rp <span x-text="formatNumber(item.price)"></span>
-                                </p>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <button @click="decreaseQuantity(item.id)"
-                                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 bg-gray-100 text-base font-semibold leading-none text-gray-700 transition hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
-                                    −
-                                </button>
-                                <input type="number" x-model.number="item.quantity" min="1"
-                                    :max="item.stock"
-                                    class="h-8 w-12 rounded-lg border border-gray-300 bg-white text-center text-sm font-semibold text-gray-900 [appearance:textfield] dark:border-gray-600 dark:bg-gray-800 dark:text-white [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                    @change="validateQuantity(item)">
-                                <button @click="increaseQuantity(item.id, item.stock)"
-                                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 bg-gray-100 text-base font-semibold leading-none text-gray-700 transition hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
-                                    +
-                                </button>
-                                <button @click="removeFromCart(item.id)"
-                                    class="ml-2 text-red-600 hover:text-red-800 dark:text-red-400 text-sm">Hapus</button>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
-                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                        <span>Subtotal:</span>
-                        <span>Rp <span x-text="formatNumber(subtotal)"></span></span>
-                    </div>
-                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                        <span>Total Item:</span>
-                        <span x-text="totalItems"></span>
-                    </div>
-                    <div
-                        class="flex justify-between text-lg font-bold text-gray-900 dark:text-white pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <span>Total:</span>
-                        <span>Rp <span x-text="formatNumber(total)"></span></span>
-                    </div>
-                </div>
-
-                <button @click="checkout()" :disabled="cart.length === 0"
-                    class="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg transition">
-                    Lanjut Ke Pembayaran
+    <!-- Payment Step 1: Pilih Metode -->
+    <div x-show="showPaymentModal && paymentStep === 1" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center px-4"
+         style="display: none;">
+        <div class="absolute inset-0 bg-gray-900/50" @click="showPaymentModal = false"></div>
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Pilih Metode Pembayaran</h3>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <button @click="selectedMethod = 'cash'; paymentStep = 2"
+                        class="flex flex-col items-center justify-center p-5 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
+                    <svg class="w-9 h-9 text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <span class="font-medium text-gray-900 dark:text-white">Tunai (Cash)</span>
                 </button>
+                <button @click="selectedMethod = 'qris'; paymentStep = 2"
+                        class="flex flex-col items-center justify-center p-5 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all">
+                    <svg class="w-9 h-9 text-blue-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                    </svg>
+                    <span class="font-medium text-gray-900 dark:text-white">QRIS</span>
+                </button>
+            </div>
+            <button @click="showPaymentModal = false; resetPayment()"
+                    class="w-full py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                Batal
+            </button>
+        </div>
+    </div>
 
-                <button :disabled="cart.length === 0" @click="clearCart()"
-                    class="w-full mt-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition">
-                    Bersihkan Keranjang
+    <!-- Payment Step 2a: Tunai (Cash) -->
+    <div x-show="showPaymentModal && paymentStep === 2 && selectedMethod === 'cash'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center px-4"
+         style="display: none;">
+        <div class="absolute inset-0 bg-gray-900/50"></div>
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Pembayaran Tunai</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Total: <span class="font-bold text-green-600 dark:text-green-400" x-text="'Rp ' + formatCurrency(cartTotal)"></span>
+            </p>
+
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah Uang Diterima</label>
+            <input type="number" x-model="amountPaid" @input="calcChange()" min="0"
+                   placeholder="Masukkan jumlah bayar..."
+                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent mb-3">
+
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <template x-for="nominal in quickNominals" :key="nominal">
+                    <button @click="amountPaid = nominal; calcChange()"
+                            class="py-1.5 text-xs rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-400 transition-all dark:text-gray-300"
+                            x-text="'Rp ' + formatCurrency(nominal)"></button>
+                </template>
+            </div>
+
+            <div x-show="Number(amountPaid) >= cartTotal && cartTotal > 0"
+                 class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-4">
+                <p class="text-sm text-blue-700 dark:text-blue-300">
+                    Kembalian: <span class="font-bold text-lg" x-text="'Rp ' + formatCurrency(change)"></span>
+                </p>
+            </div>
+            <div x-show="Number(amountPaid) > 0 && Number(amountPaid) < cartTotal"
+                 class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-3 mb-4">
+                <p class="text-sm text-red-700 dark:text-red-300">
+                    Kurang: <span class="font-bold" x-text="'Rp ' + formatCurrency(cartTotal - Number(amountPaid))"></span>
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button @click="paymentStep = 1; amountPaid = ''"
+                        class="flex-1 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    Kembali
+                </button>
+                <button @click="confirmCash()"
+                        :disabled="!amountPaid || Number(amountPaid) < cartTotal"
+                        class="flex-1 py-2 rounded-lg bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium transition-colors">
+                    Konfirmasi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Step 2b: QRIS -->
+    <div x-show="showPaymentModal && paymentStep === 2 && selectedMethod === 'qris'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center px-4"
+         style="display: none;">
+        <div class="absolute inset-0 bg-gray-900/50"></div>
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-sm p-6 text-center">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Bayar dengan QRIS</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Total: <span class="font-bold text-blue-600 dark:text-blue-400" x-text="'Rp ' + formatCurrency(cartTotal)"></span>
+            </p>
+            <div class="flex justify-center mb-4">
+                <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=SIKAMO-QRIS-' + cartTotal"
+                     alt="QR Code QRIS" class="rounded-lg border-4 border-blue-100 shadow w-48 h-48">
+            </div>
+            <p class="text-xs text-gray-400 mb-5">Scan QR Code di atas menggunakan aplikasi pembayaran Anda</p>
+            <div class="flex gap-3">
+                <button @click="paymentStep = 1"
+                        class="flex-1 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    Kembali
+                </button>
+                <button @click="confirmQris()"
+                        class="flex-1 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors">
+                    Sudah Bayar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Success Modal -->
+    <div x-show="showCheckoutModal" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center px-4"
+         style="display: none;">
+        <div class="absolute inset-0 bg-gray-900/50" @click="closeModal()"></div>
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-green-100">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Transaksi Berhasil!</h3>
+                    <div class="mt-2 space-y-1">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Invoice: <span class="font-mono font-medium" x-text="invoiceNumber"></span></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total: <span class="font-semibold" x-text="'Rp ' + formatCurrency(totalAmount)"></span></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Metode: <span class="font-semibold uppercase" x-text="receiptPaymentMethod"></span></p>
+                        <template x-if="receiptPaymentMethod === 'cash'">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Bayar: <span class="font-semibold" x-text="'Rp ' + formatCurrency(receiptAmountPaid)"></span></p>
+                                <p class="text-sm text-blue-600 dark:text-blue-400 font-semibold">Kembalian: <span x-text="'Rp ' + formatCurrency(receiptChange)"></span></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button @click="closeModal()"
+                        class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                    Tutup
+                </button>
+                <button @click="printReceipt()"
+                        class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium">
+                    Cetak Struk
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+@push('scripts')
 <script>
-    function cartData() {
+    function checkoutData() {
         return {
-            cart: [],
+            // Payment modal state
+            showPaymentModal: false,
+            paymentStep: 1,
+            selectedMethod: '',
+            amountPaid: '',
+            change: 0,
+            cartTotal: {{ $total }},
+            quickNominals: [5000, 10000, 20000, 50000, 100000, 200000],
+
+            // Success modal state
+            showCheckoutModal: false,
+            invoiceNumber: '',
+            totalAmount: 0,
+            receiptAmountPaid: 0,
+            receiptChange: 0,
+            receiptPaymentMethod: '',
 
             init() {
-                this.loadCart();
-                this.$watch('cart', () => this.saveCart(), {
-                    deep: true
+                window.addEventListener('checkoutSuccess', (event) => {
+                    const data = Array.isArray(event.detail) ? event.detail[0] : event.detail;
+                    this.invoiceNumber = data?.invoiceNumber || '';
+                    this.totalAmount = data?.total || 0;
+                    this.receiptAmountPaid = data?.amountPaid || 0;
+                    this.receiptChange = data?.change || 0;
+                    this.receiptPaymentMethod = data?.paymentMethod || '';
+                    this.showPaymentModal = false;
+                    this.showCheckoutModal = true;
+                    this.resetPayment();
+                });
+
+                window.addEventListener('checkoutError', (event) => {
+                    const data = Array.isArray(event.detail) ? event.detail[0] : event.detail;
+                    this.showPaymentModal = false;
+                    this.resetPayment();
+                    alert(data?.message || 'Transaksi gagal. Silakan coba lagi.');
                 });
             },
 
-            loadCart() {
-                const saved = localStorage.getItem('cart');
-                this.cart = saved ? JSON.parse(saved) : [];
+            calcChange() {
+                const paid = parseFloat(this.amountPaid) || 0;
+                this.change = paid >= this.cartTotal ? paid - this.cartTotal : 0;
             },
 
-            saveCart() {
-                localStorage.setItem('cart', JSON.stringify(this.cart));
+            confirmCash() {
+                const paid = parseFloat(this.amountPaid);
+                if (!paid || paid < this.cartTotal) return;
+                this.$wire.checkout('cash', paid);
             },
 
-            getProductStock(productId) {
-                const cartItem = this.cart.find(item => item.id === productId);
-                const usedStock = cartItem ? cartItem.quantity : 0;
-                const productCard = document.querySelector(`[data-product-id="${productId}"]`);
-                const totalStock = productCard ? parseInt(productCard.getAttribute('data-product-stock')) : 0;
-                return totalStock - usedStock;
+            confirmQris() {
+                this.$wire.checkout('qris', this.cartTotal);
             },
 
-            addToCart(product) {
-                const existingItem = this.cart.find(item => item.id === product.id);
-
-                if (existingItem) {
-                    if (existingItem.quantity < product.stock) {
-                        existingItem.quantity++;
-                        this.showNotification('success', `${product.name} ditambahkan ke keranjang`);
-                    } else {
-                        this.showNotification('warning', 'Stok produk tidak mencukupi');
-                    }
-                } else {
-                    this.cart.push({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        stock: product.stock,
-                        quantity: 1
-                    });
-                    this.showNotification('success', `${product.name} ditambahkan ke keranjang`);
-                }
+            resetPayment() {
+                this.paymentStep = 1;
+                this.selectedMethod = '';
+                this.amountPaid = '';
+                this.change = 0;
             },
 
-            removeFromCart(productId) {
-                const item = this.cart.find(item => item.id === productId);
-                const name = item ? item.name : 'Produk';
-                this.cart = this.cart.filter(item => item.id !== productId);
-                this.showNotification('info', `${name} dihapus dari keranjang`);
+            formatCurrency(amount) {
+                return new Intl.NumberFormat('id-ID').format(amount || 0);
             },
 
-            increaseQuantity(productId, maxStock) {
-                const item = this.cart.find(item => item.id === productId);
-                if (item && item.quantity < maxStock) {
-                    item.quantity++;
-                } else if (item && item.quantity >= maxStock) {
-                    this.showNotification('warning', 'Stok tidak mencukupi');
-                }
+            closeModal() {
+                this.showCheckoutModal = false;
+                this.invoiceNumber = '';
+                this.totalAmount = 0;
+                this.receiptAmountPaid = 0;
+                this.receiptChange = 0;
+                this.receiptPaymentMethod = '';
             },
 
-            decreaseQuantity(productId) {
-                const item = this.cart.find(item => item.id === productId);
-                if (item && item.quantity > 1) {
-                    item.quantity--;
-                } else if (item && item.quantity === 1) {
-                    this.removeFromCart(productId);
-                }
-            },
-
-            clearCart() {
-                if (confirm('Apakah Anda yakin ingin menghapus semua item dari keranjang?')) {
-                    this.cart = [];
-                    this.showNotification('info', 'Keranjang telah dikosongkan');
-                }
-            },
-
-            checkout() {
-                if (this.cart.length === 0) {
-                    this.showNotification('warning', 'Keranjang masih kosong');
-                    return;
-                }
-
-                // TODO: Implementasikan halaman checkout
-                alert('Fitur checkout baru akan hadir segera!');
-                // window.location.href = '/merchant/checkout';
-            },
-
-            validateQuantity(item) {
-                if (item.quantity < 1) {
-                    item.quantity = 1;
-                } else if (item.quantity > item.stock) {
-                    item.quantity = item.stock;
-                    this.showNotification('warning', 'Jumlah tidak boleh melebihi stok');
-                }
-            },
-
-            showNotification(type, message) {
-                // Implementasi toast/notification
-                console.log(`[${type.toUpperCase()}] ${message}`);
-            },
-
-            get subtotal() {
-                return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-            },
-
-            get total() {
-                return this.subtotal;
-            },
-
-            get totalItems() {
-                return this.cart.reduce((count, item) => count + item.quantity, 0);
-            },
-
-            formatNumber(number) {
-                return new Intl.NumberFormat('id-ID').format(number);
+            printReceipt() {
+                window.print();
             }
         };
     }
 </script>
+@endpush

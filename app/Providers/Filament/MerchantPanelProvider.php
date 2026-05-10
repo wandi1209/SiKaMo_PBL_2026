@@ -48,6 +48,10 @@ class MerchantPanelProvider extends PanelProvider
             ->tenantRoutePrefix('toko') // URL: /merchant/toko/{slug}/...
             // Tambahkan menu Profil Toko ke Sidebar secara manual
             ->navigationItems([
+                \Filament\Navigation\NavigationItem::make('Penjualan')
+                    ->icon('heroicon-o-shopping-cart')
+                    ->url(fn () => url('/merchant/sales'))
+                    ->sort(1),
                 \Filament\Navigation\NavigationItem::make('Profil Toko')
                     ->icon('heroicon-o-building-storefront')
                     ->url(fn () => \App\Filament\Merchant\Pages\EditMerchantProfile::getUrl())
