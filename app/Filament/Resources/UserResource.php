@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserResource extends Resource
 {
@@ -151,6 +152,12 @@ class UserResource extends Resource
                     ->falseLabel('Nonaktif')
                     ->placeholder('Semua'),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('exportCsv')
+                    ->label('Export CSV')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn (): StreamedResponse => static::exportCsv()),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('toggle_active')
@@ -193,5 +200,32 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+
+    private static function exportCsv(): StreamedResponse
+    {
+        return response()->streamDownload(function (): void {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['Nama', 'Email', 'Role', 'Merchant', 'Status', 'Dibuat']);
+
+            User::query()
+                ->with(['merchant', 'employedAt'])
+                ->orderBy('name')
+                ->chunk(200, function ($users) use ($handle): void {
+                    foreach ($users as $user) {
+                        fputcsv($handle, [
+                            $user->name,
+                            $user->email,
+                            $user->role,
+                            $user->merchant?->name ?? $user->employedAt?->name,
+                            $user->is_active ? 'Aktif' : 'Nonaktif',
+                            $user->created_at?->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                });
+
+            fclose($handle);
+        }, 'users.csv');
     }
 }

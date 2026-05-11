@@ -19,10 +19,16 @@ class DailyReportResource extends Resource
     protected static ?string $model = DailyReport::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
-    protected static ?string $navigationLabel = 'Riwayat Transaksi';
-    protected static ?string $modelLabel = 'Riwayat Transaksi';
-    protected static ?string $pluralModelLabel = 'Riwayat Transaksi';
+    protected static ?string $navigationLabel = 'Laporan Harian';
+    protected static ?string $modelLabel = 'Laporan Harian';
+    protected static ?string $pluralModelLabel = 'Laporan Harian';
+    protected static ?string $navigationGroup = 'Transaksi';
     protected static ?int $navigationSort = 4;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'owner';
+    }
 
     public static function form(Form $form): Form
     {

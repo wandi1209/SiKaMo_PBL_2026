@@ -18,7 +18,13 @@ class CategoryResource extends Resource
     protected static ?string $navigationLabel = 'Kategori';
     protected static ?string $modelLabel = 'Kategori';
     protected static ?string $pluralModelLabel = 'Kategori';
+    protected static ?string $navigationGroup = 'Inventori';
     protected static ?int $navigationSort = 1;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'owner';
+    }
 
     public static function form(Form $form): Form
     {

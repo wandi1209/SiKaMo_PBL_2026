@@ -20,9 +20,15 @@ class CashierResource extends Resource
     protected static ?string $navigationLabel = 'Kasir';
     protected static ?string $modelLabel = 'Kasir';
     protected static ?string $pluralModelLabel = 'Kasir';
+    protected static ?string $navigationGroup = 'Manajemen Toko';
     protected static ?string $slug = 'cashiers';
     protected static ?int $navigationSort = 3;
     protected static ?string $tenantOwnershipRelationshipName = 'employedAt';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'owner';
+    }
 
     // ─── Scope: hanya tampilkan kasir milik merchant ini ─────────
     public static function getEloquentQuery(): Builder

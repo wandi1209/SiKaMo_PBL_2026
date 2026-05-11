@@ -3,12 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MerchantResource\Pages;
+use App\Filament\Resources\MerchantResource\RelationManagers;
 use App\Models\Merchant;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MerchantResource extends Resource
 {
@@ -102,6 +105,22 @@ class MerchantResource extends Resource
                     ->label('Aktif')
                     ->boolean(),
 
+                Tables\Columns\TextColumn::make('monthly_revenue')
+                    ->label('Omzet Bulan Ini')
+                    ->state(fn (Merchant $record): float => static::monthlyRevenue($record))
+                    ->money('IDR'),
+
+                Tables\Columns\TextColumn::make('monthly_transactions')
+                    ->label('Transaksi Bulan Ini')
+                    ->state(fn (Merchant $record): int => static::monthlyTransactions($record))
+                    ->badge(),
+
+                Tables\Columns\TextColumn::make('low_stock_products')
+                    ->label('Stok Menipis')
+                    ->state(fn (Merchant $record): int => $record->products()->whereColumn('stock', '<=', 'low_stock_threshold')->count())
+                    ->badge()
+                    ->color(fn (int $state): string => $state > 0 ? 'danger' : 'success'),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Daftar')
                     ->dateTime('d M Y')
@@ -110,6 +129,12 @@ class MerchantResource extends Resource
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Status'),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('exportCsv')
+                    ->label('Export CSV')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn (): StreamedResponse => static::exportCsv()),
             ])
             ->actions([
                 Tables\Actions\Action::make('impersonate')
@@ -150,5 +175,66 @@ class MerchantResource extends Resource
             'create' => Pages\CreateMerchant::route('/create'),
             'edit'   => Pages\EditMerchant::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\ProductsRelationManager::class,
+            RelationManagers\CashiersRelationManager::class,
+        ];
+    }
+
+    private static function monthlyRevenue(Merchant $merchant): float
+    {
+        return (float) DB::table('t_transactions')
+            ->select('t_transactions.id', 't_transactions.total_amount')
+            ->join('t_transaction_items', 't_transaction_items.transaction_id', '=', 't_transactions.id')
+            ->join('m_products', 'm_products.id', '=', 't_transaction_items.product_id')
+            ->where('m_products.merchant_id', $merchant->id)
+            ->where('t_transactions.status', 'completed')
+            ->whereBetween('t_transactions.created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->groupBy('t_transactions.id', 't_transactions.total_amount')
+            ->get()
+            ->sum('total_amount');
+    }
+
+    private static function monthlyTransactions(Merchant $merchant): int
+    {
+        return DB::table('t_transactions')
+            ->join('t_transaction_items', 't_transaction_items.transaction_id', '=', 't_transactions.id')
+            ->join('m_products', 'm_products.id', '=', 't_transaction_items.product_id')
+            ->where('m_products.merchant_id', $merchant->id)
+            ->where('t_transactions.status', 'completed')
+            ->whereBetween('t_transactions.created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->distinct('t_transactions.id')
+            ->count('t_transactions.id');
+    }
+
+    private static function exportCsv(): StreamedResponse
+    {
+        return response()->streamDownload(function (): void {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['Nama Toko', 'Owner', 'Telepon', 'Status', 'Omzet Bulan Ini', 'Transaksi Bulan Ini']);
+
+            Merchant::query()
+                ->with('owner')
+                ->orderBy('name')
+                ->chunk(100, function ($merchants) use ($handle): void {
+                    foreach ($merchants as $merchant) {
+                        fputcsv($handle, [
+                            $merchant->name,
+                            $merchant->owner?->name,
+                            $merchant->phone,
+                            $merchant->is_active ? 'Aktif' : 'Nonaktif',
+                            static::monthlyRevenue($merchant),
+                            static::monthlyTransactions($merchant),
+                        ]);
+                    }
+                });
+
+            fclose($handle);
+        }, 'merchants.csv');
     }
 }

@@ -12,6 +12,11 @@ class MerchantStatsOverview extends BaseWidget
 {
     protected static ?int $sort = 1;
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->role === 'owner';
+    }
+
     protected function getStats(): array
     {
         $merchantId = filament()->getTenant()?->id;

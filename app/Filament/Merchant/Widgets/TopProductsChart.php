@@ -15,6 +15,11 @@ class TopProductsChart extends ChartWidget
 
     protected int | string | array $columnSpan = 1;
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->role === 'owner';
+    }
+
     protected function getData(): array
     {
         $merchantId = filament()->getTenant()?->id;

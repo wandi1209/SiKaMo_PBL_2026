@@ -2,6 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
+use App\Models\DailyReport;
+use App\Models\Merchant;
+use App\Models\Product;
+use App\Models\Transaction;
+use App\Models\User;
+use App\Observers\AuditObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +29,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        foreach ([Category::class, DailyReport::class, Merchant::class, Product::class, Transaction::class, User::class] as $model) {
+            $model::observe(AuditObserver::class);
+        }
+
         \Filament\Support\Facades\FilamentView::registerRenderHook(
             \Filament\View\PanelsRenderHook::HEAD_END,
             fn (): string => \Illuminate\Support\Facades\Blade::render('

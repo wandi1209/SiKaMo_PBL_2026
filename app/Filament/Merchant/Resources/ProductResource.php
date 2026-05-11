@@ -23,7 +23,13 @@ class ProductResource extends Resource
     protected static ?string $navigationLabel = 'Produk';
     protected static ?string $modelLabel = 'Produk';
     protected static ?string $pluralModelLabel = 'Produk';
+    protected static ?string $navigationGroup = 'Inventori';
     protected static ?int $navigationSort = 2;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'owner';
+    }
 
     public static function form(Form $form): Form
     {

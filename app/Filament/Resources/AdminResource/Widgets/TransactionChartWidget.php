@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AdminResource\Widgets;
 
+use App\Models\Transaction;
 use Filament\Widgets\ChartWidget;
 
 class TransactionChartWidget extends ChartWidget
@@ -17,9 +18,13 @@ class TransactionChartWidget extends ChartWidget
         $data = [];
 
         for ($i = 6; $i >= 0; $i--) {
-            $labels[] = now()->subDays($i)->format('d M');
+            $date = now()->subDays($i);
+            $labels[] = $date->format('d M');
 
-            $data[] = rand(100000, 500000);
+            $data[] = (float) Transaction::query()
+                ->where('status', 'completed')
+                ->whereDate('created_at', $date)
+                ->sum('total_amount');
         }
 
         return [
@@ -27,6 +32,10 @@ class TransactionChartWidget extends ChartWidget
                 [
                     'label' => 'Penjualan (Rp)',
                     'data' => $data,
+                    'borderColor' => '#1D9E75',
+                    'backgroundColor' => 'rgba(29, 158, 117, 0.16)',
+                    'fill' => true,
+                    'tension' => 0.35,
                 ],
             ],
             'labels' => $labels,

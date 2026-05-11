@@ -12,6 +12,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Navigation\NavigationGroup;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -46,16 +47,32 @@ class MerchantPanelProvider extends PanelProvider
             ->tenant(Merchant::class, ownershipRelationship: 'merchant')
             ->tenantProfile(\App\Filament\Merchant\Pages\EditMerchantProfile::class)
             ->tenantRoutePrefix('toko') // URL: /merchant/toko/{slug}/...
+            ->navigationGroups([
+                NavigationGroup::make('Transaksi'),
+                NavigationGroup::make('Inventori'),
+                NavigationGroup::make('Manajemen Toko'),
+                NavigationGroup::make('Monitoring'),
+                NavigationGroup::make('Akun'),
+            ])
             // Tambahkan menu Profil Toko ke Sidebar secara manual
             ->navigationItems([
                 \Filament\Navigation\NavigationItem::make('Penjualan')
                     ->icon('heroicon-o-shopping-cart')
+                    ->group('Transaksi')
                     ->url(fn () => url('/merchant/sales'))
                     ->sort(1),
                 \Filament\Navigation\NavigationItem::make('Profil Toko')
                     ->icon('heroicon-o-building-storefront')
+                    ->group('Manajemen Toko')
                     ->url(fn () => \App\Filament\Merchant\Pages\EditMerchantProfile::getUrl())
+                    ->visible(fn () => auth()->user()?->role === 'owner')
                     ->sort(2),
+                \Filament\Navigation\NavigationItem::make('Kembali ke Admin')
+                    ->icon('heroicon-o-arrow-left-on-rectangle')
+                    ->group('Akun')
+                    ->url(fn () => route('admin.leave-impersonation'))
+                    ->visible(fn () => session()->has('impersonate_original_id'))
+                    ->sort(99),
             ])
             // ─── Discovery ─────────────────────────────────────────
             ->discoverResources(
