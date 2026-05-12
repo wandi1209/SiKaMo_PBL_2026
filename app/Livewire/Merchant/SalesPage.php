@@ -9,12 +9,13 @@ use Livewire\WithPagination;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SalesPage extends Component
 {
     use WithPagination;
 
-    protected const PRODUCTS_PER_PAGE = 6;
+    protected const PRODUCTS_PER_PAGE = 12;
 
     public $search = '';
     protected $paginationTheme = 'tailwind';
@@ -93,7 +94,7 @@ class SalesPage extends Component
         $merchantId = $this->getMerchantId();
 
         if (!$merchantId) {
-            session()->flash('error', 'Merchant tidak ditemukan');
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Merchant tidak ditemukan']);
             return;
         }
 
@@ -102,21 +103,21 @@ class SalesPage extends Component
             ->first();
 
         if (!$product) {
-            session()->flash('error', 'Produk tidak ditemukan');
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Produk tidak ditemukan']);
             return;
         }
 
         if ($product->stock <= 0) {
-            session()->flash('error', 'Stok produk habis');
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Stok produk habis']);
             return;
         }
 
         // Check if product already in cart
-        $index = collect($this->cart)->search(fn ($item) => $item['id'] === $productId);
+        $index = collect($this->cart)->search(fn ($item) => $item['id'] == $productId);
 
         if ($index !== false) {
             if ($this->cart[$index]['quantity'] >= $product->stock) {
-                session()->flash('error', 'Stok tidak mencukupi');
+                $this->dispatch('showToast', type: 'error', message: 'Stok tidak mencukupi');
                 return;
             }
 
@@ -131,7 +132,7 @@ class SalesPage extends Component
         }
 
         $this->calculateTotal();
-        session()->flash('success', 'Produk ditambahkan ke keranjang');
+        $this->dispatch('showToast', ['type' => 'success', 'message' => 'Produk ditambahkan ke keranjang']);
     }
 
     public function removeFromCart($productId)
@@ -156,16 +157,16 @@ class SalesPage extends Component
             ->first();
 
         if (!$product) {
-            session()->flash('error', 'Produk tidak ditemukan');
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Produk tidak ditemukan']);
             return;
         }
 
         if ($quantity > $product->stock) {
-            session()->flash('error', 'Stok tidak mencukupi');
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Stok tidak mencukupi']);
             return;
         }
 
-        $index = collect($this->cart)->search(fn ($item) => $item['id'] === $productId);
+        $index = collect($this->cart)->search(fn ($item) => $item['id'] == $productId);
         if ($index !== false) {
             $this->cart[$index]['quantity'] = $quantity;
             $this->calculateTotal();
@@ -181,23 +182,29 @@ class SalesPage extends Component
 
     public function checkout($paymentMethod = 'cash', $amountPaid = null)
     {
+        Log::info('[Checkout] method called', ['paymentMethod' => $paymentMethod, 'amountPaid' => $amountPaid, 'cartCount' => count($this->cart)]);
+
         if (!in_array($paymentMethod, ['cash', 'qris'])) {
             $paymentMethod = 'cash';
         }
 
         if (empty($this->cart)) {
-            session()->flash('error', 'Keranjang kosong');
+            Log::warning('[Checkout] cart is empty');
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Keranjang kosong']);
             return;
         }
 
         $user = Auth::user();
         $merchantId = $this->getMerchantId();
 
+        Log::info('[Checkout] auth check', ['userId' => $user?->id, 'merchantId' => $merchantId]);
+
         if (!$user || !$merchantId) {
-            session()->flash('error', 'User tidak terautentikasi');
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'User tidak terautentikasi']);
             return;
         }
 
+        Log::info('[Checkout] starting DB transaction');
         try {
             $transaction = DB::transaction(function () use ($user, $merchantId, $paymentMethod, $amountPaid) {
                 $totalAmount = 0;
@@ -270,24 +277,29 @@ class SalesPage extends Component
                 return $transaction;
             });
 
+            Log::info('[Checkout] transaction complete', ['invoiceNumber' => $transaction->invoice_number]);
             $this->cart = [];
             $this->total = 0;
 
-            $this->dispatch('checkoutSuccess',
-                invoiceNumber: $transaction->invoice_number,
-                total: $transaction->total_amount,
-                amountPaid: $transaction->amount_paid,
-                change: $transaction->change_amount,
-                paymentMethod: $transaction->payment_method
-            );
+            // Dispatch events - menggunakan array format untuk Livewire 3
+            $this->dispatch('checkoutSuccess', [
+                'invoiceNumber' => $transaction->invoice_number,
+                'total' => $transaction->total_amount,
+                'amountPaid' => $transaction->amount_paid,
+                'change' => $transaction->change_amount,
+                'paymentMethod' => $transaction->payment_method,
+            ]);
 
-            session()->flash('success', 'Transaksi berhasil!');
+            $this->dispatch('showToast', [
+                'type' => 'success',
+                'message' => 'Transaksi berhasil!'
+            ]);
 
-        } catch (\Exception $e) {
-            $this->dispatch('checkoutError',
-                message: $e->getMessage()
-            );
-            session()->flash('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('[Checkout] FAILED: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            $this->dispatch('checkoutError', [
+                'message' => $e->getMessage()
+            ]);
         }
     }
 
