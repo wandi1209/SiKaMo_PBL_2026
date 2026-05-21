@@ -56,11 +56,6 @@ class MerchantPanelProvider extends PanelProvider
             ])
             // Tambahkan menu Profil Toko ke Sidebar secara manual
             ->navigationItems([
-                \Filament\Navigation\NavigationItem::make('Penjualan')
-                    ->icon('heroicon-o-shopping-cart')
-                    ->group('Transaksi')
-                    ->url(fn () => url('/merchant/sales'))
-                    ->sort(1),
                 \Filament\Navigation\NavigationItem::make('Profil Toko')
                     ->icon('heroicon-o-building-storefront')
                     ->group('Manajemen Toko')

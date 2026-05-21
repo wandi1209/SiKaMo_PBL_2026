@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use Illuminate\Support\Facades\DB;
@@ -18,11 +19,28 @@ class SalesPage extends Component
     protected const PRODUCTS_PER_PAGE = 12;
 
     public $search = '';
+    public $category = 'all';
+    public $categories = [];
     protected $paginationTheme = 'tailwind';
 
     // Cart properties
     public $cart = [];
     public $total = 0;
+    
+    // Tab switching
+    public $activeTab = 'produk';
+
+    public function mount()
+    {
+        $this->loadCategories();
+    }
+
+    public function setTab($tab)
+    {
+        if (in_array($tab, ['produk', 'keranjang', 'scan', 'pembayaran', 'struk'])) {
+            $this->activeTab = $tab;
+        }
+    }
 
     public function updatingSearch()
     {
@@ -32,6 +50,30 @@ class SalesPage extends Component
     public function updatedSearch()
     {
         $this->resetPage('page');
+    }
+
+    public function updatedCategory()
+    {
+        $this->resetPage('page');
+    }
+
+    public function selectCategory($categoryId)
+    {
+        $this->category = $categoryId;
+    }
+
+    private function loadCategories(): void
+    {
+        $merchantId = $this->getMerchantId();
+
+        if (! $merchantId) {
+            $this->categories = [];
+            return;
+        }
+
+        $this->categories = Category::whereHas('products', function ($query) use ($merchantId) {
+            $query->where('merchant_id', $merchantId);
+        })->orderBy('name')->get();
     }
 
     private function getMerchantId(): ?int
@@ -72,6 +114,10 @@ class SalesPage extends Component
                 $q->where('name', 'like', $searchTerm)
                   ->orWhere('barcode', 'like', $searchTerm);
             });
+        }
+
+        if ($this->category !== 'all') {
+            $query->where('category_id', $this->category);
         }
 
         $products = (clone $query)
@@ -133,6 +179,39 @@ class SalesPage extends Component
 
         $this->calculateTotal();
         $this->dispatch('showToast', ['type' => 'success', 'message' => 'Produk ditambahkan ke keranjang']);
+    }
+
+    public function addByBarcode($barcode)
+    {
+        $barcode = trim((string) $barcode);
+
+        if ($barcode === '') {
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Barcode tidak boleh kosong']);
+            return;
+        }
+
+        $merchantId = $this->getMerchantId();
+
+        if (!$merchantId) {
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Merchant tidak ditemukan']);
+            return;
+        }
+
+        $product = Product::where('barcode', $barcode)
+            ->where('merchant_id', $merchantId)
+            ->first();
+
+        if (!$product) {
+            $this->dispatch('showToast', ['type' => 'error', 'message' => "Produk dengan barcode {$barcode} tidak ditemukan"]);
+            return;
+        }
+
+        if ($product->stock <= 0) {
+            $this->dispatch('showToast', ['type' => 'error', 'message' => "Stok produk {$product->name} habis"]);
+            return;
+        }
+
+        $this->addToCart($product->id);
     }
 
     public function removeFromCart($productId)
@@ -278,17 +357,29 @@ class SalesPage extends Component
             });
 
             Log::info('[Checkout] transaction complete', ['invoiceNumber' => $transaction->invoice_number]);
-            $this->cart = [];
-            $this->total = 0;
 
-            // Dispatch events - menggunakan array format untuk Livewire 3
+            $receiptItems = collect($this->cart)->map(fn ($item) => [
+                'name' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'subtotal' => $item['price'] * $item['quantity'],
+            ])->values()->all();
+
             $this->dispatch('checkoutSuccess', [
                 'invoiceNumber' => $transaction->invoice_number,
                 'total' => $transaction->total_amount,
                 'amountPaid' => $transaction->amount_paid,
                 'change' => $transaction->change_amount,
                 'paymentMethod' => $transaction->payment_method,
+                'createdAt' => $transaction->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                'merchantName' => $user->merchant?->name ?? 'Toko Kelontong',
+                'merchantAddress' => $user->merchant?->address ?? 'SiKaMo POS',
+                'cashierName' => $user->name,
+                'items' => $receiptItems,
             ]);
+
+            $this->cart = [];
+            $this->total = 0;
 
             $this->dispatch('showToast', [
                 'type' => 'success',

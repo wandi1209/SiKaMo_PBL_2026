@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TransactionController;
+use App\Livewire\Merchant\SalesPage;
 use App\Models\User;
 
 // Landing page — selalu tampil, tombol adaptif sesuai status login (@auth di Blade)
@@ -24,8 +25,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect('/admin');
     })->name('admin.leave-impersonation');
 
-    // Custom Sales Page without Filament sidebar
-    Route::get('/merchant/sales', App\Livewire\Merchant\SalesPage::class)->name('merchant.sales');
+    // Custom Sales Page without Filament sidebar — redirect to the cashier launcher page in Filament
+    Route::get('/merchant/sales', function () {
+        $merchant = auth()->user()?->merchant;
+        if ($merchant && $merchant->slug) {
+            return redirect()->to("/merchant/toko/{$merchant->slug}/sales");
+        }
+        return redirect()->route('merchant.sales.catalog');
+    })->name('merchant.sales');
+
+    // Dedicated catalog page that mounts the Livewire sales component
+    Route::get('/merchant/sales/catalog', SalesPage::class)->name('merchant.sales.catalog');
 
     // Transaction Routes
     Route::prefix('merchant/transactions')->name('transactions.')->group(function () {

@@ -13,6 +13,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @filamentStyles
+        @livewireStyles
 
         <!-- Toast Notification CSS -->
         <style>
@@ -94,7 +95,9 @@
 
         {{ $slot ?? $__env->yieldContent('content') }}
 
+        @stack('scripts')
         @filamentScripts(withCore: true)
+        @livewireScripts
 
         <!-- Toast Notification JS (vanilla, no jQuery needed, with deduplication) -->
         <script>
@@ -146,7 +149,5 @@
                 };
             })();
         </script>
-
-        @stack('scripts')
     </body>
 </html>
