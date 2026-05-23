@@ -1,10 +1,9 @@
 @php
     $buildManifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
-    $scannerScriptUrl = asset('build/' . $buildManifest['resources/js/barcode-scanner.js']['file']);
+    $scannerScriptUrl = Illuminate\Support\Facades\Vite::asset('resources/js/barcode-scanner.js');
 @endphp
 
-<div
-    x-data="{
+<div x-data="{
         createUrl: @js($createUrl),
         scanner: null,
         scanning: false,
@@ -104,15 +103,9 @@
             url.searchParams.set('barcode', this.barcode.trim());
             window.location.href = url.toString();
         },
-    }"
-    x-on:close-modal.window="stop()"
-    class="space-y-4"
->
+    }" x-on:close-modal.window="stop()" class="space-y-4">
     <div class="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-950 dark:border-gray-700">
-        <div
-            id="sikamo-barcode-reader"
-            class="min-h-72 w-full"
-        ></div>
+        <div id="sikamo-barcode-reader" class="min-h-72 w-full"></div>
     </div>
 
     <p class="text-sm text-gray-600 dark:text-gray-300" x-text="status"></p>
@@ -122,7 +115,8 @@
             Mulai Scan
         </x-filament::button>
 
-        <x-filament::button type="button" color="gray" icon="heroicon-o-stop" x-on:click="stop()" x-bind:disabled="!scanning">
+        <x-filament::button type="button" color="gray" icon="heroicon-o-stop" x-on:click="stop()"
+            x-bind:disabled="!scanning">
             Stop
         </x-filament::button>
     </div>
@@ -132,13 +126,8 @@
             Barcode Manual
         </label>
         <x-filament::input.wrapper>
-            <x-filament::input
-                id="manual-barcode"
-                x-model="barcode"
-                type="text"
-                placeholder="Ketik barcode jika kamera tidak membaca"
-                x-on:keydown.enter.prevent="goToProductForm()"
-            />
+            <x-filament::input id="manual-barcode" x-model="barcode" type="text"
+                placeholder="Ketik barcode jika kamera tidak membaca" x-on:keydown.enter.prevent="goToProductForm()" />
         </x-filament::input.wrapper>
     </div>
 
