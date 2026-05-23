@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ProductResource extends Resource
 {
+    private const DEFAULT_LOW_STOCK_THRESHOLD = 5;
+
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
@@ -31,23 +33,44 @@ class ProductResource extends Resource
         return auth()->user()?->role === 'owner';
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $merchantId = filament()->getTenant()?->id;
+
+        if (! $merchantId) {
+            return null;
+        }
+
+        $lowStockProducts = Product::query()
+            ->where('merchant_id', $merchantId)
+            ->where(fn(Builder $query) => static::scopeLowStockQuery($query))
+            ->count();
+
+        return $lowStockProducts > 0 ? (string) $lowStockProducts : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'danger';
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
             Forms\Components\Hidden::make('existing_product_id')
-                ->default(fn (string $operation): ?int => $operation === 'create'
+                ->default(fn(string $operation): ?int => $operation === 'create'
                     ? static::findExistingProductIdByBarcode(request()->query('barcode'))
                     : null)
-                ->dehydrated(fn (string $operation): bool => $operation === 'create'),
+                ->dehydrated(fn(string $operation): bool => $operation === 'create'),
 
             Forms\Components\TextInput::make('barcode')
-                ->label(fn (string $operation): string => $operation === 'create' ? 'Scan / Ketik Barcode' : 'Barcode')
-                ->helperText(fn (string $operation): ?string => $operation === 'create'
+                ->label(fn(string $operation): string => $operation === 'create' ? 'Scan / Ketik Barcode' : 'Barcode')
+                ->helperText(fn(string $operation): ?string => $operation === 'create'
                     ? 'Scan barcode terlebih dahulu. Jika produk sudah ada, sistem akan menawarkan tambah stok.'
                     : null)
                 ->suffixIcon('heroicon-o-qr-code')
                 ->autofocus()
-                ->default(fn (string $operation): ?string => $operation === 'create' ? request()->query('barcode') : null)
+                ->default(fn(string $operation): ?string => $operation === 'create' ? request()->query('barcode') : null)
                 ->afterStateHydrated(function (?string $state, Set $set, string $operation): void {
                     if ($operation !== 'create') {
                         return;
@@ -88,7 +111,7 @@ class ProductResource extends Resource
                     }
                 })
                 ->rules([
-                    fn (Get $get, ?Product $record, string $operation): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record, $operation): void {
+                    fn(Get $get, ?Product $record, string $operation): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record, $operation): void {
                         if (blank($value) || ($operation === 'create' && filled($get('existing_product_id')))) {
                             return;
                         }
@@ -96,7 +119,7 @@ class ProductResource extends Resource
                         $barcodeExists = Product::query()
                             ->where('merchant_id', filament()->getTenant()?->id)
                             ->where('barcode', $value)
-                            ->when($record, fn (Builder $query) => $query->whereKeyNot($record->getKey()))
+                            ->when($record, fn(Builder $query) => $query->whereKeyNot($record->getKey()))
                             ->exists();
 
                         if ($barcodeExists) {
@@ -105,12 +128,12 @@ class ProductResource extends Resource
                     },
                 ])
                 ->maxLength(255)
-                ->visible(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
 
             Forms\Components\Placeholder::make('barcode_not_found')
                 ->label('Status Barcode')
                 ->content('Barcode belum terdaftar. Silakan lengkapi data produk baru.')
-                ->visible(fn (Get $get, string $operation): bool => $operation === 'create'
+                ->visible(fn(Get $get, string $operation): bool => $operation === 'create'
                     && filled($get('barcode'))
                     && ! static::isExistingProductMode($get, $operation)),
 
@@ -134,10 +157,10 @@ class ProductResource extends Resource
                         ->numeric()
                         ->minValue(1)
                         ->default(1)
-                        ->required(fn (Get $get, string $operation): bool => $operation === 'create' && filled($get('existing_product_id')))
-                        ->dehydrated(fn (string $operation): bool => $operation === 'create'),
+                        ->required(fn(Get $get, string $operation): bool => $operation === 'create' && filled($get('existing_product_id')))
+                        ->dehydrated(fn(string $operation): bool => $operation === 'create'),
                 ])
-                ->visible(fn (Get $get, string $operation): bool => static::isExistingProductMode($get, $operation))
+                ->visible(fn(Get $get, string $operation): bool => static::isExistingProductMode($get, $operation))
                 ->columns(2),
 
             Forms\Components\Select::make('category_id')
@@ -146,48 +169,49 @@ class ProductResource extends Resource
                     name: 'category',
                     titleAttribute: 'name',
                     // Hanya tampilkan kategori milik merchant ini
-                    modifyQueryUsing: fn (Builder $query) => $query->where(
-                        'merchant_id', filament()->getTenant()?->id
+                    modifyQueryUsing: fn(Builder $query) => $query->where(
+                        'merchant_id',
+                        filament()->getTenant()?->id
                     )
                 )
-                ->required(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
+                ->required(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
                 ->searchable()
                 ->preload()
-                ->visible(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
 
             Forms\Components\TextInput::make('name')
                 ->label('Nama Produk')
-                ->required(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
+                ->required(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
                 ->maxLength(255)
-                ->visible(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
 
             Forms\Components\TextInput::make('price')
                 ->label('Harga')
                 ->numeric()
                 ->prefix('Rp')
-                ->required(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
-                ->visible(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+                ->required(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
 
             Forms\Components\TextInput::make('stock')
                 ->label('Stok')
                 ->numeric()
-                ->required(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
+                ->required(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
                 ->default(0)
-                ->visible(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
 
             Forms\Components\TextInput::make('low_stock_threshold')
                 ->label('Batas Stok Rendah')
                 ->numeric()
-                ->required(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
+                ->required(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
                 ->default(5)
-                ->visible(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
 
             Forms\Components\FileUpload::make('image')
                 ->label('Foto Produk')
                 ->image()
                 ->directory('products')
                 ->nullable()
-                ->visible(fn (Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
         ]);
     }
 
@@ -221,7 +245,7 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Stok')
                     ->sortable()
-                    ->color(fn ($record) => $record->stock <= $record->low_stock_threshold ? 'danger' : 'success'),
+                    ->color(fn(Product $record): string => static::isLowStock($record) ? 'danger' : 'success'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
@@ -284,5 +308,19 @@ class ProductResource extends Resource
         }
 
         return static::findExistingProductIdByBarcode($get('barcode')) !== null;
+    }
+
+    private static function scopeLowStockQuery(Builder $query): Builder
+    {
+        return $query
+            ->whereColumn('stock', '<=', 'low_stock_threshold')
+            ->orWhere('stock', '<=', self::DEFAULT_LOW_STOCK_THRESHOLD);
+    }
+
+    private static function isLowStock(Product $product): bool
+    {
+        $threshold = max($product->low_stock_threshold, self::DEFAULT_LOW_STOCK_THRESHOLD);
+
+        return $product->stock <= $threshold;
     }
 }
