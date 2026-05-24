@@ -16,12 +16,15 @@ class DailyReport extends Model
         'total_transactions',
         'total_revenue',
         'total_items_sold',
+        'pdf_path',
+        'pdf_generated_at',
         'sent_to_whatsapp',
         'sent_at',
     ];
 
     protected $casts = [
         'report_date' => 'date',
+        'pdf_generated_at' => 'datetime',
         'sent_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

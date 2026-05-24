@@ -13,6 +13,8 @@ use Filament\Tables\Table;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
+
 
 class DailyReportResource extends Resource
 {
@@ -84,6 +86,16 @@ class DailyReportResource extends Resource
                     ->label('Total Pendapatan')
                     ->money('IDR')
                     ->sortable(),
+                
+                Tables\Columns\IconColumn::make('pdf_path')
+                    ->label('PDF')
+                    ->boolean()
+                    ->state(fn (DailyReport $record): bool => filled($record->pdf_path)),
+
+                Tables\Columns\TextColumn::make('pdf_generated_at')
+                    ->label('PDF Dibuat')
+                    ->dateTime('d M Y H:i')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\IconColumn::make('sent_to_whatsapp')
                     ->label('WA Status')
@@ -128,6 +140,17 @@ class DailyReportResource extends Resource
                     }),
             ])
             ->actions([
+                Tables\Actions\Action::make('download_pdf')
+                    ->label('PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->visible(fn (DailyReport $record): bool => filled($record->pdf_path) && Storage::disk('local')->exists($record->pdf_path))
+                    ->action(function (DailyReport $record) {
+                        return response()->download(
+                            Storage::disk('local')->path($record->pdf_path),
+                            'Laporan-Harian-' . $record->report_date->format('Y-m-d') . '.pdf',
+                        );
+                    }),
                 Tables\Actions\EditAction::make()
                     ->hidden(),
                 Tables\Actions\DeleteAction::make()
