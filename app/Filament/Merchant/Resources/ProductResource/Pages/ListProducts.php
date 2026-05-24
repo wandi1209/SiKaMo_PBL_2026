@@ -3,6 +3,7 @@
 namespace App\Filament\Merchant\Resources\ProductResource\Pages;
 
 use App\Filament\Merchant\Resources\ProductResource;
+use App\Filament\Merchant\Resources\ProductResource\Widgets\LowStockProductsOverview;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -10,6 +11,18 @@ use Filament\Resources\Pages\ListRecords;
 class ListProducts extends ListRecords
 {
     protected static string $resource = ProductResource::class;
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            LowStockProductsOverview::class,
+        ];
+    }
+
+    public function getHeaderWidgetsColumns(): int|array
+    {
+        return 1;
+    }
 
     protected function getHeaderActions(): array
     {

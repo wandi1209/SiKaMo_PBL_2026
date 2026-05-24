@@ -17,8 +17,7 @@
                 <div>
                     <h2
                         class="font-bold text-gray-900 dark:text-white leading-tight truncate w-48 text-base tracking-tight">
-                        {{ auth()->user()?->merchant?->name ?? 'Toko Kelontong' }}
-                    </h2>
+                        {{ auth()->user()?->merchant?->name ?? 'Toko Kelontong' }}</h2>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 font-medium">Sembako & Harian</p>
                 </div>
             </div>
@@ -69,8 +68,7 @@
             </div>
             <div>
                 <h4 class="font-semibold text-sm text-gray-900 dark:text-white leading-tight">
-                    {{ auth()->user()?->name ?? 'Admin Toko' }}
-                </h4>
+                    {{ auth()->user()?->name ?? 'Admin Toko' }}</h4>
                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 font-medium">Kelola Stok</p>
             </div>
         </div>
@@ -160,111 +158,178 @@
                     kebutuhan pokok harian</p>
             </div>
 
+            @if ($lowStockProducts->isNotEmpty())
+                <div
+                    class="rounded-3xl border border-rose-200 bg-rose-50 p-5 shadow-sm dark:border-rose-900/50 dark:bg-rose-950/20">
+                    <div class="flex flex-col gap-5 xl:flex-row xl:items-start">
+                        <div class="min-w-0 xl:w-72 xl:shrink-0">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-black text-rose-800 dark:text-rose-200">Stok Menipis</p>
+                                    <p class="text-3xl font-black text-rose-950 dark:text-rose-100">
+                                        {{ number_format($lowStockProductsCount, 0, ',', '.') }}
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="mt-3 text-sm font-semibold leading-6 text-rose-800 dark:text-rose-200">
+                                Produk ini sudah di bawah batas stok rendah.
+                            </p>
+                        </div>
+
+                        <div class="grid min-w-0 flex-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                            @foreach ($lowStockProducts as $lowStockProduct)
+                                <div
+                                    class="rounded-2xl border border-rose-200 bg-white p-4 shadow-sm dark:border-rose-900/50 dark:bg-gray-900">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-sm font-black leading-5 text-gray-950 break-words dark:text-white">
+                                                {{ $lowStockProduct->name }}
+                                            </p>
+                                            <p class="mt-1 text-xs font-semibold leading-5 text-gray-600 break-words dark:text-gray-300">
+                                                {{ $lowStockProduct->category?->name ?? 'Tanpa kategori' }}
+                                            </p>
+                                        </div>
+                                        <span
+                                            class="shrink-0 rounded-lg bg-rose-100 px-3 py-1.5 text-xs font-black text-rose-800 ring-1 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-200 dark:ring-rose-500/30">
+                                            Stok: {{ number_format($lowStockProduct->stock, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    <p class="mt-3 text-xs font-black text-rose-700 dark:text-rose-300">
+                                        Batas rendah:
+                                        {{ number_format($lowStockProduct->low_stock_threshold, 0, ',', '.') }}
+                                    </p>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    @if ($lowStockProductsCount > $lowStockProducts->count())
+                        <p class="mt-4 text-xs font-black text-rose-800 dark:text-rose-200">
+                            +{{ number_format($lowStockProductsCount - $lowStockProducts->count(), 0, ',', '.') }}
+                            produk lain juga stoknya menipis.
+                        </p>
+                    @endif
+                </div>
+            @endif
+
             <!-- Category Horizontally Scrollable Menu -->
             <div class="flex flex-wrap gap-2.5 overflow-x-auto pb-2 scrollbar-none">
                 <button type="button" wire:click.prevent="selectCategory('all')"
                     class="px-5 py-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer shadow-sm
                         {{ $category === 'all'
-    ? 'bg-[#006b52] text-white border-[#006b52]'
-    : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-150 dark:border-gray-800/80 hover:border-emerald-350 hover:text-emerald-700' }}">
+                            ? 'bg-[#006b52] text-white border-[#006b52]'
+                            : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-150 dark:border-gray-800/80 hover:border-emerald-350 hover:text-emerald-700' }}">
                     Semua
                 </button>
                 @foreach ($categories as $cat)
-                            <button type="button" wire:click.prevent="selectCategory('{{ $cat->id }}')"
-                                class="px-5 py-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer shadow-sm
-                                        {{ $category == $cat->id
-                    ? 'bg-[#006b52] text-white border-[#006b52]'
-                    : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-150 dark:border-gray-800/80 hover:border-emerald-350 hover:text-emerald-700' }}">
-                                {{ $cat->name }}
-                            </button>
+                    <button type="button" wire:click.prevent="selectCategory('{{ $cat->id }}')"
+                        class="px-5 py-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer shadow-sm
+                            {{ $category == $cat->id
+                                ? 'bg-[#006b52] text-white border-[#006b52]'
+                                : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-150 dark:border-gray-800/80 hover:border-emerald-350 hover:text-emerald-700' }}">
+                        {{ $cat->name }}
+                    </button>
                 @endforeach
             </div>
 
             <!-- Product Responsive Grid (4 columns on desktop) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach ($products as $product)
-                            <div wire:key="product-card-{{ $product->id }}" @if ($product->stock > 0)
-                            wire:click.prevent="addToCart({{ $product->id }})" @endif class="group relative bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 ease-out overflow-hidden flex flex-col justify-between select-none
-                                     {{ $product->stock > 0
-                    ? 'cursor-pointer hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-250 dark:hover:border-emerald-800/80 active:scale-[0.98]'
-                    : 'cursor-not-allowed opacity-75' }}">
-                                <div>
-                                    <!-- Availability status badge -->
-                                    <div class="absolute top-4 left-4 z-10">
-                                        <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold tracking-wide shadow-sm
-                                                {{ $product->stock > 0
-                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-350'
-                    : 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-350' }}">
-                                            <span
-                                                class="h-1.5 w-1.5 rounded-full {{ $product->stock > 0 ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
-                                            {{ $product->stock > 0 ? 'TERSEDIA' : 'HABIS' }}
-                                        </span>
-                                    </div>
-
-                                    <!-- Product Image -->
-                                    <div
-                                        class="aspect-[4/3] w-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden border-b border-gray-50 dark:border-gray-850">
-                                        @if ($product->image)
-                                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
-                                                class="w-full h-full object-cover object-center transition duration-300 group-hover:scale-105" />
-                                        @else
-                                            <div
-                                                class="flex flex-col items-center justify-center w-full h-full text-gray-300 dark:text-gray-600 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-                                                <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                                </svg>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="p-5">
-                                        <!-- Category Name -->
-                                        <span
-                                            class="text-[10px] uppercase tracking-widest font-bold text-emerald-600 dark:text-emerald-450 block mb-1">
-                                            {{ $product->category?->name ?? 'UMUM' }}
-                                        </span>
-                                        <!-- Product Name -->
-                                        <h3
-                                            class="text-sm font-semibold text-gray-800 dark:text-white mb-1.5 line-clamp-2 leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                                            {{ $product->name }}
-                                        </h3>
-                                    </div>
-                                </div>
-
-                                <!-- Price & Stock Footer -->
-                                <div class="px-5 pb-5 pt-0">
-                                    <p class="text-base font-bold text-gray-900 dark:text-white mb-3">
-                                        Rp {{ number_format($product->price, 0, ',', '.') }}
-                                    </p>
-                                    <div
-                                        class="flex items-center justify-between gap-3 pt-2.5 border-t border-gray-50 dark:border-gray-800/80">
-                                        <span
-                                            class="text-xs font-semibold {{ $product->stock > 0 ? 'text-gray-400 dark:text-gray-500' : 'text-rose-500' }}">
-                                            Stok: {{ $product->stock }} unit
-                                        </span>
-
-                                        @if ($product->stock > 0)
-                                            <div
-                                                class="w-8 h-8 rounded-xl bg-gray-50 group-hover:bg-emerald-50 dark:bg-gray-800 dark:group-hover:bg-emerald-950/40 text-gray-650 group-hover:text-emerald-600 dark:text-gray-300 dark:group-hover:text-emerald-450 flex items-center justify-center transition-all duration-200 border border-gray-100 dark:border-gray-700/50 group-hover:border-emerald-100 dark:group-hover:border-emerald-900/30">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                        d="M12 4v16m8-8H4"></path>
-                                                </svg>
-                                            </div>
-                                        @else
-                                            <div
-                                                class="w-8 h-8 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-350 dark:text-gray-700 flex items-center justify-center border border-gray-50 dark:border-gray-850">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
-                                                    </path>
-                                                </svg>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
+                    <div wire:key="product-card-{{ $product->id }}"
+                        @if ($product->stock > 0) wire:click.prevent="addToCart({{ $product->id }})" @endif
+                        class="group relative bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 ease-out overflow-hidden flex flex-col justify-between select-none
+                         {{ $product->stock > 0
+                             ? 'cursor-pointer hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-250 dark:hover:border-emerald-800/80 active:scale-[0.98]'
+                             : 'cursor-not-allowed opacity-75' }}">
+                        <div>
+                            <!-- Availability status badge -->
+                            <div class="absolute top-4 left-4 z-10">
+                                <span
+                                    class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold tracking-wide shadow-sm
+                                    {{ $product->stock > 0
+                                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-350'
+                                        : 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-350' }}">
+                                    <span
+                                        class="h-1.5 w-1.5 rounded-full {{ $product->stock > 0 ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+                                    {{ $product->stock > 0 ? 'TERSEDIA' : 'HABIS' }}
+                                </span>
                             </div>
+
+                            <!-- Product Image -->
+                            <div
+                                class="aspect-[4/3] w-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden border-b border-gray-50 dark:border-gray-850">
+                                @if ($product->image)
+                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                                        class="w-full h-full object-cover object-center transition duration-300 group-hover:scale-105" />
+                                @else
+                                    <div
+                                        class="flex flex-col items-center justify-center w-full h-full text-gray-300 dark:text-gray-600 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+                                        <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="p-5">
+                                <!-- Category Name -->
+                                <span
+                                    class="text-[10px] uppercase tracking-widest font-bold text-emerald-600 dark:text-emerald-450 block mb-1">
+                                    {{ $product->category?->name ?? 'UMUM' }}
+                                </span>
+                                <!-- Product Name -->
+                                <h3
+                                    class="text-sm font-semibold text-gray-800 dark:text-white mb-1.5 line-clamp-2 leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                                    {{ $product->name }}
+                                </h3>
+                            </div>
+                        </div>
+
+                        <!-- Price & Stock Footer -->
+                        <div class="px-5 pb-5 pt-0">
+                            <p class="text-base font-bold text-gray-900 dark:text-white mb-3">
+                                Rp {{ number_format($product->price, 0, ',', '.') }}
+                            </p>
+                            <div
+                                class="flex items-center justify-between gap-3 pt-2.5 border-t border-gray-50 dark:border-gray-800/80">
+                                <span
+                                    class="text-xs font-semibold {{ $product->stock > 0 ? 'text-gray-400 dark:text-gray-500' : 'text-rose-500' }}">
+                                    Stok: {{ $product->stock }} unit
+                                </span>
+
+                                @if ($product->stock > 0)
+                                    <div
+                                        class="w-8 h-8 rounded-xl bg-gray-50 group-hover:bg-emerald-50 dark:bg-gray-800 dark:group-hover:bg-emerald-950/40 text-gray-650 group-hover:text-emerald-600 dark:text-gray-300 dark:group-hover:text-emerald-450 flex items-center justify-center transition-all duration-200 border border-gray-100 dark:border-gray-700/50 group-hover:border-emerald-100 dark:group-hover:border-emerald-900/30">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                    </div>
+                                @else
+                                    <div
+                                        class="w-8 h-8 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-350 dark:text-gray-700 flex items-center justify-center border border-gray-50 dark:border-gray-850">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 @endforeach
             </div>
 
@@ -341,7 +406,8 @@
                     <button type="button" @click="senterOn = !senterOn"
                         class="bg-black/60 hover:bg-black/80 backdrop-blur-md text-white px-4 py-2.5 rounded-full border border-gray-800/80 text-xs font-semibold flex items-center gap-2 transition-all active:scale-95 cursor-pointer">
                         <!-- Flashlight Icon -->
-                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
@@ -350,7 +416,8 @@
                     <button type="button" @click="toggleCamera()"
                         class="bg-black/60 hover:bg-black/80 backdrop-blur-md text-white px-4 py-2.5 rounded-full border border-gray-800/80 text-xs font-semibold flex items-center gap-2 transition-all active:scale-95 cursor-pointer">
                         <!-- Camera Switch Icon -->
-                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -386,7 +453,8 @@
                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span>Unggah dari Galeri</span>
-                    <input type="file" accept="image/*" class="hidden" @change="
+                    <input type="file" accept="image/*" class="hidden"
+                        @change="
                                 const file = $event.target.files[0];
                                 if (file && window.SiKaMoBarcodeScanner) {
                                     scannerStatus = 'Membaca gambar dari galeri...';
@@ -449,12 +517,11 @@
                                 <div
                                     class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100 dark:border-gray-800/60 hover:border-emerald-100 dark:hover:border-emerald-900/30 transition-colors">
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="font-semibold text-gray-800 dark:text-white text-base truncate leading-snug">
-                                            {{ $item['name'] }}
-                                        </h4>
+                                        <h4
+                                            class="font-semibold text-gray-800 dark:text-white text-base truncate leading-snug">
+                                            {{ $item['name'] }}</h4>
                                         <p class="text-sm text-emerald-600 dark:text-emerald-450 font-bold mt-1">Rp
-                                            {{ number_format($item['price'], 0, ',', '.') }}
-                                        </p>
+                                            {{ number_format($item['price'], 0, ',', '.') }}</p>
                                     </div>
 
                                     <div class="flex items-center justify-between sm:justify-end gap-6">
@@ -480,7 +547,8 @@
                                         <!-- Remove item button -->
                                         <button type="button" wire:click="removeFromCart({{ $item['id'] }})"
                                             class="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl transition-all cursor-pointer">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                                                 </path>
@@ -553,7 +621,8 @@
         </div>
 
         <!-- Payment Page: Cash Checkout -->
-        <div x-show="activeTab === 'pembayaran' && paymentStep === 1" x-cloak class="space-y-6" style="display: none;">
+        <div x-show="activeTab === 'pembayaran' && paymentStep === 1" x-cloak class="space-y-6"
+            style="display: none;">
             <div
                 class="w-full min-h-[calc(100vh-4rem)] overflow-hidden rounded-3xl bg-[#f8fafc] dark:bg-gray-950 border border-gray-100 dark:border-gray-800 shadow-sm">
                 <div class="grid min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.62fr)]">
@@ -585,12 +654,10 @@
                                             <tr>
                                                 <td
                                                     class="px-6 py-5 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                                    {{ $item['name'] }}
-                                                </td>
+                                                    {{ $item['name'] }}</td>
                                                 <td
                                                     class="px-4 py-5 text-center text-sm font-bold text-gray-500 dark:text-gray-300">
-                                                    {{ $item['quantity'] }}
-                                                </td>
+                                                    {{ $item['quantity'] }}</td>
                                                 <td
                                                     class="px-6 py-5 text-right text-sm font-black text-gray-800 dark:text-white">
                                                     Rp
@@ -619,13 +686,15 @@
                         <h4 class="text-base font-black text-gray-900 dark:text-white mb-5">Metode Pembayaran</h4>
                         <div class="space-y-4 mb-6">
                             <button type="button" @click="selectedMethod = 'cash'; paymentStep = 1"
-                                class="w-full rounded-2xl border p-4 text-left transition cursor-pointer" :class="selectedMethod === 'cash' ?
+                                class="w-full rounded-2xl border p-4 text-left transition cursor-pointer"
+                                :class="selectedMethod === 'cash' ?
                                     'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/20' :
                                     'border-gray-150 dark:border-gray-800 hover:border-emerald-300'">
                                 <div class="flex items-center gap-3">
                                     <span
                                         class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-white">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
@@ -649,13 +718,15 @@
                                 <div class="flex items-center gap-3">
                                     <span
                                         class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-800">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                         </svg>
                                     </span>
                                     <span class="min-w-0 flex-1">
-                                        <span class="block text-xs font-black text-gray-900 dark:text-white">QRIS</span>
+                                        <span
+                                            class="block text-xs font-black text-gray-900 dark:text-white">QRIS</span>
                                         <span
                                             class="block text-[10px] font-semibold text-gray-400 dark:text-gray-500">Gopay,
                                             OVO, Dana, LinkAja</span>
@@ -672,7 +743,8 @@
                         <div class="relative mb-4">
                             <span
                                 class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">Rp</span>
-                            <input type="number" x-model="amountPaid" @input="calcChange()" min="0" placeholder="0"
+                            <input type="number" x-model="amountPaid" @input="calcChange()" min="0"
+                                placeholder="0"
                                 class="w-full rounded-2xl border border-gray-150 bg-gray-50 py-4 pl-10 pr-4 text-sm font-black text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                         </div>
 
@@ -735,11 +807,9 @@
                                         </div>
                                         <div class="min-w-0 flex-1">
                                             <p class="truncate text-xs font-black text-gray-900 dark:text-white">
-                                                {{ $item['name'] }}
-                                            </p>
+                                                {{ $item['name'] }}</p>
                                             <p class="mt-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
-                                                {{ $item['quantity'] }} unit
-                                            </p>
+                                                {{ $item['quantity'] }} unit</p>
                                             <p class="mt-1 text-xs font-black text-emerald-600 dark:text-emerald-450">
                                                 Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
                                             </p>
@@ -809,11 +879,12 @@
         <div x-show="activeTab === 'struk'" x-cloak
             class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-8" style="display: none;">
             <div class="text-center mb-7">
-                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full" :class="receiptRefunded
+                <div
+                    class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full"
+                    :class="receiptRefunded
                         ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400'
                         : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400'">
-                    <svg x-show="!receiptRefunded" class="h-8 w-8" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
+                    <svg x-show="!receiptRefunded" class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7">
                         </path>
                     </svg>
@@ -825,7 +896,8 @@
                 </div>
                 <h3 class="text-2xl font-black text-gray-900 dark:text-white"
                     x-text="receiptRefunded ? 'Refund Berhasil' : 'Pembayaran Berhasil'"></h3>
-                <p class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400" x-text="receiptRefunded
+                <p class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400"
+                    x-text="receiptRefunded
                         ? 'Transaksi telah direfund dan stok produk sudah dikembalikan.'
                         : 'Transaksi Anda telah diproses dengan sukses.'"></p>
             </div>
@@ -833,8 +905,8 @@
             <div id="receipt-print-area"
                 class="w-full max-w-lg overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
                 <div class="px-8 py-7 text-center">
-                    <h4 class="text-lg font-black text-emerald-600 dark:text-emerald-400" x-text="receiptMerchantName">
-                    </h4>
+                    <h4 class="text-lg font-black text-emerald-600 dark:text-emerald-400"
+                        x-text="receiptMerchantName"></h4>
                     <p class="mt-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500"
                         x-text="receiptMerchantAddress"></p>
                     <div class="mt-6 space-y-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
@@ -844,7 +916,8 @@
                         </div>
                         <div class="flex justify-between gap-4">
                             <span>Status</span>
-                            <span class="font-black uppercase" :class="receiptRefunded ? 'text-rose-600 dark:text-rose-400' :
+                            <span class="font-black uppercase"
+                                :class="receiptRefunded ? 'text-rose-600 dark:text-rose-400' :
                                     'text-emerald-600 dark:text-emerald-400'"
                                 x-text="receiptRefunded ? 'Refund' : 'Berhasil'"></span>
                         </div>
@@ -864,8 +937,8 @@
                     <template x-for="item in receiptItems" :key="item.name + item.quantity">
                         <div class="flex justify-between gap-5 py-3">
                             <div class="min-w-0 text-left">
-                                <p class="truncate text-sm font-black text-gray-900 dark:text-white" x-text="item.name">
-                                </p>
+                                <p class="truncate text-sm font-black text-gray-900 dark:text-white"
+                                    x-text="item.name"></p>
                                 <p class="mt-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
                                     <span x-text="item.quantity"></span> unit x Rp <span
                                         x-text="formatCurrency(item.price)"></span>
@@ -886,24 +959,24 @@
                     <div class="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
                         <span class="text-base font-black text-gray-900 dark:text-white"
                             x-text="receiptRefunded ? 'TOTAL REFUND' : 'TOTAL BAYAR'"></span>
-                        <span class="text-xl font-black"
+                        <span
+                            class="text-xl font-black"
                             :class="receiptRefunded ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'">
-                            Rp <span x-text="formatCurrency(totalAmount)"></span></span>
+                            Rp <span
+                                x-text="formatCurrency(totalAmount)"></span></span>
                     </div>
                 </div>
 
                 <div class="bg-gray-50 px-8 py-6 text-center dark:bg-gray-950/50">
                     <p class="text-[11px] italic font-medium text-gray-400 dark:text-gray-500"
-                        x-text="receiptRefunded ? 'Refund telah diproses oleh kasir.' : 'Terima kasih telah berbelanja.'">
-                    </p>
+                        x-text="receiptRefunded ? 'Refund telah diproses oleh kasir.' : 'Terima kasih telah berbelanja.'"></p>
                     <p
                         class="receipt-powered mt-4 text-xs font-black tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
                         POWERED BY SIKAMO</p>
                 </div>
             </div>
 
-            <div class="mt-7 grid w-full max-w-lg grid-cols-1 gap-3"
-                :class="receiptRefunded ? 'sm:grid-cols-2' : 'sm:grid-cols-3'">
+            <div class="mt-7 grid w-full max-w-lg grid-cols-1 gap-3" :class="receiptRefunded ? 'sm:grid-cols-2' : 'sm:grid-cols-3'">
                 <button type="button" @click="printReceipt()" x-show="!receiptRefunded"
                     class="rounded-2xl bg-emerald-700 px-5 py-4 text-sm font-black text-white shadow-md shadow-emerald-700/15 hover:bg-emerald-800 transition cursor-pointer">
                     Cetak Struk
@@ -940,8 +1013,7 @@
                         </p>
                     </div>
 
-                    <div
-                        class="mt-6 grid grid-cols-1 gap-3 border-t border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950/50 sm:grid-cols-2">
+                    <div class="mt-6 grid grid-cols-1 gap-3 border-t border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950/50 sm:grid-cols-2">
                         <button type="button" x-on:click="cancelRefundConfirm()" x-bind:disabled="refundProcessing"
                             class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
                             Batal
@@ -1091,22 +1163,22 @@
         if (!window.__sikamoListenersRegistered) {
             window.__sikamoListenersRegistered = true;
 
-            document.addEventListener('livewire:init', function () {
-                Livewire.on('showToast', function (data) {
+            document.addEventListener('livewire:init', function() {
+                Livewire.on('showToast', function(data) {
                     const d = Array.isArray(data) ? data[0] : data;
                     const msg = d?.message || 'Notifikasi';
                     const type = d?.type || 'info';
                     if (window.toastr && toastr[type]) toastr[type](msg);
                 });
 
-                Livewire.on('checkoutSuccess', function (data) {
+                Livewire.on('checkoutSuccess', function(data) {
                     const d = Array.isArray(data) ? data[0] : data;
                     window.dispatchEvent(new CustomEvent('sikamo:checkoutSuccess', {
                         detail: d
                     }));
                 });
 
-                Livewire.on('checkoutError', function (data) {
+                Livewire.on('checkoutError', function(data) {
                     const d = Array.isArray(data) ? data[0] : data;
                     const msg = d?.message || 'Transaksi gagal. Silakan coba lagi.';
                     if (window.toastr) toastr.error(msg);
@@ -1391,14 +1463,14 @@
 
                     const items = this.receiptItems || [];
                     const rows = items.map((item) => `
-                        <div class="item">
-                            <div class="line strong">
-                                <span>${escapeHtml(item.name)}</span>
-                                <span>Rp ${this.formatCurrency(item.subtotal)}</span>
-                            </div>
-                            <div class="muted">${item.quantity} x Rp ${this.formatCurrency(item.price)}</div>
+                    <div class="item">
+                        <div class="line strong">
+                            <span>${escapeHtml(item.name)}</span>
+                            <span>Rp ${this.formatCurrency(item.subtotal)}</span>
                         </div>
-                    `).join('');
+                        <div class="muted">${item.quantity} x Rp ${this.formatCurrency(item.price)}</div>
+                    </div>
+                `).join('');
 
                     const isCashReceipt = this.receiptPaymentMethod === 'cash';
                     const originalTitle = document.title;
@@ -1422,123 +1494,123 @@
                     const printDocument = printFrame.contentDocument || printFrame.contentWindow.document;
                     printDocument.open();
                     printDocument.write(`
-                        <!doctype html>
-                        <html>
-                            <head>
-                                <meta charset="utf-8">
-                                <title>${escapeHtml(printTitle)}</title>
-                                <style>
-                                    @page { size: 80mm 200mm; margin: 0; }
-                                    html, body {
-                                        width: 80mm;
-                                        margin: 0;
-                                        padding: 0;
-                                        background: #fff;
-                                        color: #000;
-                                        font-family: "Courier New", Courier, monospace;
-                                        font-size: 10.5px;
-                                        line-height: 1.3;
-                                    }
-                                    * { box-sizing: border-box; color: #000; font-family: inherit; }
-                                    .receipt { width: 74mm; margin: 3mm 3mm 0 3mm; padding: 0; }
-                                    .center { text-align: center; }
-                                    .store {
-                                        font-size: 13px;
-                                        font-weight: 800;
-                                        text-transform: uppercase;
-                                        margin-bottom: 3px;
-                                    }
-                                    .address {
-                                        font-size: 9.5px;
-                                        margin-bottom: 10px;
-                                    }
-                                    .line {
-                                        display: flex;
-                                        justify-content: space-between;
-                                        gap: 8px;
-                                    }
-                                    .line span:first-child {
-                                        min-width: 0;
-                                        overflow-wrap: anywhere;
-                                    }
-                                    .strong { font-weight: 800; }
-                                    .muted { font-size: 9.5px; }
-                                    .rule {
-                                        border-top: 1px dashed #000;
-                                        margin: 8px 0;
-                                    }
-                                    .meta .line { margin: 3px 0; }
-                                    .item { margin: 7px 0; }
-                                    .total {
-                                        font-size: 12px;
-                                        font-weight: 900;
-                                        margin-top: 8px;
-                                    }
-                                    .payment-lines,
-                                    .footer {
-                                        break-inside: avoid;
-                                        page-break-inside: avoid;
-                                        page-break-before: avoid;
-                                    }
-                                    .thanks {
-                                        margin-top: 14px;
-                                        text-align: center;
-                                        font-size: 9.5px;
-                                        font-style: italic;
-                                    }
-                                    .powered {
-                                        margin-top: 9px;
-                                        margin-bottom: 0;
-                                        text-align: center;
-                                        font-size: 9px;
-                                        font-weight: 900;
-                                        letter-spacing: 1px;
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <div id="thermal-receipt" class="receipt">
-                                    <div class="center">
-                                        <div class="store">${escapeHtml(this.receiptMerchantName || 'SIKAMO')}</div>
-                                        <div class="address">${escapeHtml(this.receiptMerchantAddress || 'SiKaMo POS')}</div>
-                                    </div>
-
-                                    <div class="meta">
-                                        <div class="line"><span>ID</span><span>${escapeHtml(this.invoiceNumber)}</span></div>
-                                        <div class="line"><span>Waktu</span><span>${escapeHtml(this.receiptCreatedAt)}</span></div>
-                                        <div class="line"><span>Kasir</span><span>${escapeHtml(this.receiptCashierName || '-')}</span></div>
-                                        <div class="line"><span>Metode</span><span>${escapeHtml(this.receiptPaymentMethod).toUpperCase()}</span></div>
-                                    </div>
-
-                                    <div class="rule"></div>
-                                    ${rows}
-                                    <div class="rule"></div>
-
-                                    <div class="line"><span>Subtotal</span><span>Rp ${this.formatCurrency(this.totalAmount)}</span></div>
-                                    <div class="rule"></div>
-                                    <div class="line total"><span>TOTAL</span><span>Rp ${this.formatCurrency(this.totalAmount)}</span></div>
-                                    <div class="rule"></div>
-                                    ${isCashReceipt ? `
-                                            <div class="payment-lines">
-                                                <div class="line"><span>Cash</span><span>Rp ${this.formatCurrency(this.receiptAmountPaid)}</span></div>
-                                                <div class="line"><span>Kembalian</span><span>Rp ${this.formatCurrency(this.receiptChange)}</span></div>
-                                            </div>
-                                        ` : ''}
-
-                                    <div class="footer">
-                                        <div class="thanks">Terima kasih telah berbelanja.</div>
-                                        <div class="powered">POWERED BY SIKAMO</div>
-                                    </div>
+                    <!doctype html>
+                    <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <title>${escapeHtml(printTitle)}</title>
+                            <style>
+                                @page { size: 80mm 200mm; margin: 0; }
+                                html, body {
+                                    width: 80mm;
+                                    margin: 0;
+                                    padding: 0;
+                                    background: #fff;
+                                    color: #000;
+                                    font-family: "Courier New", Courier, monospace;
+                                    font-size: 10.5px;
+                                    line-height: 1.3;
+                                }
+                                * { box-sizing: border-box; color: #000; font-family: inherit; }
+                                .receipt { width: 74mm; margin: 3mm 3mm 0 3mm; padding: 0; }
+                                .center { text-align: center; }
+                                .store {
+                                    font-size: 13px;
+                                    font-weight: 800;
+                                    text-transform: uppercase;
+                                    margin-bottom: 3px;
+                                }
+                                .address {
+                                    font-size: 9.5px;
+                                    margin-bottom: 10px;
+                                }
+                                .line {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    gap: 8px;
+                                }
+                                .line span:first-child {
+                                    min-width: 0;
+                                    overflow-wrap: anywhere;
+                                }
+                                .strong { font-weight: 800; }
+                                .muted { font-size: 9.5px; }
+                                .rule {
+                                    border-top: 1px dashed #000;
+                                    margin: 8px 0;
+                                }
+                                .meta .line { margin: 3px 0; }
+                                .item { margin: 7px 0; }
+                                .total {
+                                    font-size: 12px;
+                                    font-weight: 900;
+                                    margin-top: 8px;
+                                }
+                                .payment-lines,
+                                .footer {
+                                    break-inside: avoid;
+                                    page-break-inside: avoid;
+                                    page-break-before: avoid;
+                                }
+                                .thanks {
+                                    margin-top: 14px;
+                                    text-align: center;
+                                    font-size: 9.5px;
+                                    font-style: italic;
+                                }
+                                .powered {
+                                    margin-top: 9px;
+                                    margin-bottom: 0;
+                                    text-align: center;
+                                    font-size: 9px;
+                                    font-weight: 900;
+                                    letter-spacing: 1px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div id="thermal-receipt" class="receipt">
+                                <div class="center">
+                                    <div class="store">${escapeHtml(this.receiptMerchantName || 'SIKAMO')}</div>
+                                    <div class="address">${escapeHtml(this.receiptMerchantAddress || 'SiKaMo POS')}</div>
                                 </div>
-                            </body>
-                        </html>
-                    `);
+
+                                <div class="meta">
+                                    <div class="line"><span>ID</span><span>${escapeHtml(this.invoiceNumber)}</span></div>
+                                    <div class="line"><span>Waktu</span><span>${escapeHtml(this.receiptCreatedAt)}</span></div>
+                                    <div class="line"><span>Kasir</span><span>${escapeHtml(this.receiptCashierName || '-')}</span></div>
+                                    <div class="line"><span>Metode</span><span>${escapeHtml(this.receiptPaymentMethod).toUpperCase()}</span></div>
+                                </div>
+
+                                <div class="rule"></div>
+                                ${rows}
+                                <div class="rule"></div>
+
+                                <div class="line"><span>Subtotal</span><span>Rp ${this.formatCurrency(this.totalAmount)}</span></div>
+                                <div class="rule"></div>
+                                <div class="line total"><span>TOTAL</span><span>Rp ${this.formatCurrency(this.totalAmount)}</span></div>
+                                <div class="rule"></div>
+                                ${isCashReceipt ? `
+                                        <div class="payment-lines">
+                                            <div class="line"><span>Cash</span><span>Rp ${this.formatCurrency(this.receiptAmountPaid)}</span></div>
+                                            <div class="line"><span>Kembalian</span><span>Rp ${this.formatCurrency(this.receiptChange)}</span></div>
+                                        </div>
+                                    ` : ''}
+
+                                <div class="footer">
+                                    <div class="thanks">Terima kasih telah berbelanja.</div>
+                                    <div class="powered">POWERED BY SIKAMO</div>
+                                </div>
+                            </div>
+                        </body>
+                    </html>
+                `);
                     printDocument.close();
 
                     setTimeout(() => {
                         const receiptElement = printDocument.getElementById('thermal-receipt');
                         const receiptHeightPx = receiptElement ? receiptElement.getBoundingClientRect().height :
-                            360;
+                        360;
                         const receiptHeightMm = Math.ceil((receiptHeightPx * 25.4) / 96) + 5;
                         const exactPageStyle = printDocument.createElement('style');
                         exactPageStyle.textContent = `@page { size: 80mm ${receiptHeightMm}mm; margin: 0; }`;

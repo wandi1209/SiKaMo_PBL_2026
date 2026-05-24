@@ -17,8 +17,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ProductResource extends Resource
 {
-    private const DEFAULT_LOW_STOCK_THRESHOLD = 5;
-
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
@@ -254,6 +252,10 @@ class ProductResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\Filter::make('low_stock')
+                    ->label('Stok Menipis')
+                    ->query(fn(Builder $query): Builder => $query->where(fn(Builder $query) => static::scopeLowStockQuery($query))),
+
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Kategori')
                     ->relationship('category', 'name'),
@@ -312,15 +314,11 @@ class ProductResource extends Resource
 
     private static function scopeLowStockQuery(Builder $query): Builder
     {
-        return $query
-            ->whereColumn('stock', '<=', 'low_stock_threshold')
-            ->orWhere('stock', '<=', self::DEFAULT_LOW_STOCK_THRESHOLD);
+        return $query->whereColumn('stock', '<=', 'low_stock_threshold');
     }
 
     private static function isLowStock(Product $product): bool
     {
-        $threshold = max($product->low_stock_threshold, self::DEFAULT_LOW_STOCK_THRESHOLD);
-
-        return $product->stock <= $threshold;
+        return $product->stock <= $product->low_stock_threshold;
     }
 }

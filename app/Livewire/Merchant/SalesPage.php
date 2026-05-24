@@ -136,6 +136,38 @@ class SalesPage extends Component
         return $products;
     }
 
+    public function getLowStockProducts()
+    {
+        $merchantId = $this->getMerchantId();
+
+        if (! $merchantId) {
+            return collect();
+        }
+
+        return Product::query()
+            ->with('category')
+            ->where('merchant_id', $merchantId)
+            ->whereColumn('stock', '<=', 'low_stock_threshold')
+            ->orderBy('stock')
+            ->orderBy('name')
+            ->limit(6)
+            ->get();
+    }
+
+    public function getLowStockProductsCount(): int
+    {
+        $merchantId = $this->getMerchantId();
+
+        if (! $merchantId) {
+            return 0;
+        }
+
+        return Product::query()
+            ->where('merchant_id', $merchantId)
+            ->whereColumn('stock', '<=', 'low_stock_threshold')
+            ->count();
+    }
+
     public function addToCart($productId)
     {
         $merchantId = $this->getMerchantId();
@@ -447,6 +479,8 @@ class SalesPage extends Component
     {
         return view('livewire.merchant.sales-page', [
             'products' => $this->getProducts(),
+            'lowStockProducts' => $this->getLowStockProducts(),
+            'lowStockProductsCount' => $this->getLowStockProductsCount(),
         ])->layout('components.layouts.transaction', [
             'title' => 'Transaksi Penjualan',
         ]);
