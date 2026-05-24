@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     @php
-        $transaction = $this->record->loadMissing(['user', 'items.product.category']);
+        $transaction = $this->record->loadMissing(['user', 'refundedBy', 'items.product.category']);
         $merchant = filament()->getTenant();
         $items = $transaction->items;
         $soldQuantity = $items->sum('quantity');
@@ -9,7 +9,10 @@
         $rupiah = fn ($value): string => 'Rp ' . number_format((float) $value, 0, ',', '.');
         $paymentMethod = strtoupper((string) ($transaction->payment_method ?? '-'));
         $status = strtoupper((string) ($transaction->status ?? '-'));
+        $statusColor = $transaction->status === 'refunded' ? 'danger' : 'success';
+        $statusLabel = $transaction->status === 'refunded' ? 'Refund' : 'Selesai';
         $transactionTime = $transaction->created_at?->translatedFormat('d F Y, H:i') ?? '-';
+        $refundedAt = $transaction->refunded_at?->translatedFormat('d F Y, H:i');
     @endphp
 
     <style>
@@ -82,6 +85,12 @@
             width: fit-content;
         }
 
+        .sikamo-sales-status-pill.is-refunded {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
         @media (min-width: 768px) {
             .sikamo-sales-stat-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -124,6 +133,13 @@
         }
 
         @media print {
+            * {
+                background: transparent !important;
+                color: #000 !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
             .fi-sidebar,
             .fi-topbar,
             .fi-breadcrumbs,
@@ -133,6 +149,68 @@
 
             .fi-main {
                 padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            body {
+                margin: 0;
+                padding: 10mm;
+                line-height: 1.5;
+            }
+
+            .space-y-6 {
+                display: block;
+            }
+
+            .sikamo-sales-total-card,
+            .sikamo-sales-stat-card {
+                border: 1px solid #000 !important;
+                background: transparent !important;
+                page-break-inside: avoid;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tfoot {
+                display: table-footer-group;
+            }
+
+            .grid {
+                display: block !important;
+            }
+
+            /* Ensure text is visible */
+            a {
+                color: #000 !important;
+                text-decoration: underline;
+            }
+
+            /* Ensure proper spacing */
+            x-filament--section {
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+            }
+
+            /* Hide dark mode styling */
+            .dark\:text-white,
+            .dark\:text-gray-400,
+            .dark\:text-gray-300,
+            .dark\:bg-white\/5 {
+                color: #000 !important;
+                background: transparent !important;
             }
         }
     </style>
@@ -147,8 +225,8 @@
                             <h2 class="text-2xl font-bold tracking-tight text-gray-950 dark:text-white">
                                 {{ $transaction->invoice_number }}
                             </h2>
-                            <x-filament::badge color="success">
-                                Selesai
+                            <x-filament::badge :color="$statusColor">
+                                {{ $statusLabel }}
                             </x-filament::badge>
                         </div>
                         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -188,7 +266,9 @@
                     <div class="sikamo-sales-stat-card">
                         <p class="sikamo-sales-label">Status</p>
                         <div style="margin-top: 0.75rem;">
-                            <span class="sikamo-sales-status-pill">{{ $status }}</span>
+                            <span class="sikamo-sales-status-pill {{ $transaction->status === 'refunded' ? 'is-refunded' : '' }}">
+                                {{ $status }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -278,11 +358,27 @@
                         <div class="flex items-start justify-between gap-4">
                             <dt class="text-gray-500 dark:text-gray-400">Status</dt>
                             <dd>
-                                <x-filament::badge color="success">
+                                <x-filament::badge :color="$statusColor">
                                     {{ $status }}
                                 </x-filament::badge>
                             </dd>
                         </div>
+                        @if ($transaction->status === 'refunded')
+                            <div class="flex items-start justify-between gap-4">
+                                <dt class="text-gray-500 dark:text-gray-400">Direfund oleh</dt>
+                                <dd class="text-right font-medium text-gray-950 dark:text-white">{{ $transaction->refundedBy?->name ?? '-' }}</dd>
+                            </div>
+                            <div class="flex items-start justify-between gap-4">
+                                <dt class="text-gray-500 dark:text-gray-400">Waktu refund</dt>
+                                <dd class="text-right font-medium text-gray-950 dark:text-white">{{ $refundedAt ?? '-' }}</dd>
+                            </div>
+                            <div class="border-t border-gray-200 pt-4 dark:border-white/10">
+                                <dt class="text-gray-500 dark:text-gray-400">Alasan refund</dt>
+                                <dd class="mt-1 text-sm font-medium text-gray-950 dark:text-white">
+                                    {{ $transaction->refund_reason ?: '-' }}
+                                </dd>
+                            </div>
+                        @endif
                     </dl>
                 </x-filament::section>
 

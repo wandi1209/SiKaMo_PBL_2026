@@ -18,12 +18,26 @@ class Transaction extends Model
         'change_amount',
         'payment_method',
         'status',
+        'refunded_by',
+        'refunded_at',
+        'refund_reason',
+    ];
+
+    protected $casts = [
+        'refunded_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relasi ke user
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function refundedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'refunded_by');
     }
 
     // Relasi ke item transaksi

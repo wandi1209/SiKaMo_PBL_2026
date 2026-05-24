@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Services\TransactionRefundService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -26,7 +27,7 @@ class SalesPage extends Component
     // Cart properties
     public $cart = [];
     public $total = 0;
-    
+
     // Tab switching
     public $activeTab = 'produk';
 
@@ -112,7 +113,7 @@ class SalesPage extends Component
             $searchTerm = '%' . $this->search . '%';
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', $searchTerm)
-                  ->orWhere('barcode', 'like', $searchTerm);
+                    ->orWhere('barcode', 'like', $searchTerm);
             });
         }
 
@@ -159,7 +160,7 @@ class SalesPage extends Component
         }
 
         // Check if product already in cart
-        $index = collect($this->cart)->search(fn ($item) => $item['id'] == $productId);
+        $index = collect($this->cart)->search(fn($item) => $item['id'] == $productId);
 
         if ($index !== false) {
             if ($this->cart[$index]['quantity'] >= $product->stock) {
@@ -245,7 +246,7 @@ class SalesPage extends Component
             return;
         }
 
-        $index = collect($this->cart)->search(fn ($item) => $item['id'] == $productId);
+        $index = collect($this->cart)->search(fn($item) => $item['id'] == $productId);
         if ($index !== false) {
             $this->cart[$index]['quantity'] = $quantity;
             $this->calculateTotal();
@@ -358,7 +359,7 @@ class SalesPage extends Component
 
             Log::info('[Checkout] transaction complete', ['invoiceNumber' => $transaction->invoice_number]);
 
-            $receiptItems = collect($this->cart)->map(fn ($item) => [
+            $receiptItems = collect($this->cart)->map(fn($item) => [
                 'name' => $item['name'],
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
@@ -385,12 +386,47 @@ class SalesPage extends Component
                 'type' => 'success',
                 'message' => 'Transaksi berhasil!'
             ]);
-
         } catch (\Throwable $e) {
             Log::error('[Checkout] FAILED: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             $this->dispatch('checkoutError', [
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+
+    public function refundTransaction(string $invoiceNumber, TransactionRefundService $refundService): bool
+    {
+        $user = Auth::user();
+        $merchantId = $this->getMerchantId();
+
+        if (! $user || ! $merchantId) {
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'User tidak terautentikasi']);
+
+            return false;
+        }
+
+        $transaction = Transaction::query()
+            ->where('invoice_number', $invoiceNumber)
+            ->whereHas('items.product', fn($query) => $query->where('merchant_id', $merchantId))
+            ->first();
+
+        if (! $transaction) {
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Transaksi tidak ditemukan']);
+
+            return false;
+        }
+
+        try {
+            $refundService->refund($transaction, $user, 'Refund dari halaman struk kasir');
+
+            $this->dispatch('showToast', ['type' => 'success', 'message' => 'Transaksi berhasil direfund']);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('[Refund] FAILED: ' . $e->getMessage(), ['invoiceNumber' => $invoiceNumber]);
+            $this->dispatch('showToast', ['type' => 'error', 'message' => $e->getMessage()]);
+
+            return false;
         }
     }
 

@@ -47,7 +47,7 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['user', 'items.product.merchant']))
+            ->modifyQueryUsing(fn(Builder $query) => $query->with(['user', 'items.product.merchant']))
             ->columns([
                 Tables\Columns\TextColumn::make('invoice_number')
                     ->label('Invoice')
@@ -56,9 +56,9 @@ class TransactionResource extends Resource
 
                 Tables\Columns\TextColumn::make('merchant_name')
                     ->label('Merchant')
-                    ->state(fn (Transaction $record): string => $record->merchant?->name ?? '-')
+                    ->state(fn(Transaction $record): string => $record->merchant?->name ?? '-')
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereHas('items.product.merchant', fn (Builder $merchantQuery) => $merchantQuery->where('name', 'like', "%{$search}%"));
+                        return $query->whereHas('items.product.merchant', fn(Builder $merchantQuery) => $merchantQuery->where('name', 'like', "%{$search}%"));
                     }),
 
                 Tables\Columns\TextColumn::make('user.name')
@@ -74,15 +74,16 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('payment_method')
                     ->label('Pembayaran')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => strtoupper((string) $state)),
+                    ->formatStateUsing(fn(?string $state): string => strtoupper((string) $state)),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'completed' => 'success',
                         'pending' => 'warning',
                         'cancelled' => 'danger',
+                        'refunded' => 'danger',
                         default => 'gray',
                     }),
 
@@ -97,6 +98,7 @@ class TransactionResource extends Resource
                         'pending' => 'Pending',
                         'completed' => 'Completed',
                         'cancelled' => 'Cancelled',
+                        'refunded' => 'Refunded',
                     ]),
                 Tables\Filters\SelectFilter::make('payment_method')
                     ->options([
@@ -111,7 +113,7 @@ class TransactionResource extends Resource
                 Tables\Actions\Action::make('exportCsv')
                     ->label('Export CSV')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->action(fn (): StreamedResponse => static::exportCsv()),
+                    ->action(fn(): StreamedResponse => static::exportCsv()),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

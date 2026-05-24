@@ -17,7 +17,8 @@
                 <div>
                     <h2
                         class="font-bold text-gray-900 dark:text-white leading-tight truncate w-48 text-base tracking-tight">
-                        {{ auth()->user()?->merchant?->name ?? 'Toko Kelontong' }}</h2>
+                        {{ auth()->user()?->merchant?->name ?? 'Toko Kelontong' }}
+                    </h2>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 font-medium">Sembako & Harian</p>
                 </div>
             </div>
@@ -27,7 +28,9 @@
                 <!-- Produk Tab -->
                 <button type="button" @click="setTab('produk')"
                     class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer"
-                    :class="activeTab === 'produk' ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40'">
+                    :class="activeTab === 'produk' ?
+                        'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400' :
+                        'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40'">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -40,7 +43,9 @@
                 <!-- Keranjang Tab -->
                 <button type="button" @click="setTab('keranjang')"
                     class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer"
-                    :class="activeTab === 'keranjang' ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40'">
+                    :class="activeTab === 'keranjang' ?
+                        'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400' :
+                        'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40'">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -48,7 +53,7 @@
                         </svg>
                         <span>Keranjang</span>
                     </div>
-                    @if(count($cart) > 0)
+                    @if (count($cart) > 0)
                         <span
                             class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white shadow-sm">{{ count($cart) }}</span>
                     @endif
@@ -64,7 +69,8 @@
             </div>
             <div>
                 <h4 class="font-semibold text-sm text-gray-900 dark:text-white leading-tight">
-                    {{ auth()->user()?->name ?? 'Admin Toko' }}</h4>
+                    {{ auth()->user()?->name ?? 'Admin Toko' }}
+                </h4>
                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 font-medium">Kelola Stok</p>
             </div>
         </div>
@@ -89,7 +95,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13l-1.1 5M7 13h10m0 0v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-3.03" />
             </svg>
-            @if(count($cart) > 0)
+            @if (count($cart) > 0)
                 <span
                     class="absolute top-1 right-[38%] px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-emerald-600 text-white leading-none shadow-sm">{{ count($cart) }}</span>
             @endif
@@ -131,9 +137,10 @@
                 <!-- Mode Scan Button (Replaces Add Product Button) -->
                 <button type="button" @click="setTab(activeTab === 'scan' ? 'produk' : 'scan')"
                     class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl shadow-sm text-sm font-semibold transition-all active:scale-[0.98] cursor-pointer"
-                    :class="activeTab === 'scan' 
-                            ? 'bg-amber-600 hover:bg-amber-700 text-white' 
-                            : 'bg-[#006b52] hover:bg-[#00523e] text-white'">
+                    :class="activeTab === 'scan'
+                        ?
+                        'bg-amber-600 hover:bg-amber-700 text-white' :
+                        'bg-[#006b52] hover:bg-[#00523e] text-white'">
                     <!-- Scanning Grid Icon -->
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -162,7 +169,7 @@
     : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-150 dark:border-gray-800/80 hover:border-emerald-350 hover:text-emerald-700' }}">
                     Semua
                 </button>
-                @foreach($categories as $cat)
+                @foreach ($categories as $cat)
                             <button type="button" wire:click.prevent="selectCategory('{{ $cat->id }}')"
                                 class="px-5 py-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer shadow-sm
                                         {{ $category == $cat->id
@@ -175,8 +182,8 @@
 
             <!-- Product Responsive Grid (4 columns on desktop) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                @foreach($products as $product)
-                            <div wire:key="product-card-{{ $product->id }}" @if($product->stock > 0)
+                @foreach ($products as $product)
+                            <div wire:key="product-card-{{ $product->id }}" @if ($product->stock > 0)
                             wire:click.prevent="addToCart({{ $product->id }})" @endif class="group relative bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 ease-out overflow-hidden flex flex-col justify-between select-none
                                      {{ $product->stock > 0
                     ? 'cursor-pointer hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-250 dark:hover:border-emerald-800/80 active:scale-[0.98]'
@@ -197,7 +204,7 @@
                                     <!-- Product Image -->
                                     <div
                                         class="aspect-[4/3] w-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden border-b border-gray-50 dark:border-gray-850">
-                                        @if($product->image)
+                                        @if ($product->image)
                                             <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
                                                 class="w-full h-full object-cover object-center transition duration-300 group-hover:scale-105" />
                                         @else
@@ -237,7 +244,7 @@
                                             Stok: {{ $product->stock }} unit
                                         </span>
 
-                                        @if($product->stock > 0)
+                                        @if ($product->stock > 0)
                                             <div
                                                 class="w-8 h-8 rounded-xl bg-gray-50 group-hover:bg-emerald-50 dark:bg-gray-800 dark:group-hover:bg-emerald-950/40 text-gray-650 group-hover:text-emerald-600 dark:text-gray-300 dark:group-hover:text-emerald-450 flex items-center justify-center transition-all duration-200 border border-gray-100 dark:border-gray-700/50 group-hover:border-emerald-100 dark:group-hover:border-emerald-900/30">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,7 +269,7 @@
             </div>
 
             <!-- Pagination block -->
-            @if($products->hasPages())
+            @if ($products->hasPages())
                 <div
                     class="mt-8 bg-white dark:bg-gray-900 p-4 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm">
                     {{ $products->links() }}
@@ -435,17 +442,19 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Cart Items List -->
                 <div class="lg:col-span-2 space-y-4">
-                    @if(count($cart) > 0)
+                    @if (count($cart) > 0)
                         <div
                             class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
-                            @foreach($cart as $item)
+                            @foreach ($cart as $item)
                                 <div
                                     class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100 dark:border-gray-800/60 hover:border-emerald-100 dark:hover:border-emerald-900/30 transition-colors">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="font-semibold text-gray-800 dark:text-white text-base truncate leading-snug">
-                                            {{ $item['name'] }}</h4>
+                                            {{ $item['name'] }}
+                                        </h4>
                                         <p class="text-sm text-emerald-600 dark:text-emerald-450 font-bold mt-1">Rp
-                                            {{ number_format($item['price'], 0, ',', '.') }}</p>
+                                            {{ number_format($item['price'], 0, ',', '.') }}
+                                        </p>
                                     </div>
 
                                     <div class="flex items-center justify-between sm:justify-end gap-6">
@@ -493,8 +502,9 @@
                                 </svg>
                             </div>
                             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Keranjang Anda Kosong</h3>
-                            <p class="text-gray-400 dark:text-gray-500 max-w-sm mx-auto mb-6 text-sm font-medium">Silakan
-                                pilih produk dari katalog belanja untuk ditambahkan ke keranjang belanja Anda.</p>
+                            <p class="text-gray-400 dark:text-gray-500 max-w-sm mx-auto mb-6 text-sm font-medium">
+                                Silakan pilih produk dari katalog belanja untuk ditambahkan ke keranjang belanja Anda.
+                            </p>
                             <button type="button" @click="setTab('produk')"
                                 class="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm rounded-2xl shadow-md transition cursor-pointer">
                                 Mulai Belanja
@@ -514,7 +524,8 @@
                         <div class="space-y-4 text-sm font-medium">
                             <div class="flex justify-between text-gray-500 dark:text-gray-400">
                                 <span>Total Item</span>
-                                <span class="font-semibold text-gray-800 dark:text-white">{{ count($cart) }} item</span>
+                                <span class="font-semibold text-gray-800 dark:text-white">{{ count($cart) }}
+                                    item</span>
                             </div>
                             <div
                                 class="flex justify-between items-center pt-4 border-t border-gray-50 dark:border-gray-800">
@@ -524,7 +535,7 @@
                             </div>
                         </div>
 
-                        @if(count($cart) > 0)
+                        @if (count($cart) > 0)
                             <button type="button"
                                 @click="cartTotal = $wire.total; selectedMethod = 'cash'; showPaymentModal = false; paymentStep = 1; setTab('pembayaran')"
                                 class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-4 px-4 rounded-2xl transition-all shadow-md active:scale-[0.98] cursor-pointer text-center text-sm flex items-center justify-center gap-2">
@@ -548,7 +559,8 @@
                 <div class="grid min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.62fr)]">
                     <section class="p-6 sm:p-8 lg:p-10 xl:p-12">
                         <div class="mb-8">
-                            <h3 class="text-3xl font-black tracking-tight text-gray-900 dark:text-white">Pembayaran</h3>
+                            <h3 class="text-3xl font-black tracking-tight text-gray-900 dark:text-white">Pembayaran
+                            </h3>
                             <p class="mt-1 text-xs font-semibold text-gray-400 dark:text-gray-500">Selesaikan transaksi
                                 pelanggan</p>
                         </div>
@@ -569,17 +581,20 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
-                                        @foreach($cart as $item)
+                                        @foreach ($cart as $item)
                                             <tr>
                                                 <td
                                                     class="px-6 py-5 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                                    {{ $item['name'] }}</td>
+                                                    {{ $item['name'] }}
+                                                </td>
                                                 <td
                                                     class="px-4 py-5 text-center text-sm font-bold text-gray-500 dark:text-gray-300">
-                                                    {{ $item['quantity'] }}</td>
+                                                    {{ $item['quantity'] }}
+                                                </td>
                                                 <td
                                                     class="px-6 py-5 text-right text-sm font-black text-gray-800 dark:text-white">
-                                                    Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                                    Rp
+                                                    {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -604,8 +619,9 @@
                         <h4 class="text-base font-black text-gray-900 dark:text-white mb-5">Metode Pembayaran</h4>
                         <div class="space-y-4 mb-6">
                             <button type="button" @click="selectedMethod = 'cash'; paymentStep = 1"
-                                class="w-full rounded-2xl border p-4 text-left transition cursor-pointer"
-                                :class="selectedMethod === 'cash' ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/20' : 'border-gray-150 dark:border-gray-800 hover:border-emerald-300'">
+                                class="w-full rounded-2xl border p-4 text-left transition cursor-pointer" :class="selectedMethod === 'cash' ?
+                                    'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/20' :
+                                    'border-gray-150 dark:border-gray-800 hover:border-emerald-300'">
                                 <div class="flex items-center gap-3">
                                     <span
                                         class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-white">
@@ -709,7 +725,7 @@
                         class="bg-white dark:bg-gray-900 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-800 p-6 sm:p-8 flex flex-col">
                         <h4 class="text-base font-black text-gray-900 dark:text-white mb-5">Ringkasan Pesanan</h4>
                         <div class="space-y-4 overflow-y-auto pr-1">
-                            @foreach($cart as $item)
+                            @foreach ($cart as $item)
                                 <div
                                     class="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 shadow-sm">
                                     <div class="flex items-center gap-3">
@@ -719,11 +735,14 @@
                                         </div>
                                         <div class="min-w-0 flex-1">
                                             <p class="truncate text-xs font-black text-gray-900 dark:text-white">
-                                                {{ $item['name'] }}</p>
+                                                {{ $item['name'] }}
+                                            </p>
                                             <p class="mt-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
-                                                {{ $item['quantity'] }} unit</p>
-                                            <p class="mt-1 text-xs font-black text-emerald-600 dark:text-emerald-450">Rp
-                                                {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</p>
+                                                {{ $item['quantity'] }} unit
+                                            </p>
+                                            <p class="mt-1 text-xs font-black text-emerald-600 dark:text-emerald-450">
+                                                Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -790,16 +809,25 @@
         <div x-show="activeTab === 'struk'" x-cloak
             class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-8" style="display: none;">
             <div class="text-center mb-7">
-                <div
-                    class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
-                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full" :class="receiptRefunded
+                        ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400'
+                        : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400'">
+                    <svg x-show="!receiptRefunded" class="h-8 w-8" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7">
                         </path>
                     </svg>
+                    <svg x-show="receiptRefunded" class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        style="display: none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M9 14 4 9m0 0 5-5M4 9h11a5 5 0 0 1 0 10h-1" />
+                    </svg>
                 </div>
-                <h3 class="text-2xl font-black text-gray-900 dark:text-white">Pembayaran Berhasil</h3>
-                <p class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">Transaksi Anda telah diproses
-                    dengan sukses.</p>
+                <h3 class="text-2xl font-black text-gray-900 dark:text-white"
+                    x-text="receiptRefunded ? 'Refund Berhasil' : 'Pembayaran Berhasil'"></h3>
+                <p class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400" x-text="receiptRefunded
+                        ? 'Transaksi telah direfund dan stok produk sudah dikembalikan.'
+                        : 'Transaksi Anda telah diproses dengan sukses.'"></p>
             </div>
 
             <div id="receipt-print-area"
@@ -813,6 +841,12 @@
                         <div class="flex justify-between gap-4">
                             <span>ID Transaksi</span>
                             <span class="font-mono text-gray-800 dark:text-gray-100" x-text="invoiceNumber"></span>
+                        </div>
+                        <div class="flex justify-between gap-4">
+                            <span>Status</span>
+                            <span class="font-black uppercase" :class="receiptRefunded ? 'text-rose-600 dark:text-rose-400' :
+                                    'text-emerald-600 dark:text-emerald-400'"
+                                x-text="receiptRefunded ? 'Refund' : 'Berhasil'"></span>
                         </div>
                         <div class="flex justify-between gap-4">
                             <span>Waktu</span>
@@ -850,37 +884,81 @@
                                 x-text="formatCurrency(totalAmount)"></span></span>
                     </div>
                     <div class="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
-                        <span class="text-base font-black text-gray-900 dark:text-white">TOTAL BAYAR</span>
-                        <span class="text-xl font-black text-emerald-600 dark:text-emerald-400">Rp <span
-                                x-text="formatCurrency(totalAmount)"></span></span>
+                        <span class="text-base font-black text-gray-900 dark:text-white"
+                            x-text="receiptRefunded ? 'TOTAL REFUND' : 'TOTAL BAYAR'"></span>
+                        <span class="text-xl font-black"
+                            :class="receiptRefunded ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'">
+                            Rp <span x-text="formatCurrency(totalAmount)"></span></span>
                     </div>
                 </div>
 
                 <div class="bg-gray-50 px-8 py-6 text-center dark:bg-gray-950/50">
-                    <p class="text-[11px] italic font-medium text-gray-400 dark:text-gray-500">Terima kasih telah
-                        berbelanja.</p>
+                    <p class="text-[11px] italic font-medium text-gray-400 dark:text-gray-500"
+                        x-text="receiptRefunded ? 'Refund telah diproses oleh kasir.' : 'Terima kasih telah berbelanja.'">
+                    </p>
                     <p
                         class="receipt-powered mt-4 text-xs font-black tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
                         POWERED BY SIKAMO</p>
                 </div>
             </div>
 
-            <div class="mt-7 grid w-full max-w-lg grid-cols-1 gap-3 sm:grid-cols-2">
-                <button type="button" @click="printReceipt()"
+            <div class="mt-7 grid w-full max-w-lg grid-cols-1 gap-3"
+                :class="receiptRefunded ? 'sm:grid-cols-2' : 'sm:grid-cols-3'">
+                <button type="button" @click="printReceipt()" x-show="!receiptRefunded"
                     class="rounded-2xl bg-emerald-700 px-5 py-4 text-sm font-black text-white shadow-md shadow-emerald-700/15 hover:bg-emerald-800 transition cursor-pointer">
                     Cetak Struk
+                </button>
+                <button type="button" @click="refundReceipt()" x-bind:disabled="receiptRefunded || !invoiceNumber"
+                    class="rounded-2xl bg-rose-600 px-5 py-4 text-sm font-black text-white shadow-md shadow-rose-600/15 hover:bg-rose-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed transition cursor-pointer">
+                    <span x-text="receiptRefunded ? 'Sudah Refund' : 'Refund'"></span>
                 </button>
                 <button type="button" @click="closeReceipt(); setTab('produk')"
                     class="rounded-2xl border border-gray-150 bg-white px-5 py-4 text-sm font-black text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-950 transition cursor-pointer">
                     Kembali ke Transaksi
                 </button>
             </div>
+
+            <div x-show="showRefundConfirm" x-cloak x-transition.opacity
+                class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 px-4"
+                x-on:keydown.escape.window="cancelRefundConfirm()" style="display: none;">
+                <div class="absolute inset-0" x-on:click="cancelRefundConfirm()"></div>
+
+                <div x-show="showRefundConfirm" x-transition
+                    class="relative w-full max-w-md overflow-hidden rounded-2xl border border-rose-100 bg-white shadow-2xl dark:border-rose-900/40 dark:bg-gray-900">
+                    <div class="px-6 pt-6 text-center">
+                        <div
+                            class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
+                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M9 14 4 9m0 0 5-5M4 9h11a5 5 0 0 1 0 10h-1" />
+                            </svg>
+                        </div>
+                        <h3 class="mt-4 text-xl font-black text-gray-950 dark:text-white">Refund transaksi?</h3>
+                        <p class="mt-2 text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">
+                            Transaksi <span class="font-mono font-bold text-gray-800 dark:text-gray-100"
+                                x-text="invoiceNumber"></span> akan ditandai refund dan stok produk dikembalikan.
+                        </p>
+                    </div>
+
+                    <div
+                        class="mt-6 grid grid-cols-1 gap-3 border-t border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950/50 sm:grid-cols-2">
+                        <button type="button" x-on:click="cancelRefundConfirm()" x-bind:disabled="refundProcessing"
+                            class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
+                            Batal
+                        </button>
+                        <button type="button" x-on:click="confirmRefundReceipt()" x-bind:disabled="refundProcessing"
+                            class="rounded-xl bg-rose-600 px-4 py-3 text-sm font-black text-white shadow-md shadow-rose-600/15 transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-rose-300">
+                            <span x-show="!refundProcessing">Ya, Refund</span>
+                            <span x-show="refundProcessing" style="display: none;">Memproses...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 </div>
 
 @php
-    $buildManifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
     $scannerScriptUrl = Illuminate\Support\Facades\Vite::asset('resources/js/barcode-scanner.js');
 @endphp
 
@@ -1023,14 +1101,18 @@
 
                 Livewire.on('checkoutSuccess', function (data) {
                     const d = Array.isArray(data) ? data[0] : data;
-                    window.dispatchEvent(new CustomEvent('sikamo:checkoutSuccess', { detail: d }));
+                    window.dispatchEvent(new CustomEvent('sikamo:checkoutSuccess', {
+                        detail: d
+                    }));
                 });
 
                 Livewire.on('checkoutError', function (data) {
                     const d = Array.isArray(data) ? data[0] : data;
                     const msg = d?.message || 'Transaksi gagal. Silakan coba lagi.';
                     if (window.toastr) toastr.error(msg);
-                    window.dispatchEvent(new CustomEvent('sikamo:checkoutError', { detail: d }));
+                    window.dispatchEvent(new CustomEvent('sikamo:checkoutError', {
+                        detail: d
+                    }));
                 });
             });
         }
@@ -1059,6 +1141,9 @@
                 receiptMerchantAddress: '',
                 receiptCashierName: '',
                 receiptItems: [],
+                receiptRefunded: false,
+                showRefundConfirm: false,
+                refundProcessing: false,
 
                 // Scanning states
                 scanner: null,
@@ -1084,6 +1169,7 @@
                         this.receiptMerchantAddress = d.merchantAddress || 'SiKaMo POS';
                         this.receiptCashierName = d.cashierName || '';
                         this.receiptItems = d.items || [];
+                        this.receiptRefunded = false;
                         this.showPaymentModal = false;
                         this.resetPayment();
                         this.setTab('struk');
@@ -1188,7 +1274,8 @@
                         }
                     } catch (error) {
                         this.scanning = false;
-                        this.scannerStatus = error?.message || 'Kamera tidak bisa diakses. Izinkan kamera atau pastikan situs aman (HTTPS/localhost).';
+                        this.scannerStatus = error?.message ||
+                            'Kamera tidak bisa diakses. Izinkan kamera atau pastikan situs aman (HTTPS/localhost).';
                     }
                 },
 
@@ -1202,7 +1289,8 @@
 
                 async toggleCamera() {
                     this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
-                    this.scannerStatus = `Mengganti kamera (${this.facingMode === 'environment' ? 'Kamera Belakang' : 'Kamera Depan'})...`;
+                    this.scannerStatus =
+                        `Mengganti kamera (${this.facingMode === 'environment' ? 'Kamera Belakang' : 'Kamera Depan'})...`;
                     await this.stopScanning();
 
                     setTimeout(async () => {
@@ -1252,9 +1340,48 @@
                     this.receiptMerchantAddress = '';
                     this.receiptCashierName = '';
                     this.receiptItems = [];
+                    this.receiptRefunded = false;
+                    this.showRefundConfirm = false;
+                    this.refundProcessing = false;
+                },
+
+                refundReceipt() {
+                    if (!this.invoiceNumber || this.receiptRefunded) {
+                        return;
+                    }
+
+                    this.showRefundConfirm = true;
+                },
+
+                cancelRefundConfirm() {
+                    if (this.refundProcessing) {
+                        return;
+                    }
+
+                    this.showRefundConfirm = false;
+                },
+
+                async confirmRefundReceipt() {
+                    if (!this.invoiceNumber || this.receiptRefunded || this.refundProcessing) {
+                        return;
+                    }
+
+                    this.refundProcessing = true;
+                    const refunded = await this.$wire.refundTransaction(this.invoiceNumber);
+
+                    if (refunded) {
+                        this.receiptRefunded = true;
+                        this.showRefundConfirm = false;
+                    }
+
+                    this.refundProcessing = false;
                 },
 
                 printReceipt() {
+                    if (this.receiptRefunded) {
+                        return;
+                    }
+
                     const escapeHtml = (value) => String(value ?? '')
                         .replace(/&/g, '&amp;')
                         .replace(/</g, '&lt;')
@@ -1392,11 +1519,11 @@
                                     <div class="line total"><span>TOTAL</span><span>Rp ${this.formatCurrency(this.totalAmount)}</span></div>
                                     <div class="rule"></div>
                                     ${isCashReceipt ? `
-                                        <div class="payment-lines">
-                                            <div class="line"><span>Cash</span><span>Rp ${this.formatCurrency(this.receiptAmountPaid)}</span></div>
-                                            <div class="line"><span>Kembalian</span><span>Rp ${this.formatCurrency(this.receiptChange)}</span></div>
-                                        </div>
-                                    ` : ''}
+                                            <div class="payment-lines">
+                                                <div class="line"><span>Cash</span><span>Rp ${this.formatCurrency(this.receiptAmountPaid)}</span></div>
+                                                <div class="line"><span>Kembalian</span><span>Rp ${this.formatCurrency(this.receiptChange)}</span></div>
+                                            </div>
+                                        ` : ''}
 
                                     <div class="footer">
                                         <div class="thanks">Terima kasih telah berbelanja.</div>
@@ -1410,7 +1537,8 @@
 
                     setTimeout(() => {
                         const receiptElement = printDocument.getElementById('thermal-receipt');
-                        const receiptHeightPx = receiptElement ? receiptElement.getBoundingClientRect().height : 360;
+                        const receiptHeightPx = receiptElement ? receiptElement.getBoundingClientRect().height :
+                            360;
                         const receiptHeightMm = Math.ceil((receiptHeightPx * 25.4) / 96) + 5;
                         const exactPageStyle = printDocument.createElement('style');
                         exactPageStyle.textContent = `@page { size: 80mm ${receiptHeightMm}mm; margin: 0; }`;

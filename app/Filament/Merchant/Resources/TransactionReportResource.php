@@ -50,9 +50,9 @@ class TransactionReportResource extends Resource
         $merchantId = filament()->getTenant()?->id;
 
         return parent::getEloquentQuery()
-            ->with(['user', 'items.product.category'])
-            ->where('status', 'completed')
-            ->whereHas('items.product', fn (Builder $query) => $query->where('merchant_id', $merchantId));
+            ->with(['user', 'refundedBy', 'items.product.category'])
+            ->whereIn('status', ['completed', 'refunded'])
+            ->whereHas('items.product', fn(Builder $query) => $query->where('merchant_id', $merchantId));
     }
 
     public static function form(Form $form): Form
@@ -68,8 +68,8 @@ class TransactionReportResource extends Resource
                     Forms\Components\TextInput::make('change_amount')->label('Kembalian')->prefix('Rp')->disabled(),
                     Forms\Components\Placeholder::make('items_summary')
                         ->label('Item')
-                        ->content(fn (Transaction $record): string => $record->items
-                            ->map(fn ($item): string => "{$item->product?->name} x{$item->quantity} = Rp " . number_format($item->subtotal, 0, ',', '.'))
+                        ->content(fn(Transaction $record): string => $record->items
+                            ->map(fn($item): string => "{$item->product?->name} x{$item->quantity} = Rp " . number_format($item->subtotal, 0, ',', '.'))
                             ->implode("\n")),
                 ])
                 ->columns(2),
@@ -103,7 +103,21 @@ class TransactionReportResource extends Resource
                 Tables\Columns\TextColumn::make('payment_method')
                     ->label('Pembayaran')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => strtoupper((string) $state)),
+                    ->formatStateUsing(fn(?string $state): string => strtoupper((string) $state)),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                        'completed' => 'Selesai',
+                        'refunded' => 'Refund',
+                        default => ucfirst((string) $state),
+                    })
+                    ->color(fn(?string $state): string => match ($state) {
+                        'completed' => 'success',
+                        'refunded' => 'danger',
+                        default => 'gray',
+                    }),
 
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Total')
@@ -116,9 +130,9 @@ class TransactionReportResource extends Resource
                         Forms\Components\DatePicker::make('start_date')->label('Dari Tanggal'),
                         Forms\Components\DatePicker::make('end_date')->label('Sampai Tanggal'),
                     ])
-                    ->query(fn (Builder $query, array $data): Builder => $query
-                        ->when($data['start_date'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
-                        ->when($data['end_date'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date))),
+                    ->query(fn(Builder $query, array $data): Builder => $query
+                        ->when($data['start_date'] ?? null, fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
+                        ->when($data['end_date'] ?? null, fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date))),
 
                 Tables\Filters\SelectFilter::make('payment_method')
                     ->label('Metode Pembayaran')
@@ -129,12 +143,19 @@ class TransactionReportResource extends Resource
                         'credit' => 'Credit',
                         'transfer' => 'Transfer',
                     ]),
+
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'completed' => 'Selesai',
+                        'refunded' => 'Refund',
+                    ]),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('exportCsv')
                     ->label('Export CSV')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->action(fn (): StreamedResponse => static::exportCsv()),
+                    ->action(fn(): StreamedResponse => static::exportCsv()),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -152,7 +173,7 @@ class TransactionReportResource extends Resource
             fputcsv($handle, ['Invoice', 'Waktu', 'Kasir', 'Metode Pembayaran', 'Total', 'Item']);
 
             static::getEloquentQuery()
-                ->whereHas('items.product', fn (Builder $query) => $query->where('merchant_id', $merchantId))
+                ->whereHas('items.product', fn(Builder $query) => $query->where('merchant_id', $merchantId))
                 ->latest()
                 ->chunk(200, function ($transactions) use ($handle): void {
                     foreach ($transactions as $transaction) {
@@ -163,7 +184,7 @@ class TransactionReportResource extends Resource
                             $transaction->payment_method,
                             $transaction->total_amount,
                             $transaction->items
-                                ->map(fn ($item): string => "{$item->product?->name} x{$item->quantity}")
+                                ->map(fn($item): string => "{$item->product?->name} x{$item->quantity}")
                                 ->implode('; '),
                         ]);
                     }
