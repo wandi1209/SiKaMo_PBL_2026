@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuditLogDownloadController;
 use App\Http\Controllers\TransactionController;
 use App\Livewire\Merchant\SalesPage;
 use App\Models\User;
@@ -36,6 +37,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dedicated catalog page that mounts the Livewire sales component
     Route::get('/merchant/sales/catalog', SalesPage::class)->name('merchant.sales.catalog');
+
+    // Download single audit log entry (PDF)
+    Route::get('/merchant/audit-logs/{auditLog}/download', AuditLogDownloadController::class)
+        ->name('merchant.audit-logs.download');
 
     // Transaction Routes
     Route::prefix('merchant/transactions')->name('transactions.')->group(function () {

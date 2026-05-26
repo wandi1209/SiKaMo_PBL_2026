@@ -19,6 +19,9 @@ class Merchant extends Model
         'phone',
         'address',
         'logo',
+        'operational_start_time',
+        'operational_end_time',
+        'qr_code_image',
         'is_active',
     ];
 

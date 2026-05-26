@@ -6,6 +6,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\EditTenantProfile;
 use Illuminate\Support\Str;
@@ -63,6 +64,26 @@ class EditMerchantProfile extends EditTenantProfile
                         ->directory('merchants/logos')
                         ->nullable(),
                 ]),
+
+                Section::make('Pengaturan Toko')->schema([
+                    TimePicker::make('operational_start_time')
+                        ->label('Jam operasional mulai')
+                        ->seconds(false)
+                        ->nullable(),
+
+                    TimePicker::make('operational_end_time')
+                        ->label('Jam operasional selesai')
+                        ->seconds(false)
+                        ->nullable(),
+
+                    FileUpload::make('qr_code_image')
+                        ->label('QR Code Toko (gambar)')
+                        ->helperText('Upload gambar QR Code untuk toko Anda.')
+                        ->image()
+                        ->directory('merchants/qr-codes')
+                        ->nullable()
+                        ->columnSpanFull(),
+                ])->columns(2),
             ]);
     }
 }

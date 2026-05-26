@@ -97,7 +97,21 @@ class TransactionController extends Controller
 
                     // Kurangi stock produk
                     $product = Product::find($itemData['product_id']);
-                    $product->decrement('stock', $itemData['quantity']);
+                    app()->instance('audit_context', [
+                        'system_actor' => true,
+                        'system_reason' => 'sale',
+                        'transaction_id' => $transaction->id,
+                        'transaction_invoice_number' => $transaction->invoice_number,
+                        'triggered_by_user_id' => $user->id,
+                        'triggered_by_user_name' => $user->name,
+                        'triggered_by_user_role' => $user->role,
+                    ]);
+
+                    try {
+                        $product->decrement('stock', $itemData['quantity']);
+                    } finally {
+                        app()->forgetInstance('audit_context');
+                    }
 
                     // Log perubahan stok
                     $this->logStockChange($product, $itemData['quantity'], 'sale', $transaction->invoice_number);

@@ -33,7 +33,21 @@ class TransactionRefundService
                 $stockBefore = $product->stock;
                 $stockAfter = $stockBefore + $item->quantity;
 
-                $product->forceFill(['stock' => $stockAfter])->save();
+                app()->instance('audit_context', [
+                    'system_actor' => true,
+                    'system_reason' => 'refund',
+                    'transaction_id' => $transaction->id,
+                    'transaction_invoice_number' => $transaction->invoice_number,
+                    'triggered_by_user_id' => $user->id,
+                    'triggered_by_user_name' => $user->name,
+                    'triggered_by_user_role' => $user->role,
+                ]);
+
+                try {
+                    $product->forceFill(['stock' => $stockAfter])->save();
+                } finally {
+                    app()->forgetInstance('audit_context');
+                }
 
                 StockLog::create([
                     'product_id' => $product->id,
