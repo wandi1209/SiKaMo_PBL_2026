@@ -11,6 +11,18 @@
 
         <title>{{ $title }} - SiKaMo</title>
 
+        <!-- Theme Initialization Script -->
+        <script>
+            (function() {
+                const theme = localStorage.getItem('theme') || 'system';
+                if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            })();
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @filamentStyles
         @livewireStyles

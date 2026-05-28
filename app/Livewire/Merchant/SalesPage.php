@@ -18,6 +18,7 @@ class SalesPage extends Component
     use WithPagination;
 
     protected const PRODUCTS_PER_PAGE = 12;
+    protected const MOBILE_PRODUCTS_PER_PAGE = 8;
 
     public $search = '';
     public $category = 'all';
@@ -103,7 +104,7 @@ class SalesPage extends Component
         if (!$merchantId) {
             return Product::query()
                 ->whereNull('id')
-                ->paginate(static::PRODUCTS_PER_PAGE);
+                ->paginate($this->getProductsPerPage());
         }
 
         $query = Product::where('merchant_id', $merchantId)
@@ -121,19 +122,32 @@ class SalesPage extends Component
             $query->where('category_id', $this->category);
         }
 
+        $perPage = $this->getProductsPerPage();
+
         $products = (clone $query)
             ->orderBy('name')
-            ->paginate(static::PRODUCTS_PER_PAGE);
+            ->paginate($perPage);
 
         if ($products->total() > 0 && $products->currentPage() > $products->lastPage()) {
             $this->resetPage('page');
 
             $products = $query
                 ->orderBy('name')
-                ->paginate(static::PRODUCTS_PER_PAGE, ['*'], 'page', 1);
+                ->paginate($perPage, ['*'], 'page', 1);
         }
 
         return $products;
+    }
+
+    private function getProductsPerPage(): int
+    {
+        $userAgent = request()->userAgent() ?? '';
+
+        if (preg_match('/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i', $userAgent)) {
+            return static::MOBILE_PRODUCTS_PER_PAGE;
+        }
+
+        return static::PRODUCTS_PER_PAGE;
     }
 
     public function getLowStockProducts()
