@@ -1045,8 +1045,10 @@
                                 </div>
                             </button>
 
-                            <button type="button" @click="selectedMethod = 'qris'; paymentStep = 2"
-                                class="w-full rounded-2xl border border-gray-150 dark:border-gray-800 p-3 md:p-4 text-left hover:border-emerald-300 transition cursor-pointer">
+                            <button type="button"
+                                @if ($qrisQrCodeUrl) @click="selectedMethod = 'qris'; paymentStep = 2" @endif
+                                @disabled(! $qrisQrCodeUrl)
+                                class="w-full rounded-2xl border p-3 md:p-4 text-left transition {{ $qrisQrCodeUrl ? 'border-gray-150 dark:border-gray-800 hover:border-emerald-300 cursor-pointer' : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed' }}">
                                 <div class="flex items-center gap-3">
                                     <span
                                         class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-800">
@@ -1060,8 +1062,8 @@
                                         <span
                                             class="block text-xs font-black text-gray-900 dark:text-white">QRIS</span>
                                         <span
-                                            class="block text-[10px] font-semibold text-gray-400 dark:text-gray-500">Gopay,
-                                            OVO, Dana, LinkAja</span>
+                                            class="block text-[10px] font-semibold text-gray-400 dark:text-gray-500">
+                                            {{ $qrisQrCodeUrl ? 'Nominal otomatis sesuai total belanja' : 'Payload QRIS belum dikonfigurasi' }}</span>
                                     </span>
                                     <span
                                         class="h-5 w-5 rounded-full border-2 border-gray-200 dark:border-gray-700"></span>
@@ -1174,14 +1176,21 @@
                         <div
                             class="mt-6 md:mt-9 rounded-3xl bg-white dark:bg-gray-900 p-4 sm:p-10 shadow-2xl shadow-gray-900/10 border border-gray-100 dark:border-gray-800">
                             <div class="rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 p-3 sm:p-6">
-                                <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=SIKAMO-QRIS-' + cartTotal"
-                                    alt="QR Code QRIS"
-                                    class="h-[min(72vw,16rem)] w-[min(72vw,16rem)] sm:h-72 sm:w-72 rounded-xl bg-white p-3 shadow-sm">
+                                @if ($qrisQrCodeUrl)
+                                    <img src="{{ $qrisQrCodeUrl }}"
+                                        alt="QR Code QRIS {{ $merchantName }}"
+                                        class="h-[min(72vw,16rem)] w-[min(72vw,16rem)] sm:h-72 sm:w-72 rounded-xl bg-white p-3 shadow-sm object-contain">
+                                @else
+                                    <div
+                                        class="flex h-[min(72vw,16rem)] w-[min(72vw,16rem)] sm:h-72 sm:w-72 items-center justify-center rounded-xl bg-white p-6 text-center text-xs font-bold text-gray-400 shadow-sm dark:bg-gray-950 dark:text-gray-500">
+                                        Payload QRIS belum dikonfigurasi di Profil Toko
+                                    </div>
+                                @endif
                             </div>
                             <div class="mt-6 border-t border-gray-100 dark:border-gray-800 pt-5">
                                 <p
                                     class="text-[10px] font-black uppercase tracking-[0.24em] text-gray-350 dark:text-gray-600">
-                                    Secured by QRIS</p>
+                                    QRIS Dinamis</p>
                             </div>
                         </div>
 
@@ -1191,8 +1200,8 @@
                             Menunggu Pembayaran...
                         </div>
 
-                        <button type="button" @click="confirmQris()"
-                            class="mt-6 w-full max-w-md rounded-2xl bg-emerald-700 px-4 py-4 text-sm font-black text-white shadow-md shadow-emerald-700/15 hover:bg-emerald-800 transition cursor-pointer">
+                        <button type="button" @click="confirmQris()" @disabled(! $qrisQrCodeUrl)
+                            class="mt-6 w-full max-w-md rounded-2xl px-4 py-4 text-sm font-black text-white shadow-md transition {{ $qrisQrCodeUrl ? 'bg-emerald-700 shadow-emerald-700/15 hover:bg-emerald-800 cursor-pointer' : 'bg-gray-300 shadow-gray-300/20 cursor-not-allowed dark:bg-gray-700' }}">
                             Selesaikan Transaksi
                         </button>
                         <button type="button" @click="selectedMethod = 'cash'; paymentStep = 1"
@@ -1597,6 +1606,8 @@
                 receiptReturnTimer: null,
                 showRefundConfirm: false,
                 refundProcessing: false,
+                realtimeChannel: @js($merchantRealtimeChannel),
+                realtimeRefreshTimer: null,
 
                 // Scanning states
                 scanner: null,
@@ -1609,6 +1620,8 @@
                 facingMode: 'environment', // Kamera belakang default
 
                 init() {
+                    this.initRealtime();
+
                     // Listen to native window events (bridged from Livewire once, never duplicated)
                     window.addEventListener('sikamo:checkoutSuccess', (e) => {
                         const d = e.detail;
@@ -1675,6 +1688,34 @@
 
                     this.activeTab = tab;
                     this.$wire.setTab(tab);
+                },
+
+                initRealtime() {
+                    if (!this.realtimeChannel || !window.Echo) {
+                        return;
+                    }
+
+                    window.Echo.private(this.realtimeChannel)
+                        .listen('.ProductStockUpdated', (event) => {
+                            this.scheduleRealtimeRefresh();
+
+                            if (event?.productName) {
+                                window.toastr?.info(`Stok ${event.productName} diperbarui: ${event.stock}`);
+                            }
+                        });
+                },
+
+                scheduleRealtimeRefresh() {
+                    clearTimeout(this.realtimeRefreshTimer);
+
+                    this.realtimeRefreshTimer = setTimeout(() => {
+                        if (typeof this.$wire?.$refresh === 'function') {
+                            this.$wire.$refresh();
+                            return;
+                        }
+
+                        this.$wire.call('$refresh');
+                    }, 250);
                 },
 
                 async startScanning() {

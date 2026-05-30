@@ -2,6 +2,7 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 // Expose Html5Qrcode to window so that gallery scanning works
 window.Html5Qrcode = Html5Qrcode;
+window.Html5QrcodeSupportedFormats = Html5QrcodeSupportedFormats;
 
 const formatsToSupport = [
     Html5QrcodeSupportedFormats.EAN_13,
@@ -71,5 +72,34 @@ window.SiKaMoBarcodeScanner = {
                 }
             }
         };
+    },
+};
+
+window.SiKaMoQrisImageDecoder = {
+    async scanFile(file) {
+        if (!file || !file.type?.startsWith('image/')) {
+            return null;
+        }
+
+        const elementId = 'sikamo-qris-image-decoder';
+        let element = document.getElementById(elementId);
+
+        if (!element) {
+            element = document.createElement('div');
+            element.id = elementId;
+            element.hidden = true;
+            document.body.appendChild(element);
+        }
+
+        const scanner = new Html5Qrcode(elementId, {
+            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+            verbose: false,
+        });
+
+        try {
+            return await scanner.scanFile(file, true);
+        } finally {
+            scanner.clear();
+        }
     },
 };

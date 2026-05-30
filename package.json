@@ -16,6 +16,8 @@
     },
     "dependencies": {
         "html5-qrcode": "^2.3.8",
+        "laravel-echo": "^2.3.4",
+        "pusher-js": "^8.5.0",
         "toastr": "^2.1.4"
     }
 }

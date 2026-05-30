@@ -5,6 +5,7 @@ namespace App\Filament\Merchant\Resources;
 use App\Filament\Merchant\Resources\ProductResource\Pages;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Supplier;
 use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
@@ -183,10 +184,32 @@ class ProductResource extends Resource
                 ->maxLength(255)
                 ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
 
+            Forms\Components\Select::make('supplier_id')
+                ->label('Supplier')
+                ->options(fn(): array => Supplier::query()
+                    ->where('merchant_id', filament()->getTenant()?->id)
+                    ->where('is_active', true)
+                    ->orderBy('name')
+                    ->pluck('name', 'id')
+                    ->all())
+                ->searchable()
+                ->preload()
+                ->nullable()
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+
             Forms\Components\TextInput::make('price')
-                ->label('Harga')
+                ->label('Harga Jual')
                 ->numeric()
                 ->prefix('Rp')
+                ->required(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
+                ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
+
+            Forms\Components\TextInput::make('cost_price')
+                ->label('Harga Modal')
+                ->numeric()
+                ->prefix('Rp')
+                ->default(0)
+                ->minValue(0)
                 ->required(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation))
                 ->visible(fn(Get $get, string $operation): bool => ! static::isExistingProductMode($get, $operation)),
 
@@ -231,14 +254,25 @@ class ProductResource extends Resource
                     ->badge()
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('supplier.name')
+                    ->label('Supplier')
+                    ->searchable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('barcode')
                     ->label('Barcode')
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('price')
-                    ->label('Harga')
+                    ->label('Harga Jual')
                     ->money('IDR')
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('cost_price')
+                    ->label('Modal')
+                    ->money('IDR')
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Stok')
@@ -259,6 +293,14 @@ class ProductResource extends Resource
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Kategori')
                     ->relationship('category', 'name'),
+
+                Tables\Filters\SelectFilter::make('supplier_id')
+                    ->label('Supplier')
+                    ->options(fn(): array => Supplier::query()
+                        ->where('merchant_id', filament()->getTenant()?->id)
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->all()),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -14,7 +14,10 @@ class TransactionItem extends Model
         'product_id',
         'quantity',
         'unit_price',
+        'unit_cost',
         'subtotal',
+        'total_cost',
+        'gross_profit',
     ];
 
     // Relasi ke transaksi

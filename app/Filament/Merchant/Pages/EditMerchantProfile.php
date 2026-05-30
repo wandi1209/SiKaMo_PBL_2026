@@ -3,6 +3,7 @@
 namespace App\Filament\Merchant\Pages;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -78,10 +79,23 @@ class EditMerchantProfile extends EditTenantProfile
 
                     FileUpload::make('qr_code_image')
                         ->label('QR Code Toko (gambar)')
-                        ->helperText('Upload gambar QR Code untuk toko Anda.')
+                        ->helperText('Opsional sebagai referensi. Untuk QRIS nominal otomatis, isi Payload QRIS di bawah.')
                         ->image()
+                        ->disk('public')
                         ->directory('merchants/qr-codes')
                         ->nullable()
+                        ->columnSpanFull(),
+
+                    Textarea::make('qris_payload')
+                        ->label('Payload QRIS')
+                        ->helperText('Otomatis terisi saat gambar QRIS berhasil dibaca. Sistem akan membuat QRIS dinamis sesuai total transaksi.')
+                        ->rows(5)
+                        ->nullable()
+                        ->columnSpanFull(),
+
+                    Placeholder::make('qris_payload_auto_reader')
+                        ->label('')
+                        ->content(view('filament.merchant.pages.partials.qris-payload-auto-reader'))
                         ->columnSpanFull(),
                 ])->columns(2),
             ]);

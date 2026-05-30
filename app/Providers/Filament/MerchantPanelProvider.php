@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Merchant\Resources\ProductResource\Pages\ListProducts;
+use App\Filament\Merchant\Pages\EditMerchantProfile;
 use App\Models\Merchant;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -99,7 +100,10 @@ class MerchantPanelProvider extends PanelProvider
                         )['resources/js/barcode-scanner.js']['file']),
                     ],
                 ),
-                scopes: ListProducts::class,
+                scopes: [
+                    ListProducts::class,
+                    EditMerchantProfile::class,
+                ],
             )
             ->middleware([
                 EncryptCookies::class,

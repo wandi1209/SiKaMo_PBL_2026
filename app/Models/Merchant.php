@@ -22,6 +22,7 @@ class Merchant extends Model
         'operational_start_time',
         'operational_end_time',
         'qr_code_image',
+        'qris_payload',
         'is_active',
     ];
 
@@ -56,6 +57,16 @@ class Merchant extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function suppliers(): HasMany
+    {
+        return $this->hasMany(Supplier::class);
+    }
+
+    public function purchases(): HasMany
+    {
+        return $this->hasMany(Purchase::class);
     }
 
     public function dailyReports(): HasMany

@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Merchant;
 
+use App\Events\ProductStockUpdated;
+use App\Models\Merchant;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -9,6 +11,7 @@ use Livewire\WithPagination;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Services\QrisPayloadService;
 use App\Services\TransactionRefundService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -95,6 +98,39 @@ class SalesPage extends Component
         }
 
         return filament()?->getTenant()?->id;
+    }
+
+    private function getMerchant(): ?Merchant
+    {
+        $merchantId = $this->getMerchantId();
+
+        if (! $merchantId) {
+            return null;
+        }
+
+        return Merchant::find($merchantId);
+    }
+
+    private function getQrisQrCodeUrl(): ?string
+    {
+        $payload = $this->getDynamicQrisPayload();
+
+        if (! $payload) {
+            return null;
+        }
+
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=' . urlencode($payload);
+    }
+
+    private function getDynamicQrisPayload(): ?string
+    {
+        $payload = $this->getMerchant()?->qris_payload;
+
+        if (! $payload || $this->total <= 0) {
+            return null;
+        }
+
+        return app(QrisPayloadService::class)->withAmount($payload, $this->total);
     }
 
     public function getProducts()
@@ -314,6 +350,11 @@ class SalesPage extends Component
             $paymentMethod = 'cash';
         }
 
+        if ($paymentMethod === 'qris' && ! $this->getDynamicQrisPayload()) {
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Payload QRIS toko belum dikonfigurasi']);
+            return;
+        }
+
         if (empty($this->cart)) {
             Log::warning('[Checkout] cart is empty');
             $this->dispatch('showToast', ['type' => 'error', 'message' => 'Keranjang kosong']);
@@ -337,14 +378,13 @@ class SalesPage extends Component
                 $transactionItems = [];
 
                 foreach ($this->cart as $item) {
-                    $product = Product::find($item['id']);
+                    $product = Product::query()
+                        ->where('merchant_id', $merchantId)
+                        ->lockForUpdate()
+                        ->find($item['id']);
 
                     if (!$product) {
                         throw new \Exception("Produk dengan ID {$item['id']} tidak ditemukan");
-                    }
-
-                    if ($product->merchant_id !== $merchantId) {
-                        throw new \Exception("Produk {$product->name} tidak termasuk dalam merchant Anda");
                     }
 
                     if ($product->stock < $item['quantity']) {
@@ -352,13 +392,18 @@ class SalesPage extends Component
                     }
 
                     $subtotal = $item['price'] * $item['quantity'];
+                    $unitCost = (float) ($product->cost_price ?? 0);
+                    $totalCost = $unitCost * $item['quantity'];
                     $totalAmount += $subtotal;
 
                     $transactionItems[] = [
                         'product_id' => $item['id'],
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['price'],
+                        'unit_cost' => $unitCost,
                         'subtotal' => $subtotal,
+                        'total_cost' => $totalCost,
+                        'gross_profit' => $subtotal - $totalCost,
                         'product' => $product,
                     ];
                 }
@@ -393,7 +438,10 @@ class SalesPage extends Component
                         'product_id' => $itemData['product_id'],
                         'quantity' => $itemData['quantity'],
                         'unit_price' => $itemData['unit_price'],
+                        'unit_cost' => $itemData['unit_cost'],
                         'subtotal' => $itemData['subtotal'],
+                        'total_cost' => $itemData['total_cost'],
+                        'gross_profit' => $itemData['gross_profit'],
                     ]);
 
                     $product = $itemData['product'];
@@ -409,6 +457,9 @@ class SalesPage extends Component
 
                     try {
                         $product->decrement('stock', $itemData['quantity']);
+                        $product->refresh();
+
+                        DB::afterCommit(fn() => event(ProductStockUpdated::fromProduct($product)));
                     } finally {
                         app()->forgetInstance('audit_context');
                     }
@@ -426,6 +477,8 @@ class SalesPage extends Component
                 'subtotal' => $item['price'] * $item['quantity'],
             ])->values()->all();
 
+            $merchant = $this->getMerchant();
+
             $this->dispatch('checkoutSuccess', [
                 'invoiceNumber' => $transaction->invoice_number,
                 'total' => $transaction->total_amount,
@@ -433,8 +486,8 @@ class SalesPage extends Component
                 'change' => $transaction->change_amount,
                 'paymentMethod' => $transaction->payment_method,
                 'createdAt' => $transaction->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
-                'merchantName' => $user->merchant?->name ?? 'Toko Kelontong',
-                'merchantAddress' => $user->merchant?->address ?? 'SiKaMo POS',
+                'merchantName' => $merchant?->name ?? 'Toko Kelontong',
+                'merchantAddress' => $merchant?->address ?? 'SiKaMo POS',
                 'cashierName' => $user->name,
                 'items' => $receiptItems,
             ]);
@@ -509,6 +562,8 @@ class SalesPage extends Component
             'products' => $this->getProducts(),
             'lowStockProducts' => $this->getLowStockProducts(),
             'lowStockProductsCount' => $this->getLowStockProductsCount(),
+            'qrisQrCodeUrl' => $this->getQrisQrCodeUrl(),
+            'merchantRealtimeChannel' => $this->getMerchantId() ? 'merchant.' . $this->getMerchantId() : null,
         ])->layout('components.layouts.transaction', [
             'title' => 'Transaksi Penjualan',
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ProductStockUpdated;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\Product;
@@ -42,10 +43,12 @@ class TransactionController extends Controller
                 $transactionItems = [];
 
                 foreach ($validated['items'] as $item) {
-                    $product = Product::find($item['product_id']);
+                    $product = Product::query()
+                        ->where('merchant_id', $merchantId)
+                        ->lockForUpdate()
+                        ->find($item['product_id']);
 
-                    // Validasi kepemilikan merchant
-                    if ($product->merchant_id !== $merchantId) {
+                    if (! $product) {
                         throw new \Exception('Produk tidak termasuk dalam merchant Anda');
                     }
 
@@ -55,13 +58,18 @@ class TransactionController extends Controller
                     }
 
                     $subtotal = $item['unit_price'] * $item['quantity'];
+                    $unitCost = (float) ($product->cost_price ?? 0);
+                    $totalCost = $unitCost * $item['quantity'];
                     $totalAmount += $subtotal;
 
                     $transactionItems[] = [
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['unit_price'],
+                        'unit_cost' => $unitCost,
                         'subtotal' => $subtotal,
+                        'total_cost' => $totalCost,
+                        'gross_profit' => $subtotal - $totalCost,
                     ];
                 }
 
@@ -92,11 +100,17 @@ class TransactionController extends Controller
                         'product_id' => $itemData['product_id'],
                         'quantity' => $itemData['quantity'],
                         'unit_price' => $itemData['unit_price'],
+                        'unit_cost' => $itemData['unit_cost'],
                         'subtotal' => $itemData['subtotal'],
+                        'total_cost' => $itemData['total_cost'],
+                        'gross_profit' => $itemData['gross_profit'],
                     ]);
 
                     // Kurangi stock produk
-                    $product = Product::find($itemData['product_id']);
+                    $product = Product::query()
+                        ->where('merchant_id', $merchantId)
+                        ->lockForUpdate()
+                        ->find($itemData['product_id']);
                     app()->instance('audit_context', [
                         'system_actor' => true,
                         'system_reason' => 'sale',
@@ -109,6 +123,8 @@ class TransactionController extends Controller
 
                     try {
                         $product->decrement('stock', $itemData['quantity']);
+                        $product->refresh();
+                        DB::afterCommit(fn() => event(ProductStockUpdated::fromProduct($product)));
                     } finally {
                         app()->forgetInstance('audit_context');
                     }

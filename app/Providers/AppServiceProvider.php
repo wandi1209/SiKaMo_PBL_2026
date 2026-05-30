@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\DailyReport;
 use App\Models\Merchant;
 use App\Models\Product;
+use App\Models\Purchase;
+use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Observers\AuditObserver;
@@ -34,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        foreach ([Category::class, DailyReport::class, Merchant::class, Product::class, Transaction::class, User::class] as $model) {
+        foreach ([Category::class, DailyReport::class, Merchant::class, Product::class, Purchase::class, Supplier::class, Transaction::class, User::class] as $model) {
             $model::observe(AuditObserver::class);
         }
 

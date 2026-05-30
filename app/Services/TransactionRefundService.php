@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\ProductStockUpdated;
 use App\Models\StockLog;
 use App\Models\Transaction;
 use App\Models\User;
@@ -45,6 +46,8 @@ class TransactionRefundService
 
                 try {
                     $product->forceFill(['stock' => $stockAfter])->save();
+                    $product->refresh();
+                    DB::afterCommit(fn() => event(ProductStockUpdated::fromProduct($product)));
                 } finally {
                     app()->forgetInstance('audit_context');
                 }
