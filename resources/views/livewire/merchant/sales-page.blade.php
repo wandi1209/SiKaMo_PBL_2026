@@ -902,6 +902,56 @@
                                 <span class="font-semibold text-gray-800 dark:text-white">{{ count($cart) }}
                                     item</span>
                             </div>
+                            <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
+                                <label class="mb-2 block text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500">Kode Diskon</label>
+                                <div class="flex gap-2">
+                                    <input type="text" wire:model.defer="discountCode" placeholder="Contoh: HEMAT15"
+                                        class="min-w-0 flex-1 rounded-xl border border-gray-150 bg-white px-3 py-2 text-xs font-bold uppercase text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white">
+                                    <button type="button" wire:click="applyDiscount"
+                                        class="rounded-xl bg-emerald-700 px-3 py-2 text-xs font-black text-white transition hover:bg-emerald-800">
+                                        Pakai
+                                    </button>
+                                </div>
+                                @if ($appliedDiscount)
+                                    <div class="mt-2 flex items-center justify-between gap-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
+                                        <span>{{ $appliedDiscount['code'] }} - {{ $appliedDiscount['name'] }}</span>
+                                        <button type="button" wire:click="removeDiscount" class="text-rose-600 hover:text-rose-700">Hapus</button>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
+                                <label class="mb-2 block text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500">Member</label>
+                                <div class="flex gap-2">
+                                    <input type="tel" wire:model.defer="memberPhone" placeholder="Nomor HP member"
+                                        class="min-w-0 flex-1 rounded-xl border border-gray-150 bg-white px-3 py-2 text-xs font-bold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white">
+                                    <button type="button" wire:click="findMember"
+                                        class="rounded-xl bg-gray-900 px-3 py-2 text-xs font-black text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200">
+                                        Cek
+                                    </button>
+                                </div>
+                                @if ($selectedMember)
+                                    <div class="mt-2 flex items-center justify-between gap-3 rounded-xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-700 dark:bg-sky-950/30 dark:text-sky-400">
+                                        <span>{{ $selectedMember['name'] }} - {{ $selectedMember['phone'] }}</span>
+                                        <button type="button" wire:click="removeMember" class="text-rose-600 hover:text-rose-700">Hapus</button>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="flex justify-between text-gray-500 dark:text-gray-400">
+                                <span>Subtotal</span>
+                                <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                            </div>
+                            @if ($discountAmount > 0)
+                                <div class="flex justify-between text-emerald-600 dark:text-emerald-400">
+                                    <span>Diskon</span>
+                                    <span class="font-semibold">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                            @if ($memberDiscountAmount > 0)
+                                <div class="flex justify-between text-sky-600 dark:text-sky-400">
+                                    <span>Diskon Member</span>
+                                    <span class="font-semibold">- Rp {{ number_format($memberDiscountAmount, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
                             <div
                                 class="flex justify-between items-center pt-4 border-t border-gray-50 dark:border-gray-800">
                                 <span class="text-base font-bold text-gray-850 dark:text-white">Total Bayar</span>
@@ -964,11 +1014,29 @@
                                         </div>
                                     </div>
                                 @endforeach
-                                <div class="flex items-center justify-between gap-4 bg-gray-50/80 px-4 py-4 dark:bg-gray-900/80">
-                                    <span class="text-sm font-black text-gray-600 dark:text-gray-300">Total Bayar</span>
-                                    <span class="text-lg font-black text-emerald-600 dark:text-emerald-450">
-                                        Rp {{ number_format($total, 0, ',', '.') }}
-                                    </span>
+                                <div class="space-y-2 bg-gray-50/80 px-4 py-4 dark:bg-gray-900/80">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400">Subtotal</span>
+                                        <span class="text-sm font-black text-gray-900 dark:text-white">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                                    </div>
+                                    @if ($discountAmount > 0)
+                                        <div class="flex items-center justify-between gap-4">
+                                            <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Diskon</span>
+                                            <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
+                                        </div>
+                                    @endif
+                                    @if ($memberDiscountAmount > 0)
+                                        <div class="flex items-center justify-between gap-4">
+                                            <span class="text-xs font-bold text-sky-600 dark:text-sky-400">Diskon Member</span>
+                                            <span class="text-sm font-black text-sky-600 dark:text-sky-400">- Rp {{ number_format($memberDiscountAmount, 0, ',', '.') }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2 dark:border-gray-800">
+                                        <span class="text-sm font-black text-gray-600 dark:text-gray-300">Total Bayar</span>
+                                        <span class="text-lg font-black text-emerald-600 dark:text-emerald-450">
+                                            Rp {{ number_format($total, 0, ',', '.') }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="hidden overflow-x-auto md:block">
@@ -1000,12 +1068,24 @@
                                     </tbody>
                                     <tfoot class="bg-gray-50/80 dark:bg-gray-900/80">
                                         <tr>
-                                            <td colspan="2"
-                                                class="px-6 py-5 text-base font-black text-gray-600 dark:text-gray-300">
-                                                Total Bayar</td>
-                                            <td
-                                                class="px-6 py-5 text-right text-2xl font-black text-emerald-600 dark:text-emerald-450">
-                                                Rp {{ number_format($total, 0, ',', '.') }}</td>
+                                            <td colspan="2" class="px-6 pt-5 text-sm font-bold text-gray-500 dark:text-gray-400">Subtotal</td>
+                                            <td class="px-6 pt-5 text-right text-sm font-black text-gray-900 dark:text-white">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                                        </tr>
+                                        @if ($discountAmount > 0)
+                                            <tr>
+                                                <td colspan="2" class="px-6 pt-2 text-sm font-bold text-emerald-600 dark:text-emerald-400">Diskon {{ $appliedDiscount['code'] ?? '' }}</td>
+                                                <td class="px-6 pt-2 text-right text-sm font-black text-emerald-600 dark:text-emerald-400">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endif
+                                        @if ($memberDiscountAmount > 0)
+                                            <tr>
+                                                <td colspan="2" class="px-6 pt-2 text-sm font-bold text-sky-600 dark:text-sky-400">Diskon Member</td>
+                                                <td class="px-6 pt-2 text-right text-sm font-black text-sky-600 dark:text-sky-400">- Rp {{ number_format($memberDiscountAmount, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endif
+                                        <tr>
+                                            <td colspan="2" class="px-6 py-5 text-base font-black text-gray-600 dark:text-gray-300">Total Bayar</td>
+                                            <td class="px-6 py-5 text-right text-2xl font-black text-emerald-600 dark:text-emerald-450">Rp {{ number_format($total, 0, ',', '.') }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -1107,7 +1187,7 @@
                         </div>
 
                         <button type="button" @click="confirmCash()"
-                            :disabled="!amountPaid || Number(amountPaid) < cartTotal"
+                            :disabled="cartTotal > 0 && (!amountPaid || Number(amountPaid) < cartTotal)"
                             class="w-full rounded-2xl bg-emerald-700 px-4 py-4 text-sm font-black text-white shadow-md shadow-emerald-700/15 hover:bg-emerald-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed transition cursor-pointer">
                             Selesaikan Transaksi
                         </button>
@@ -1157,8 +1237,22 @@
                                 class="flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400">
                                 <span>Subtotal</span>
                                 <span class="text-gray-900 dark:text-white">Rp
-                                    {{ number_format($total, 0, ',', '.') }}</span>
+                                    {{ number_format($subtotal, 0, ',', '.') }}</span>
                             </div>
+                            @if ($discountAmount > 0)
+                                <div
+                                    class="flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                    <span>Diskon {{ $appliedDiscount['code'] ?? '' }}</span>
+                                    <span>- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                            @if ($memberDiscountAmount > 0)
+                                <div
+                                    class="flex items-center justify-between text-xs font-bold text-sky-600 dark:text-sky-400">
+                                    <span>Diskon Member</span>
+                                    <span>- Rp {{ number_format($memberDiscountAmount, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-black text-gray-900 dark:text-white">Total Bayar</span>
                                 <span class="text-lg font-black text-emerald-600 dark:text-emerald-450">Rp
@@ -1271,6 +1365,13 @@
                             <span class="uppercase text-gray-800 dark:text-gray-100"
                                 x-text="receiptPaymentMethod"></span>
                         </div>
+                        <div x-show="receiptMemberName" class="flex justify-between gap-4">
+                            <span>Member</span>
+                            <span class="text-right text-gray-800 dark:text-gray-100">
+                                <span x-text="receiptMemberName"></span>
+                                <span x-show="receiptMemberPhone">(<span x-text="receiptMemberPhone"></span>)</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -1295,7 +1396,15 @@
                     <div class="flex justify-between text-sm font-semibold text-gray-400 dark:text-gray-500">
                         <span>Subtotal</span>
                         <span class="text-gray-900 dark:text-white">Rp <span
-                                x-text="formatCurrency(totalAmount)"></span></span>
+                                x-text="formatCurrency(receiptSubtotal)"></span></span>
+                    </div>
+                    <div x-show="receiptDiscountAmount > 0" class="flex justify-between text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span>Diskon <span x-text="receiptDiscountCode"></span></span>
+                        <span>- Rp <span x-text="formatCurrency(receiptDiscountAmount)"></span></span>
+                    </div>
+                    <div x-show="receiptMemberDiscountAmount > 0" class="flex justify-between text-sm font-semibold text-sky-600 dark:text-sky-400">
+                        <span>Diskon Member</span>
+                        <span>- Rp <span x-text="formatCurrency(receiptMemberDiscountAmount)"></span></span>
                     </div>
                     <div class="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
                         <span class="text-base font-black text-gray-900 dark:text-white"
@@ -1592,6 +1701,12 @@
                 quickNominals: [5000, 10000, 20000, 50000, 100000, 200000],
                 showCheckoutModal: false,
                 invoiceNumber: '',
+                receiptSubtotal: 0,
+                receiptDiscountCode: '',
+                receiptDiscountAmount: 0,
+                receiptMemberName: '',
+                receiptMemberPhone: '',
+                receiptMemberDiscountAmount: 0,
                 totalAmount: 0,
                 receiptAmountPaid: 0,
                 receiptChange: 0,
@@ -1626,6 +1741,12 @@
                     window.addEventListener('sikamo:checkoutSuccess', (e) => {
                         const d = e.detail;
                         this.invoiceNumber = d.invoiceNumber || '';
+                        this.receiptSubtotal = d.subtotal || d.total || 0;
+                        this.receiptDiscountCode = d.discountCode || '';
+                        this.receiptDiscountAmount = d.discountAmount || 0;
+                        this.receiptMemberName = d.memberName || '';
+                        this.receiptMemberPhone = d.memberPhone || '';
+                        this.receiptMemberDiscountAmount = d.memberDiscountAmount || 0;
                         this.totalAmount = d.total || 0;
                         this.receiptAmountPaid = d.amountPaid || 0;
                         this.receiptChange = d.change || 0;
@@ -1819,10 +1940,10 @@
 
                 confirmCash() {
                     const paid = parseFloat(this.amountPaid);
-                    if (!paid || paid < this.cartTotal) {
+                    if (this.cartTotal > 0 && (!paid || paid < this.cartTotal)) {
                         return;
                     }
-                    this.$wire.call('checkout', 'cash', paid);
+                    this.$wire.call('checkout', 'cash', paid || 0);
                 },
 
                 confirmQris() {
@@ -1844,6 +1965,12 @@
                     this.stopReceiptReturnCountdown();
                     this.showCheckoutModal = false;
                     this.invoiceNumber = '';
+                    this.receiptSubtotal = 0;
+                    this.receiptDiscountCode = '';
+                    this.receiptDiscountAmount = 0;
+                    this.receiptMemberName = '';
+                    this.receiptMemberPhone = '';
+                    this.receiptMemberDiscountAmount = 0;
                     this.totalAmount = 0;
                     this.receiptAmountPaid = 0;
                     this.receiptChange = 0;
@@ -2046,13 +2173,20 @@
                                     <div class="line"><span>Waktu</span><span>${escapeHtml(this.receiptCreatedAt)}</span></div>
                                     <div class="line"><span>Kasir</span><span>${escapeHtml(this.receiptCashierName || '-')}</span></div>
                                     <div class="line"><span>Metode</span><span>${escapeHtml(this.receiptPaymentMethod).toUpperCase()}</span></div>
+                                    ${this.receiptMemberName ? `<div class="line"><span>Member</span><span>${escapeHtml(this.receiptMemberName)} ${this.receiptMemberPhone ? '(' + escapeHtml(this.receiptMemberPhone) + ')' : ''}</span></div>` : ''}
                                 </div>
 
                                 <div class="rule"></div>
                                 ${rows}
                                 <div class="rule"></div>
 
-                                <div class="line"><span>Subtotal</span><span>Rp ${this.formatCurrency(this.totalAmount)}</span></div>
+                                <div class="line"><span>Subtotal</span><span>Rp ${this.formatCurrency(this.receiptSubtotal)}</span></div>
+                                ${this.receiptDiscountAmount > 0 ? `
+                                        <div class="line"><span>Diskon ${escapeHtml(this.receiptDiscountCode)}</span><span>- Rp ${this.formatCurrency(this.receiptDiscountAmount)}</span></div>
+                                    ` : ''}
+                                ${this.receiptMemberDiscountAmount > 0 ? `
+                                        <div class="line"><span>Diskon Member</span><span>- Rp ${this.formatCurrency(this.receiptMemberDiscountAmount)}</span></div>
+                                    ` : ''}
                                 <div class="rule"></div>
                                 <div class="line total"><span>TOTAL</span><span>Rp ${this.formatCurrency(this.totalAmount)}</span></div>
                                 <div class="rule"></div>

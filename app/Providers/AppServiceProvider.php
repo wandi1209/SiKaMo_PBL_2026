@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\AuditLog;
 use App\Models\Category;
 use App\Models\DailyReport;
+use App\Models\Discount;
 use App\Models\Merchant;
 use App\Models\Product;
 use App\Models\Purchase;
@@ -36,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        foreach ([Category::class, DailyReport::class, Merchant::class, Product::class, Purchase::class, Supplier::class, Transaction::class, User::class] as $model) {
+        foreach ([Category::class, DailyReport::class, Discount::class, Merchant::class, Product::class, Purchase::class, Supplier::class, Transaction::class, User::class] as $model) {
             $model::observe(AuditObserver::class);
         }
 

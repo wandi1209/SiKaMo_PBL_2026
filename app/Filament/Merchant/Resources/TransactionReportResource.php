@@ -50,7 +50,7 @@ class TransactionReportResource extends Resource
         $merchantId = filament()->getTenant()?->id;
 
         return parent::getEloquentQuery()
-            ->with(['user', 'refundedBy', 'items.product.category'])
+            ->with(['user', 'refundedBy', 'member', 'items.product.category'])
             ->whereIn('status', ['completed', 'refunded'])
             ->whereHas('items.product', fn(Builder $query) => $query->where('merchant_id', $merchantId));
     }
@@ -62,8 +62,13 @@ class TransactionReportResource extends Resource
                 ->schema([
                     Forms\Components\TextInput::make('invoice_number')->label('Invoice')->disabled(),
                     Forms\Components\TextInput::make('user.name')->label('Kasir')->disabled(),
+                    Forms\Components\TextInput::make('member_name')->label('Member')->disabled(),
+                    Forms\Components\TextInput::make('member_phone')->label('Nomor HP Member')->disabled(),
                     Forms\Components\TextInput::make('payment_method')->label('Metode Pembayaran')->disabled(),
-                    Forms\Components\TextInput::make('total_amount')->label('Total')->prefix('Rp')->disabled(),
+                    Forms\Components\TextInput::make('subtotal_amount')->label('Subtotal')->prefix('Rp')->disabled(),
+                    Forms\Components\TextInput::make('discount_amount')->label('Diskon')->prefix('Rp')->disabled(),
+                    Forms\Components\TextInput::make('member_discount_amount')->label('Diskon Member')->prefix('Rp')->disabled(),
+                    Forms\Components\TextInput::make('total_amount')->label('Total Bayar')->prefix('Rp')->disabled(),
                     Forms\Components\TextInput::make('amount_paid')->label('Dibayar')->prefix('Rp')->disabled(),
                     Forms\Components\TextInput::make('change_amount')->label('Kembalian')->prefix('Rp')->disabled(),
                     Forms\Components\Placeholder::make('items_summary')
@@ -95,6 +100,12 @@ class TransactionReportResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('member_name')
+                    ->label('Member')
+                    ->placeholder('-')
+                    ->searchable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('items_count')
                     ->label('Item')
                     ->counts('items')
@@ -120,9 +131,21 @@ class TransactionReportResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('Total')
+                    ->label('Total Bayar')
                     ->money('IDR')
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('discount_amount')
+                    ->label('Diskon')
+                    ->money('IDR')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('member_discount_amount')
+                    ->label('Diskon Member')
+                    ->money('IDR')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filter::make('created_at')
@@ -170,7 +193,7 @@ class TransactionReportResource extends Resource
         return response()->streamDownload(function () use ($merchantId): void {
             $handle = fopen('php://output', 'w');
 
-            fputcsv($handle, ['Invoice', 'Waktu', 'Kasir', 'Metode Pembayaran', 'Total', 'Item']);
+            fputcsv($handle, ['Invoice', 'Waktu', 'Kasir', 'Member', 'Nomor HP Member', 'Metode Pembayaran', 'Subtotal', 'Diskon', 'Diskon Member', 'Total', 'Item']);
 
             static::getEloquentQuery()
                 ->whereHas('items.product', fn(Builder $query) => $query->where('merchant_id', $merchantId))
@@ -181,7 +204,12 @@ class TransactionReportResource extends Resource
                             $transaction->invoice_number,
                             $transaction->created_at?->format('Y-m-d H:i:s'),
                             $transaction->user?->name,
+                            $transaction->member_name,
+                            $transaction->member_phone,
                             $transaction->payment_method,
+                            $transaction->subtotal_amount,
+                            $transaction->discount_amount,
+                            $transaction->member_discount_amount,
                             $transaction->total_amount,
                             $transaction->items
                                 ->map(fn($item): string => "{$item->product?->name} x{$item->quantity}")

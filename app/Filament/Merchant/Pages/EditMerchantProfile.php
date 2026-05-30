@@ -5,9 +5,11 @@ namespace App\Filament\Merchant\Pages;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\EditTenantProfile;
 use Illuminate\Support\Str;
@@ -97,6 +99,50 @@ class EditMerchantProfile extends EditTenantProfile
                         ->label('')
                         ->content(view('filament.merchant.pages.partials.qris-payload-auto-reader'))
                         ->columnSpanFull(),
+                ])->columns(2),
+
+                Section::make('Pengaturan Member')->schema([
+                    Toggle::make('member_discount_is_active')
+                        ->label('Aktifkan diskon khusus member')
+                        ->helperText('Jika aktif, kasir bisa memasukkan nomor HP member dan sistem akan memberi potongan otomatis.')
+                        ->live(),
+
+                    Select::make('member_discount_type')
+                        ->label('Jenis Diskon')
+                        ->options([
+                            'percent' => 'Persen',
+                            'fixed' => 'Nominal',
+                        ])
+                        ->default('percent')
+                        ->required()
+                        ->live(),
+
+                    TextInput::make('member_discount_value')
+                        ->label(fn (\Filament\Forms\Get $get): string => $get('member_discount_type') === 'fixed' ? 'Nominal Diskon' : 'Persentase Diskon')
+                        ->numeric()
+                        ->prefix(fn (\Filament\Forms\Get $get): ?string => $get('member_discount_type') === 'fixed' ? 'Rp' : null)
+                        ->suffix(fn (\Filament\Forms\Get $get): ?string => $get('member_discount_type') === 'percent' ? '%' : null)
+                        ->minValue(0)
+                        ->maxValue(fn (\Filament\Forms\Get $get): ?int => $get('member_discount_type') === 'percent' ? 100 : null)
+                        ->default(0)
+                        ->required(),
+
+                    TextInput::make('member_discount_max_amount')
+                        ->label('Maksimal Potongan')
+                        ->helperText('Contoh: diskon member 10% s/d Rp20.000. Kosongkan jika tidak dibatasi.')
+                        ->numeric()
+                        ->prefix('Rp')
+                        ->minValue(0)
+                        ->nullable(),
+
+                    TextInput::make('member_discount_min_purchase')
+                        ->label('Minimal Belanja')
+                        ->helperText('Contoh: minimal belanja Rp50.000 agar diskon member berlaku.')
+                        ->numeric()
+                        ->prefix('Rp')
+                        ->minValue(0)
+                        ->default(0)
+                        ->required(),
                 ])->columns(2),
             ]);
     }

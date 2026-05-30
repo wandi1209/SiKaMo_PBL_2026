@@ -12,7 +12,15 @@ class Transaction extends Model
 
     protected $fillable = [
         'user_id',
+        'discount_id',
+        'discount_code',
+        'member_id',
+        'member_name',
+        'member_phone',
         'invoice_number',
+        'subtotal_amount',
+        'discount_amount',
+        'member_discount_amount',
         'total_amount',
         'amount_paid',
         'change_amount',
@@ -38,6 +46,16 @@ class Transaction extends Model
     public function refundedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'refunded_by');
+    }
+
+    public function discount(): BelongsTo
+    {
+        return $this->belongsTo(Discount::class);
+    }
+
+    public function member(): BelongsTo
+    {
+        return $this->belongsTo(Member::class);
     }
 
     // Relasi ke item transaksi

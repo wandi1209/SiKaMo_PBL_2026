@@ -86,6 +86,8 @@ class TransactionController extends Controller
                 $transaction = Transaction::create([
                     'user_id' => $user->id,
                     'invoice_number' => $invoiceNumber,
+                    'subtotal_amount' => $totalAmount,
+                    'discount_amount' => 0,
                     'total_amount' => $totalAmount,
                     'amount_paid' => $amountPaid,
                     'change_amount' => $amountPaid - $totalAmount,

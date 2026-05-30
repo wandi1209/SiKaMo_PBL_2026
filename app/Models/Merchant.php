@@ -23,11 +23,20 @@ class Merchant extends Model
         'operational_end_time',
         'qr_code_image',
         'qris_payload',
+        'member_discount_is_active',
+        'member_discount_type',
+        'member_discount_value',
+        'member_discount_max_amount',
+        'member_discount_min_purchase',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'member_discount_is_active' => 'boolean',
+        'member_discount_value' => 'decimal:2',
+        'member_discount_max_amount' => 'decimal:2',
+        'member_discount_min_purchase' => 'decimal:2',
     ];
 
     // ─── Auto-generate slug dari name ────────────────────────────
@@ -67,6 +76,16 @@ class Merchant extends Model
     public function purchases(): HasMany
     {
         return $this->hasMany(Purchase::class);
+    }
+
+    public function discounts(): HasMany
+    {
+        return $this->hasMany(Discount::class);
+    }
+
+    public function members(): HasMany
+    {
+        return $this->hasMany(Member::class);
     }
 
     public function dailyReports(): HasMany
