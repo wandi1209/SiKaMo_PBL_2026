@@ -5,6 +5,7 @@ namespace App\Livewire\Merchant;
 use App\Events\ProductStockUpdated;
 use App\Models\Merchant;
 use App\Models\Product;
+use App\Models\StockLog;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -715,6 +716,7 @@ class SalesPage extends Component
                     ]);
 
                     try {
+                        $stockBefore = (int) $product->stock;
                         $product->decrement('stock', $itemData['quantity']);
                         $product->refresh();
 
@@ -722,6 +724,16 @@ class SalesPage extends Component
                     } finally {
                         app()->forgetInstance('audit_context');
                     }
+
+                    StockLog::create([
+                        'product_id' => $product->id,
+                        'user_id' => $user->id,
+                        'quantity_change' => -1 * (int) $itemData['quantity'],
+                        'stock_before' => $stockBefore,
+                        'stock_after' => (int) $product->stock,
+                        'type' => 'out',
+                        'note' => 'Penjualan ' . $transaction->invoice_number,
+                    ]);
                 }
 
                 return $transaction;

@@ -6,6 +6,7 @@ use App\Events\ProductStockUpdated;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\Product;
+use App\Models\StockLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -113,6 +114,8 @@ class TransactionController extends Controller
                         ->where('merchant_id', $merchantId)
                         ->lockForUpdate()
                         ->find($itemData['product_id']);
+                    $stockBefore = (int) $product->stock;
+
                     app()->instance('audit_context', [
                         'system_actor' => true,
                         'system_reason' => 'sale',
@@ -132,7 +135,7 @@ class TransactionController extends Controller
                     }
 
                     // Log perubahan stok
-                    $this->logStockChange($product, $itemData['quantity'], 'sale', $transaction->invoice_number);
+                    $this->logStockChange($product, $itemData['quantity'], $stockBefore, 'sale', $transaction->invoice_number);
                 }
 
                 return response()->json([
@@ -175,15 +178,17 @@ class TransactionController extends Controller
     /**
      * Log perubahan stok ke StockLog
      */
-    private function logStockChange($product, $quantity, $type, $reference)
+    private function logStockChange($product, $quantity, int $stockBefore, $type, $reference)
     {
-        // Jika ada model StockLog, simpan log di sini
-        // StockLog::create([
-        //     'product_id' => $product->id,
-        //     'quantity_change' => -$quantity,
-        //     'type' => $type,
-        //     'reference' => $reference,
-        // ]);
+        StockLog::create([
+            'product_id' => $product->id,
+            'user_id' => Auth::id(),
+            'quantity_change' => -1 * (int) $quantity,
+            'stock_before' => $stockBefore,
+            'stock_after' => (int) $product->stock,
+            'type' => $type === 'sale' ? 'out' : 'adjustment',
+            'note' => 'Penjualan ' . $reference,
+        ]);
     }
 
     /**

@@ -54,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
         \Filament\Support\Facades\FilamentView::registerRenderHook(
             \Filament\View\PanelsRenderHook::HEAD_END,
             fn (): string => \Illuminate\Support\Facades\Blade::render('
+                @vite(["resources/js/barcode-scanner.js"])
                 <style>
                     /* Memberikan warna putih bersih pada background seluruh sidebar */
                     aside.fi-sidebar {

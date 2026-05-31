@@ -149,13 +149,18 @@ class TransactionReportResource extends Resource
             ])
             ->filters([
                 Filter::make('created_at')
+                    ->label('Periode')
                     ->form([
-                        Forms\Components\DatePicker::make('start_date')->label('Dari Tanggal'),
-                        Forms\Components\DatePicker::make('end_date')->label('Sampai Tanggal'),
+                        Forms\Components\Select::make('month')
+                            ->label('Bulan')
+                            ->options(static::monthOptions()),
+                        Forms\Components\Select::make('year')
+                            ->label('Tahun')
+                            ->options(static::yearOptions()),
                     ])
                     ->query(fn(Builder $query, array $data): Builder => $query
-                        ->when($data['start_date'] ?? null, fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
-                        ->when($data['end_date'] ?? null, fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date))),
+                        ->when($data['month'] ?? null, fn(Builder $query, $month): Builder => $query->whereMonth('created_at', $month))
+                        ->when($data['year'] ?? null, fn(Builder $query, $year): Builder => $query->whereYear('created_at', $year))),
 
                 Tables\Filters\SelectFilter::make('payment_method')
                     ->label('Metode Pembayaran')
@@ -228,5 +233,32 @@ class TransactionReportResource extends Resource
             'index' => Pages\ListTransactionReports::route('/'),
             'view' => Pages\ViewTransactionReport::route('/{record}'),
         ];
+    }
+
+    private static function monthOptions(): array
+    {
+        return [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+    }
+
+    private static function yearOptions(): array
+    {
+        $currentYear = (int) now()->year;
+
+        return collect(range($currentYear, $currentYear - 5))
+            ->mapWithKeys(fn(int $year): array => [$year => (string) $year])
+            ->all();
     }
 }
