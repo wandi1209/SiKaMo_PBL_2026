@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuditLogDownloadController;
+use App\Http\Controllers\OfflinePosController;
 use App\Http\Controllers\TransactionController;
 use App\Livewire\Merchant\SalesPage;
 use App\Models\User;
@@ -46,5 +47,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('merchant/transactions')->name('transactions.')->group(function () {
         Route::post('/checkout', [TransactionController::class, 'checkout'])->name('checkout');
         Route::get('/{invoiceNumber}', [TransactionController::class, 'show'])->name('show');
+    });
+
+    Route::prefix('merchant/offline-pos')->name('merchant.offline-pos.')->group(function () {
+        Route::get('/snapshot', [OfflinePosController::class, 'snapshot'])->name('snapshot');
+        Route::post('/sync', [OfflinePosController::class, 'sync'])->name('sync');
     });
 });

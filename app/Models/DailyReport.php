@@ -24,6 +24,7 @@ class DailyReport extends Model
 
     protected $casts = [
         'report_date' => 'date',
+        'sent_to_whatsapp' => 'boolean',
         'pdf_generated_at' => 'datetime',
         'sent_at' => 'datetime',
         'created_at' => 'datetime',

@@ -8,7 +8,10 @@
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#15803d">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="{{ asset('assets/logo.svg') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -542,7 +545,7 @@
 
         <div class="space-y-3" id="faq-list">
             @foreach([
-                ['q'=>'Apakah SiKaMo bisa digunakan secara offline?','a'=>'Saat ini SiKaMo berbasis cloud dan membutuhkan koneksi internet untuk sinkronisasi data real-time. Fitur mode offline sedang dalam tahap pengembangan aktif.'],
+                ['q'=>'Apakah SiKaMo bisa digunakan secara offline?','a'=>'Bisa untuk kebutuhan kasir inti. Setelah login dan data toko tersimpan di perangkat, kasir dapat menjual produk, memakai data produk/kategori/member terakhir, mencetak struk, dan menyimpan transaksi pending. Saat internet kembali, transaksi disinkronkan ke server.'],
                 ['q'=>'Apakah ada batasan jumlah kasir yang bisa ditambahkan?','a'=>'Tidak ada batasan sama sekali! Anda dapat menambahkan akun kasir sebanyak kebutuhan bisnis Anda, semuanya terhubung ke satu dashboard merchant utama.'],
                 ['q'=>'Berapa biaya berlangganan SiKaMo?','a'=>'SiKaMo menawarkan free trial dengan fitur lengkap. Setelah masa trial, tersedia paket berlangganan mulai dari Rp 99.000/bulan. Tidak perlu kartu kredit untuk memulai.'],
                 ['q'=>'Apakah data transaksi saya aman?','a'=>'Sangat aman. Semua data dienkripsi dengan standar SSL/TLS, disimpan di server tersertifikasi, dan di-backup otomatis setiap hari untuk keamanan data Anda.'],

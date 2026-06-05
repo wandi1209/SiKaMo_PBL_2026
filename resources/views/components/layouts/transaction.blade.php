@@ -8,18 +8,20 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="csrf-token" content="{{ csrf_token() }}" />
+        <meta name="color-scheme" content="light" />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="manifest" href="{{ asset('manifest.json') }}" />
 
         <title>{{ $title }} - SiKaMo</title>
 
-        <!-- Theme Initialization Script -->
+        <!-- Force light mode for the PWA, even when the OS uses dark mode. -->
         <script>
             (function() {
-                const theme = localStorage.getItem('theme') || 'system';
-                if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
+                document.documentElement.classList.remove('dark');
+                document.documentElement.style.colorScheme = 'light';
+                localStorage.setItem('theme', 'light');
             })();
         </script>
 
@@ -101,7 +103,7 @@
         </style>
     </head>
 
-    <body class="antialiased bg-gray-50 dark:bg-gray-950">
+    <body class="antialiased bg-gray-50">
         <!-- Toast Container -->
         <div id="toast-container" class="toast-container"></div>
 

@@ -15,7 +15,18 @@ class WhatsappLog extends Model
         'phone_number',
         'message_body',
         'status',
+        'provider',
+        'provider_request_id',
+        'provider_message_ids',
+        'response_body',
+        'error_message',
         'sent_at',
+    ];
+
+    protected $casts = [
+        'provider_message_ids' => 'array',
+        'response_body' => 'array',
+        'sent_at' => 'datetime',
     ];
 
     public function merchant(): BelongsTo
@@ -28,4 +39,3 @@ class WhatsappLog extends Model
         return $this->belongsTo(DailyReport::class, 'report_id');
     }
 }
-

@@ -108,30 +108,6 @@
             }
         }
 
-        @media (prefers-color-scheme: dark) {
-            .sikamo-sales-total-card {
-                background: rgba(34, 197, 94, 0.1);
-                border-color: rgba(34, 197, 94, 0.3);
-            }
-
-            .sikamo-sales-stat-card {
-                background: rgba(255, 255, 255, 0.05);
-                border-color: rgba(255, 255, 255, 0.1);
-            }
-
-            .sikamo-sales-label {
-                color: #94a3b8;
-            }
-
-            .sikamo-sales-value {
-                color: #f8fafc;
-            }
-
-            .sikamo-sales-total-value {
-                color: #86efac;
-            }
-        }
-
         @media print {
             * {
                 background: transparent !important;

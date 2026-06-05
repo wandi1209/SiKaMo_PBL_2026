@@ -7,6 +7,19 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+@layer base {
+    :root {
+        color-scheme: light;
+        background-color: #ffffff;
+    }
+
+    html,
+    body {
+        color-scheme: light;
+        background-color: #ffffff;
+    }
+}
+
 @theme {
     --font-outfit: 'Outfit', sans-serif;
     --font-inter: 'Inter', sans-serif;

@@ -12,3 +12,8 @@ Schedule::command('reports:generate-daily')
     ->dailyAt('07:00')
     ->timezone('Asia/Jakarta')
     ->withoutOverlapping();
+
+Schedule::command('reports:send-whatsapp --due-now')
+    ->everyMinute()
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping();

@@ -18,6 +18,9 @@ class Transaction extends Model
         'member_name',
         'member_phone',
         'invoice_number',
+        'offline_client_id',
+        'offline_created_at',
+        'synced_at',
         'subtotal_amount',
         'discount_amount',
         'member_discount_amount',
@@ -33,6 +36,8 @@ class Transaction extends Model
 
     protected $casts = [
         'refunded_at' => 'datetime',
+        'offline_created_at' => 'datetime',
+        'synced_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

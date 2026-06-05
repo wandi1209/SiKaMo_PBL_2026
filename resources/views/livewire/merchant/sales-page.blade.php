@@ -128,19 +128,7 @@
                            border border-gray-200/60 dark:border-gray-700/60
                            rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40
                            p-2 z-50 space-y-0.5"
-                    style="display: none;"
-                    x-data="{
-                        activeTheme: localStorage.getItem('theme') || 'system',
-                        setTheme(newTheme) {
-                            this.activeTheme = newTheme;
-                            localStorage.setItem('theme', newTheme);
-                            if (newTheme === 'dark' || (newTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                                document.documentElement.classList.add('dark');
-                            } else {
-                                document.documentElement.classList.remove('dark');
-                            }
-                        }
-                    }">
+                    style="display: none;">
 
                     <!-- User Profile Header -->
                     <div class="flex items-center gap-3 p-3 mb-1 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/20 border border-emerald-100/60 dark:border-emerald-900/40">
@@ -155,47 +143,13 @@
                         </div>
                     </div>
 
-                    <!-- Divider label -->
                     <p class="px-3 pt-1 pb-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-600">Tampilan</p>
 
-                    <!-- Theme Switcher Row -->
-                    <div class="flex items-center gap-1 p-1.5 rounded-xl bg-gray-100/80 dark:bg-gray-800/60 mx-1">
-                        <!-- Light Button -->
-                        <button type="button" @click="setTheme('light')"
-                            title="Mode Terang"
-                            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
-                            :class="activeTheme === 'light'
-                                ? 'bg-white dark:bg-gray-700 shadow text-amber-500 ring-1 ring-amber-200 dark:ring-amber-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                            </svg>
-                            <span>Terang</span>
-                        </button>
-                        <!-- Dark Button -->
-                        <button type="button" @click="setTheme('dark')"
-                            title="Mode Gelap"
-                            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
-                            :class="activeTheme === 'dark'
-                                ? 'bg-white dark:bg-gray-700 shadow text-indigo-500 ring-1 ring-indigo-200 dark:ring-indigo-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                            </svg>
-                            <span>Gelap</span>
-                        </button>
-                        <!-- System Button -->
-                        <button type="button" @click="setTheme('system')"
-                            title="Ikuti Sistem"
-                            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
-                            :class="activeTheme === 'system'
-                                ? 'bg-white dark:bg-gray-700 shadow text-emerald-600 ring-1 ring-emerald-200 dark:ring-emerald-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25M3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
-                            </svg>
-                            <span>Auto</span>
-                        </button>
+                    <div class="mx-1 flex items-center gap-2 rounded-xl bg-amber-50 p-3 text-xs font-bold text-amber-700 ring-1 ring-amber-100">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m0-12.72.7.7m12.72 12.72.7.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                        </svg>
+                        Mode terang aktif
                     </div>
 
                     <!-- Divider label for Text Size -->
@@ -278,17 +232,7 @@
             </div>
 
             <div class="relative shrink-0" x-data="{
-                openMobileProfileMenu: false,
-                activeTheme: localStorage.getItem('theme') || 'system',
-                setTheme(newTheme) {
-                    this.activeTheme = newTheme;
-                    localStorage.setItem('theme', newTheme);
-                    if (newTheme === 'dark' || (newTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                        document.documentElement.classList.add('dark');
-                    } else {
-                        document.documentElement.classList.remove('dark');
-                    }
-                }
+                openMobileProfileMenu: false
             }">
                 <button type="button" @click="openMobileProfileMenu = !openMobileProfileMenu"
                     class="flex h-10 max-w-[168px] items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-2.5 shadow-sm transition dark:border-gray-700 dark:bg-gray-800/80">
@@ -330,31 +274,11 @@
                     </div>
 
                     <p class="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">Tampilan</p>
-                    <div class="grid grid-cols-3 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800/70">
-                        <button type="button" @click="setTheme('light')"
-                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="activeTheme === 'light' ? 'bg-white text-amber-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m0-12.72.7.7m12.72 12.72.7.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                            </svg>
-                            Terang
-                        </button>
-                        <button type="button" @click="setTheme('dark')"
-                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="activeTheme === 'dark' ? 'bg-white text-indigo-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 15A9.75 9.75 0 119 2.25 7.5 7.5 0 0021.75 15z" />
-                            </svg>
-                            Gelap
-                        </button>
-                        <button type="button" @click="setTheme('system')"
-                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="activeTheme === 'system' ? 'bg-white text-emerald-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.01A3 3 0 018.12 20.38L7.5 21h9l-.62-.62A3 3 0 0115 18.26v-1.01M3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25z" />
-                            </svg>
-                            Auto
-                        </button>
+                    <div class="flex items-center gap-2 rounded-xl bg-amber-50 p-3 text-[11px] font-black text-amber-700 ring-1 ring-amber-100">
+                        <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m0-12.72.7.7m12.72 12.72.7.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                        </svg>
+                        Mode terang aktif
                     </div>
 
                     <p class="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">Ukuran Teks</p>
@@ -411,6 +335,210 @@
         </button>
     </nav>
 
+    <!-- Offline cashier overlay -->
+    <section x-show="offlineMode" x-cloak
+        class="fixed inset-0 z-50 overflow-y-auto bg-[#f8fafc] p-3 pb-24 dark:bg-gray-950 md:p-6"
+        style="display: none;">
+        <div class="mx-auto flex max-w-7xl flex-col gap-4">
+            <div class="flex flex-col gap-3 rounded-3xl border border-amber-200 bg-amber-50 p-4 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/20 md:flex-row md:items-center md:justify-between">
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="rounded-full bg-amber-500 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">Offline</span>
+                        <span class="text-xs font-bold text-amber-800 dark:text-amber-200">
+                            <span x-text="pendingTransactions.length"></span> transaksi menunggu sinkronisasi
+                        </span>
+                    </div>
+                    <h2 class="mt-2 text-xl font-black text-gray-950 dark:text-white">Kasir Offline</h2>
+                    <p class="mt-1 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                        Data terakhir: <span x-text="offlineLastSyncLabel"></span>. Mode ini menyimpan transaksi di perangkat ini dulu.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" x-show="installAvailable" @click="installPwa()"
+                        class="rounded-2xl bg-gray-950 px-4 py-3 text-xs font-black text-white shadow-sm dark:bg-white dark:text-gray-950">
+                        Install App
+                    </button>
+                    <button type="button" @click="refreshOfflineSnapshot()" :disabled="!isOnline"
+                        class="rounded-2xl bg-emerald-700 px-4 py-3 text-xs font-black text-white shadow-sm disabled:bg-gray-300 disabled:text-gray-500">
+                        Perbarui Data
+                    </button>
+                    <button type="button" @click="syncPendingTransactions()" :disabled="!isOnline || syncInProgress || pendingTransactions.length === 0"
+                        class="rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-xs font-black text-emerald-700 shadow-sm disabled:border-gray-200 disabled:text-gray-400 dark:border-emerald-900/40 dark:bg-gray-900">
+                        <span x-text="syncInProgress ? 'Sinkron...' : 'Sync Pending'"></span>
+                    </button>
+                    <button type="button" @click="offlineMode = false" x-show="isOnline"
+                        class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-xs font-black text-gray-600 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
+                        Kembali Online
+                    </button>
+                </div>
+            </div>
+
+            <div x-show="offlineDataWarning"
+                class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300">
+                <span x-text="offlineDataWarning"></span>
+            </div>
+
+            <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_390px]">
+                <div class="space-y-4">
+                    <div class="flex flex-col gap-3 rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:flex-row md:items-center">
+                        <div class="relative flex-1">
+                            <input type="text" x-model.debounce.150ms="offlineSearch" placeholder="Cari produk atau barcode..."
+                                class="w-full rounded-2xl border border-gray-150 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                        </div>
+                        <select x-model="offlineCategory"
+                            class="rounded-2xl border border-gray-150 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
+                            <option value="all">Semua kategori</option>
+                            <template x-for="category in offlineSnapshot.categories" :key="category.id">
+                                <option :value="String(category.id)" x-text="category.name"></option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+                        <template x-for="product in filteredOfflineProducts()" :key="product.id">
+                            <button type="button" @click="addOfflineProduct(product)" :disabled="offlineAvailableStock(product) <= 0"
+                                class="group overflow-hidden rounded-2xl border border-gray-100 bg-white text-left shadow-sm transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-900">
+                                <div class="flex aspect-[4/3] items-center justify-center bg-gray-50 dark:bg-gray-800">
+                                    <img x-show="product.image_url" :src="product.image_url" :alt="product.name" class="h-full w-full object-cover">
+                                    <div x-show="!product.image_url" class="text-3xl font-black text-gray-300 dark:text-gray-600" x-text="product.name?.charAt(0) || 'S'"></div>
+                                </div>
+                                <div class="space-y-2 p-3">
+                                    <p class="text-[10px] font-black uppercase tracking-wider text-emerald-600" x-text="product.category_name || 'Umum'"></p>
+                                    <h3 class="line-clamp-2 min-h-[2.5rem] text-sm font-black text-gray-900 dark:text-white" x-text="product.name"></h3>
+                                    <div class="flex items-end justify-between gap-2 border-t border-gray-100 pt-2 dark:border-gray-800">
+                                        <div>
+                                            <p class="text-sm font-black text-gray-950 dark:text-white">Rp <span x-text="formatCurrency(product.price)"></span></p>
+                                            <p class="text-[11px] font-bold text-gray-400">Stok lokal: <span x-text="offlineAvailableStock(product)"></span></p>
+                                        </div>
+                                        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">+</span>
+                                    </div>
+                                </div>
+                            </button>
+                        </template>
+                    </div>
+
+                    <div x-show="filteredOfflineProducts().length === 0"
+                        class="rounded-3xl border border-gray-100 bg-white p-8 text-center text-sm font-bold text-gray-400 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        Produk tidak ditemukan di data offline.
+                    </div>
+                </div>
+
+                <aside class="space-y-4">
+                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-black text-gray-950 dark:text-white">Keranjang Offline</h3>
+                            <button type="button" @click="clearOfflineCart()" x-show="offlineCart.length > 0"
+                                class="text-xs font-black text-rose-600">Kosongkan</button>
+                        </div>
+
+                        <div class="mt-4 space-y-3">
+                            <template x-for="item in offlineCart" :key="item.product_id">
+                                <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <p class="break-words text-sm font-black text-gray-900 dark:text-white" x-text="item.name"></p>
+                                            <p class="mt-1 text-xs font-bold text-emerald-600">Rp <span x-text="formatCurrency(item.unit_price)"></span></p>
+                                        </div>
+                                        <button type="button" @click="removeOfflineItem(item.product_id)" class="text-rose-500">
+                                            <span class="text-lg leading-none">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="mt-3 flex items-center justify-between gap-3">
+                                        <div class="flex items-center rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900">
+                                            <button type="button" @click="updateOfflineQuantity(item.product_id, item.quantity - 1)" class="h-8 w-8 rounded-lg text-sm font-black text-gray-500">-</button>
+                                            <span class="w-9 text-center text-sm font-black text-gray-900 dark:text-white" x-text="item.quantity"></span>
+                                            <button type="button" @click="updateOfflineQuantity(item.product_id, item.quantity + 1)" class="h-8 w-8 rounded-lg text-sm font-black text-emerald-600">+</button>
+                                        </div>
+                                        <p class="text-sm font-black text-gray-950 dark:text-white">Rp <span x-text="formatCurrency(item.unit_price * item.quantity)"></span></p>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div x-show="offlineCart.length === 0" class="rounded-2xl bg-gray-50 p-6 text-center text-sm font-bold text-gray-400 dark:bg-gray-950">
+                                Keranjang masih kosong.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Kode Diskon</label>
+                                <div class="flex gap-2">
+                                    <input type="text" x-model="offlineDiscountCode" placeholder="Opsional"
+                                        class="min-w-0 flex-1 rounded-xl border border-gray-150 bg-gray-50 px-3 py-2 text-xs font-bold uppercase dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                    <button type="button" @click="applyOfflineDiscount()" class="rounded-xl bg-emerald-700 px-3 py-2 text-xs font-black text-white">Pakai</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Member</label>
+                                <div class="flex gap-2">
+                                    <input type="tel" x-model="offlineMemberPhone" placeholder="Nomor HP"
+                                        class="min-w-0 flex-1 rounded-xl border border-gray-150 bg-gray-50 px-3 py-2 text-xs font-bold dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                    <button type="button" @click="findOfflineMember()" class="rounded-xl bg-gray-950 px-3 py-2 text-xs font-black text-white dark:bg-white dark:text-gray-950">Cek</button>
+                                </div>
+                                <p x-show="offlineSelectedMember" class="mt-2 rounded-xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
+                                    <span x-text="offlineSelectedMember?.name"></span> - <span x-text="offlineSelectedMember?.phone"></span>
+                                    <button type="button" @click="offlineSelectedMember = null" class="ml-2 text-rose-600">Hapus</button>
+                                </p>
+                            </div>
+
+                            <div class="space-y-2 border-t border-gray-100 pt-3 text-sm font-bold dark:border-gray-800">
+                                <div class="flex justify-between text-gray-500"><span>Subtotal</span><span>Rp <span x-text="formatCurrency(offlineSubtotal())"></span></span></div>
+                                <div x-show="offlineDiscountAmount() > 0" class="flex justify-between text-emerald-600"><span>Diskon</span><span>- Rp <span x-text="formatCurrency(offlineDiscountAmount())"></span></span></div>
+                                <div x-show="offlineMemberDiscountAmount() > 0" class="flex justify-between text-sky-600"><span>Diskon Member</span><span>- Rp <span x-text="formatCurrency(offlineMemberDiscountAmount())"></span></span></div>
+                                <div class="flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-800">
+                                    <span class="text-base font-black text-gray-950 dark:text-white">Total</span>
+                                    <span class="text-xl font-black text-emerald-600">Rp <span x-text="formatCurrency(offlineTotal())"></span></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Metode Bayar</label>
+                                <select x-model="offlinePaymentMethod"
+                                    class="w-full rounded-xl border border-gray-150 bg-gray-50 px-3 py-3 text-xs font-black dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                    <option value="cash">Tunai</option>
+                                    <option value="qris" :disabled="!offlineSnapshot.merchant?.qris_static_image_url">QRIS Statis</option>
+                                </select>
+                            </div>
+                            <div x-show="offlinePaymentMethod === 'cash'">
+                                <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Dibayar</label>
+                                <input type="number" x-model="offlineAmountPaid" min="0"
+                                    class="w-full rounded-xl border border-gray-150 bg-gray-50 px-3 py-3 text-sm font-black dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                <p class="mt-2 text-xs font-black text-emerald-700">Kembalian: Rp <span x-text="formatCurrency(offlineChange())"></span></p>
+                            </div>
+
+                            <button type="button" @click="completeOfflineTransaction()"
+                                :disabled="offlineCart.length === 0 || (offlinePaymentMethod === 'cash' && Number(offlineAmountPaid || 0) < offlineTotal())"
+                                class="w-full rounded-2xl bg-emerald-700 px-4 py-4 text-sm font-black text-white shadow-md shadow-emerald-700/15 disabled:bg-gray-200 disabled:text-gray-400">
+                                Simpan Transaksi Offline
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <h3 class="text-sm font-black text-gray-950 dark:text-white">Riwayat Lokal</h3>
+                        <div class="mt-3 max-h-64 space-y-2 overflow-y-auto">
+                            <template x-for="transaction in pendingTransactions" :key="transaction.client_id">
+                                <div class="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-xs font-bold text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
+                                    <div class="flex justify-between gap-2">
+                                        <span class="font-mono" x-text="transaction.invoice_number"></span>
+                                        <span x-text="transaction.sync_status === 'failed' ? 'Gagal' : 'Pending'"></span>
+                                    </div>
+                                    <p class="mt-1">Rp <span x-text="formatCurrency(transaction.total)"></span></p>
+                                    <p x-show="transaction.sync_error" class="mt-1 text-rose-600" x-text="transaction.sync_error"></p>
+                                </div>
+                            </template>
+                            <p x-show="pendingTransactions.length === 0" class="rounded-2xl bg-gray-50 p-4 text-center text-xs font-bold text-gray-400 dark:bg-gray-950">
+                                Tidak ada transaksi pending.
+                            </p>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
     <!-- Main Content Area -->
     <main x-ref="mainContent" @scroll.self="showScrollTop = $el.scrollTop > 300" class="flex-1 min-w-0 bg-[#f8fafc] dark:bg-gray-950 p-3 sm:p-6 lg:p-8 pb-28 md:p-6 md:pb-8 lg:p-8 overflow-y-auto"
           :class="{ 'text-size-sm': textSize === 'small', 'text-size-lg': textSize === 'large' }">
@@ -461,6 +589,11 @@
                                 d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
                         </svg>
                         <span x-text="activeTab === 'scan' ? 'Mode Katalog' : 'Mode Scan'">Mode Scan</span>
+                    </button>
+                    <button type="button" @click="offlineMode = true"
+                        class="shrink-0 inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3 text-xs font-black text-amber-800 shadow-sm transition active:scale-[0.98] dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
+                        <span>Mode Offline</span>
+                        <span x-show="pendingTransactions.length > 0" class="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] text-white" x-text="pendingTransactions.length"></span>
                     </button>
                 </div>
             </div>
@@ -1677,6 +1810,94 @@
             });
         }
 
+        const SikamoOfflineStore = (() => {
+            const dbName = 'sikamo-offline-pos';
+            const version = 1;
+
+            function openDb() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName, version);
+
+                    request.onupgradeneeded = () => {
+                        const db = request.result;
+
+                        if (!db.objectStoreNames.contains('kv')) {
+                            db.createObjectStore('kv');
+                        }
+
+                        if (!db.objectStoreNames.contains('transactions')) {
+                            db.createObjectStore('transactions', { keyPath: 'client_id' });
+                        }
+                    };
+
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async function withStore(name, mode, callback) {
+                const db = await openDb();
+
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(name, mode);
+                    const store = tx.objectStore(name);
+                    const result = callback(store);
+
+                    tx.oncomplete = () => {
+                        db.close();
+                        resolve(result);
+                    };
+                    tx.onerror = () => {
+                        db.close();
+                        reject(tx.error);
+                    };
+                });
+            }
+
+            function requestResult(request) {
+                return new Promise((resolve, reject) => {
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            return {
+                async getSnapshot() {
+                    return withStore('kv', 'readonly', (store) => requestResult(store.get('snapshot')));
+                },
+                async setSnapshot(snapshot) {
+                    return withStore('kv', 'readwrite', (store) => store.put(snapshot, 'snapshot'));
+                },
+                async putTransaction(transaction) {
+                    return withStore('transactions', 'readwrite', (store) => store.put(transaction));
+                },
+                async updateTransaction(transaction) {
+                    return withStore('transactions', 'readwrite', (store) => store.put(transaction));
+                },
+                async deleteTransaction(clientId) {
+                    return withStore('transactions', 'readwrite', (store) => store.delete(clientId));
+                },
+                async getPendingTransactions() {
+                    const db = await openDb();
+
+                    return new Promise((resolve, reject) => {
+                        const tx = db.transaction('transactions', 'readonly');
+                        const store = tx.objectStore('transactions');
+                        const request = store.getAll();
+
+                        request.onsuccess = () => {
+                            const rows = (request.result || [])
+                                .filter((row) => row.sync_status !== 'synced')
+                                .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+                            resolve(rows);
+                        };
+                        request.onerror = () => reject(request.error);
+                        tx.oncomplete = () => db.close();
+                    });
+                },
+            };
+        })();
+
         function checkoutData() {
             return {
                 // Entangled properties
@@ -1724,6 +1945,26 @@
                 realtimeChannel: @js($merchantRealtimeChannel),
                 realtimeRefreshTimer: null,
 
+                // Offline POS state
+                isOnline: navigator.onLine,
+                offlineMode: !navigator.onLine,
+                offlineSnapshot: { merchant: null, categories: [], products: [], members: [], discounts: [] },
+                offlineSearch: '',
+                offlineCategory: 'all',
+                offlineCart: [],
+                offlineDiscountCode: '',
+                offlineAppliedDiscount: null,
+                offlineMemberPhone: '',
+                offlineSelectedMember: null,
+                offlinePaymentMethod: 'cash',
+                offlineAmountPaid: '',
+                pendingTransactions: [],
+                syncInProgress: false,
+                offlineDataWarning: '',
+                offlineLastSyncLabel: 'belum tersedia',
+                deferredInstallPrompt: null,
+                installAvailable: false,
+
                 // Scanning states
                 scanner: null,
                 scanning: false,
@@ -1736,6 +1977,8 @@
 
                 init() {
                     this.initRealtime();
+                    this.initOfflinePos();
+                    this.initPwaInstallPrompt();
 
                     // Listen to native window events (bridged from Livewire once, never duplicated)
                     window.addEventListener('sikamo:checkoutSuccess', (e) => {
@@ -1800,6 +2043,457 @@
                     document.documentElement.classList.remove('text-size-sm', 'text-size-lg');
                     if (initSize === 'small') document.documentElement.classList.add('text-size-sm');
                     if (initSize === 'large') document.documentElement.classList.add('text-size-lg');
+                },
+
+                async initOfflinePos() {
+                    window.addEventListener('online', async () => {
+                        this.isOnline = true;
+                        await this.refreshOfflineSnapshot();
+                        await this.syncPendingTransactions();
+                    });
+
+                    window.addEventListener('offline', () => {
+                        this.isOnline = false;
+                        this.offlineMode = true;
+                        window.toastr?.warning('Koneksi terputus. Kasir offline aktif.');
+                    });
+
+                    await this.loadOfflineSnapshot();
+                    await this.loadPendingTransactions();
+
+                    if (this.isOnline) {
+                        await this.refreshOfflineSnapshot(false);
+                        await this.syncPendingTransactions(false);
+                    }
+                },
+
+                initPwaInstallPrompt() {
+                    window.addEventListener('beforeinstallprompt', (event) => {
+                        event.preventDefault();
+                        this.deferredInstallPrompt = event;
+                        this.installAvailable = true;
+                    });
+
+                    window.addEventListener('appinstalled', () => {
+                        this.deferredInstallPrompt = null;
+                        this.installAvailable = false;
+                    });
+                },
+
+                async installPwa() {
+                    if (!this.deferredInstallPrompt) {
+                        return;
+                    }
+
+                    this.deferredInstallPrompt.prompt();
+                    await this.deferredInstallPrompt.userChoice;
+                    this.deferredInstallPrompt = null;
+                    this.installAvailable = false;
+                },
+
+                async loadOfflineSnapshot() {
+                    try {
+                        const snapshot = await SikamoOfflineStore.getSnapshot();
+
+                        if (snapshot) {
+                            this.offlineSnapshot = {
+                                merchant: snapshot.merchant || null,
+                                categories: snapshot.categories || [],
+                                products: snapshot.products || [],
+                                members: snapshot.members || [],
+                                discounts: snapshot.discounts || [],
+                            };
+                            this.offlineLastSyncLabel = snapshot.synced_at
+                                ? new Date(snapshot.synced_at).toLocaleString('id-ID')
+                                : 'tersimpan lokal';
+                            this.offlineDataWarning = '';
+                        } else {
+                            this.offlineDataWarning = 'Data offline belum tersedia. Buka halaman ini saat online lalu tekan Perbarui Data.';
+                        }
+                    } catch (error) {
+                        this.offlineDataWarning = 'Gagal membaca data offline dari perangkat.';
+                    }
+                },
+
+                async refreshOfflineSnapshot(showToast = true) {
+                    if (!this.isOnline) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(@js(route('merchant.offline-pos.snapshot')), {
+                            headers: {
+                                Accept: 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            credentials: 'same-origin',
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Snapshot gagal dimuat.');
+                        }
+
+                        const snapshot = await response.json();
+                        await SikamoOfflineStore.setSnapshot(snapshot);
+                        this.offlineSnapshot = snapshot;
+                        this.offlineLastSyncLabel = snapshot.synced_at
+                            ? new Date(snapshot.synced_at).toLocaleString('id-ID')
+                            : 'baru saja';
+                        this.offlineDataWarning = '';
+
+                        if (showToast) {
+                            window.toastr?.success('Data offline diperbarui.');
+                        }
+                    } catch (error) {
+                        if (showToast) {
+                            window.toastr?.error(error?.message || 'Data offline gagal diperbarui.');
+                        }
+                    }
+                },
+
+                async loadPendingTransactions() {
+                    this.pendingTransactions = await SikamoOfflineStore.getPendingTransactions();
+                },
+
+                filteredOfflineProducts() {
+                    const search = String(this.offlineSearch || '').trim().toLowerCase();
+                    const category = String(this.offlineCategory || 'all');
+
+                    return (this.offlineSnapshot.products || []).filter((product) => {
+                        const matchesCategory = category === 'all' || String(product.category_id) === category;
+                        const haystack = `${product.name || ''} ${product.barcode || ''}`.toLowerCase();
+
+                        return matchesCategory && (!search || haystack.includes(search));
+                    });
+                },
+
+                offlineReservedQuantity(productId) {
+                    const cartReserved = this.offlineCart
+                        .filter((item) => Number(item.product_id) === Number(productId))
+                        .reduce((total, item) => total + Number(item.quantity || 0), 0);
+                    const pendingReserved = this.pendingTransactions
+                        .flatMap((transaction) => transaction.items || [])
+                        .filter((item) => Number(item.product_id) === Number(productId))
+                        .reduce((total, item) => total + Number(item.quantity || 0), 0);
+
+                    return cartReserved + pendingReserved;
+                },
+
+                offlineAvailableStock(product) {
+                    return Math.max(0, Number(product.stock || 0) - this.offlineReservedQuantity(product.id));
+                },
+
+                addOfflineProduct(product) {
+                    if (this.offlineAvailableStock(product) <= 0) {
+                        window.toastr?.error('Stok lokal tidak mencukupi.');
+                        return;
+                    }
+
+                    const existing = this.offlineCart.find((item) => Number(item.product_id) === Number(product.id));
+
+                    if (existing) {
+                        existing.quantity += 1;
+                    } else {
+                        this.offlineCart.push({
+                            product_id: product.id,
+                            name: product.name,
+                            unit_price: Number(product.price || 0),
+                            quantity: 1,
+                        });
+                    }
+                },
+
+                updateOfflineQuantity(productId, quantity) {
+                    if (quantity <= 0) {
+                        this.removeOfflineItem(productId);
+                        return;
+                    }
+
+                    const product = (this.offlineSnapshot.products || []).find((row) => Number(row.id) === Number(productId));
+                    const item = this.offlineCart.find((row) => Number(row.product_id) === Number(productId));
+
+                    if (!product || !item) {
+                        return;
+                    }
+
+                    const otherReserved = this.offlineCart
+                        .filter((row) => Number(row.product_id) === Number(productId))
+                        .reduce((total, row) => total + (row === item ? 0 : Number(row.quantity || 0)), 0);
+
+                    if (quantity + otherReserved > Number(product.stock || 0)) {
+                        window.toastr?.error('Stok lokal tidak mencukupi.');
+                        return;
+                    }
+
+                    item.quantity = quantity;
+                },
+
+                removeOfflineItem(productId) {
+                    this.offlineCart = this.offlineCart.filter((item) => Number(item.product_id) !== Number(productId));
+                },
+
+                clearOfflineCart() {
+                    this.offlineCart = [];
+                    this.offlineAppliedDiscount = null;
+                    this.offlineDiscountCode = '';
+                    this.offlineSelectedMember = null;
+                    this.offlineMemberPhone = '';
+                    this.offlineAmountPaid = '';
+                },
+
+                offlineSubtotal() {
+                    return this.offlineCart.reduce((total, item) => total + (Number(item.unit_price || 0) * Number(item.quantity || 0)), 0);
+                },
+
+                applyOfflineDiscount() {
+                    const code = String(this.offlineDiscountCode || '').trim().toUpperCase();
+
+                    if (!code) {
+                        this.offlineAppliedDiscount = null;
+                        return;
+                    }
+
+                    const discount = (this.offlineSnapshot.discounts || []).find((item) => String(item.code).toUpperCase() === code);
+
+                    if (!discount || !this.offlineDiscountUsable(discount)) {
+                        this.offlineAppliedDiscount = null;
+                        window.toastr?.error('Kode diskon tidak tersedia di data offline.');
+                        return;
+                    }
+
+                    this.offlineDiscountCode = code;
+                    this.offlineAppliedDiscount = discount;
+                    window.toastr?.success('Diskon offline diterapkan.');
+                },
+
+                offlineDiscountUsable(discount) {
+                    const subtotal = this.offlineSubtotal();
+                    const now = Date.now();
+
+                    if (subtotal < Number(discount.min_purchase_amount || 0)) return false;
+                    if (discount.quota !== null && Number(discount.used_count || 0) >= Number(discount.quota)) return false;
+                    if (discount.starts_at && now < new Date(discount.starts_at).getTime()) return false;
+                    if (discount.ends_at && now > new Date(discount.ends_at).getTime()) return false;
+
+                    return true;
+                },
+
+                offlineDiscountAmount() {
+                    const discount = this.offlineAppliedDiscount;
+                    const subtotal = this.offlineSubtotal();
+
+                    if (!discount || !this.offlineDiscountUsable(discount)) {
+                        return 0;
+                    }
+
+                    if (discount.type === 'percent') {
+                        let amount = subtotal * (Number(discount.value || 0) / 100);
+
+                        if (discount.max_discount_amount !== null) {
+                            amount = Math.min(amount, Number(discount.max_discount_amount || 0));
+                        }
+
+                        return Math.min(amount, subtotal);
+                    }
+
+                    return Math.min(Number(discount.value || 0), subtotal);
+                },
+
+                findOfflineMember() {
+                    const phone = this.normalizeOfflinePhone(this.offlineMemberPhone);
+                    const member = (this.offlineSnapshot.members || []).find((item) => this.normalizeOfflinePhone(item.phone) === phone);
+
+                    if (!member) {
+                        this.offlineSelectedMember = null;
+                        window.toastr?.error('Member tidak ditemukan di data offline.');
+                        return;
+                    }
+
+                    this.offlineSelectedMember = member;
+                    this.offlineMemberPhone = member.phone;
+                    window.toastr?.success(`Member ${member.name} diterapkan.`);
+                },
+
+                offlineMemberDiscountAmount() {
+                    const merchant = this.offlineSnapshot.merchant || {};
+                    const subtotal = this.offlineSubtotal();
+                    const discountableAmount = Math.max(0, subtotal - this.offlineDiscountAmount());
+
+                    if (!this.offlineSelectedMember || !merchant.member_discount_is_active) return 0;
+                    if (subtotal < Number(merchant.member_discount_min_purchase || 0)) return 0;
+                    if (discountableAmount <= 0) return 0;
+
+                    if (merchant.member_discount_type === 'percent') {
+                        let amount = discountableAmount * (Number(merchant.member_discount_value || 0) / 100);
+
+                        if (merchant.member_discount_max_amount !== null) {
+                            amount = Math.min(amount, Number(merchant.member_discount_max_amount || 0));
+                        }
+
+                        return Math.min(amount, discountableAmount);
+                    }
+
+                    return Math.min(Number(merchant.member_discount_value || 0), discountableAmount);
+                },
+
+                offlineTotal() {
+                    return Math.max(0, this.offlineSubtotal() - this.offlineDiscountAmount() - this.offlineMemberDiscountAmount());
+                },
+
+                offlineChange() {
+                    const paid = this.offlinePaymentMethod === 'cash'
+                        ? Number(this.offlineAmountPaid || 0)
+                        : this.offlineTotal();
+
+                    return Math.max(0, paid - this.offlineTotal());
+                },
+
+                async completeOfflineTransaction() {
+                    const total = this.offlineTotal();
+                    const amountPaid = this.offlinePaymentMethod === 'cash'
+                        ? Number(this.offlineAmountPaid || 0)
+                        : total;
+
+                    if (this.offlineCart.length === 0 || amountPaid < total) {
+                        return;
+                    }
+
+                    const createdAt = new Date();
+                    const clientId = `offline-${createdAt.getTime()}-${Math.random().toString(36).slice(2, 10)}`;
+                    const invoiceNumber = `OFF-${createdAt.toISOString().slice(0, 10).replaceAll('-', '')}-${clientId.slice(-6).toUpperCase()}`;
+                    const transaction = {
+                        client_id: clientId,
+                        invoice_number: invoiceNumber,
+                        created_at: createdAt.toISOString(),
+                        payment_method: this.offlinePaymentMethod,
+                        amount_paid: amountPaid,
+                        change: amountPaid - total,
+                        subtotal: this.offlineSubtotal(),
+                        discount_code: this.offlineAppliedDiscount?.code || null,
+                        discount_amount: this.offlineDiscountAmount(),
+                        member_id: this.offlineSelectedMember?.id || null,
+                        member_name: this.offlineSelectedMember?.name || null,
+                        member_phone: this.offlineSelectedMember?.phone || null,
+                        member_discount_amount: this.offlineMemberDiscountAmount(),
+                        total,
+                        items: this.offlineCart.map((item) => ({
+                            product_id: item.product_id,
+                            name: item.name,
+                            quantity: item.quantity,
+                            unit_price: item.unit_price,
+                            subtotal: item.unit_price * item.quantity,
+                        })),
+                        sync_status: 'pending',
+                    };
+
+                    await SikamoOfflineStore.putTransaction(transaction);
+                    await this.loadPendingTransactions();
+                    this.showOfflineReceipt(transaction);
+                    this.clearOfflineCart();
+                    window.toastr?.success('Transaksi offline tersimpan.');
+
+                    if (this.isOnline) {
+                        await this.syncPendingTransactions(false);
+                    }
+                },
+
+                showOfflineReceipt(transaction) {
+                    this.invoiceNumber = transaction.invoice_number;
+                    this.receiptSubtotal = transaction.subtotal;
+                    this.receiptDiscountCode = transaction.discount_code || '';
+                    this.receiptDiscountAmount = transaction.discount_amount || 0;
+                    this.receiptMemberName = transaction.member_name || '';
+                    this.receiptMemberPhone = transaction.member_phone || '';
+                    this.receiptMemberDiscountAmount = transaction.member_discount_amount || 0;
+                    this.totalAmount = transaction.total || 0;
+                    this.receiptAmountPaid = transaction.amount_paid || 0;
+                    this.receiptChange = transaction.change || 0;
+                    this.receiptPaymentMethod = transaction.payment_method || '';
+                    this.receiptCreatedAt = new Date(transaction.created_at).toLocaleString('id-ID');
+                    this.receiptMerchantName = this.offlineSnapshot.merchant?.name || 'Toko Kelontong';
+                    this.receiptMerchantAddress = this.offlineSnapshot.merchant?.address || 'SiKaMo POS';
+                    this.receiptCashierName = @js($userName);
+                    this.receiptItems = (transaction.items || []).map((item) => ({
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price ?? item.unit_price ?? 0,
+                        subtotal: item.subtotal ?? ((item.price ?? item.unit_price ?? 0) * item.quantity),
+                    }));
+                    this.receiptRefunded = false;
+                    this.offlineMode = false;
+                    this.setTab('struk');
+                },
+
+                async syncPendingTransactions(showToast = true) {
+                    if (!this.isOnline || this.syncInProgress) {
+                        return;
+                    }
+
+                    await this.loadPendingTransactions();
+
+                    if (this.pendingTransactions.length === 0) {
+                        return;
+                    }
+
+                    this.syncInProgress = true;
+
+                    try {
+                        const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                        const response = await fetch(@js(route('merchant.offline-pos.sync')), {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrf,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: JSON.stringify({ transactions: this.pendingTransactions }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Sinkronisasi gagal.');
+                        }
+
+                        const data = await response.json();
+                        const results = data.results || [];
+
+                        for (const result of results) {
+                            const transaction = this.pendingTransactions.find((item) => item.client_id === result.client_id);
+
+                            if (!transaction) continue;
+
+                            if (result.status === 'synced') {
+                                await SikamoOfflineStore.deleteTransaction(result.client_id);
+                            } else {
+                                transaction.sync_status = 'failed';
+                                transaction.sync_error = result.message || 'Gagal sinkron.';
+                                await SikamoOfflineStore.updateTransaction(transaction);
+                            }
+                        }
+
+                        await this.loadPendingTransactions();
+                        await this.refreshOfflineSnapshot(false);
+
+                        if (showToast) {
+                            window.toastr?.success('Sinkronisasi transaksi offline selesai.');
+                        }
+                    } catch (error) {
+                        if (showToast) {
+                            window.toastr?.error(error?.message || 'Sinkronisasi transaksi offline gagal.');
+                        }
+                    } finally {
+                        this.syncInProgress = false;
+                    }
+                },
+
+                normalizeOfflinePhone(phone) {
+                    phone = String(phone || '').replace(/[^0-9+]/g, '');
+
+                    if (phone.startsWith('+62')) return `0${phone.slice(3)}`;
+                    if (phone.startsWith('62')) return `0${phone.slice(2)}`;
+
+                    return phone;
                 },
 
                 setTab(tab) {

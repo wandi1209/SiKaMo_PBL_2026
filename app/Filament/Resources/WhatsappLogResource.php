@@ -70,6 +70,14 @@ class WhatsappLogResource extends Resource
                                 'failed' => 'Gagal',
                                 default => $state,
                             }),
+
+                        Forms\Components\TextInput::make('provider')
+                            ->label('Provider')
+                            ->disabled(),
+
+                        Forms\Components\TextInput::make('provider_request_id')
+                            ->label('Request ID Provider')
+                            ->disabled(),
                     ])
                     ->columns(2),
 
@@ -80,6 +88,28 @@ class WhatsappLogResource extends Resource
                             ->disabled()
                             ->rows(6),
                     ]),
+
+                Forms\Components\Section::make('Response Provider')
+                    ->schema([
+                        Forms\Components\TextInput::make('provider_message_ids')
+                            ->label('Message ID Provider')
+                            ->disabled()
+                            ->formatStateUsing(fn ($state): string => is_array($state) ? implode(', ', $state) : (string) $state),
+
+                        Forms\Components\Textarea::make('error_message')
+                            ->label('Error')
+                            ->disabled()
+                            ->rows(3),
+
+                        Forms\Components\Textarea::make('response_body')
+                            ->label('Response Body')
+                            ->disabled()
+                            ->rows(8)
+                            ->formatStateUsing(fn ($state): string => is_array($state)
+                                ? json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+                                : (string) $state),
+                    ])
+                    ->columns(1),
 
                 Forms\Components\Section::make('Waktu')
                     ->schema([
@@ -120,6 +150,16 @@ class WhatsappLogResource extends Resource
                     ->label('Report ID')
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('merchant.name')
+                    ->label('Merchant')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('provider')
+                    ->label('Provider')
+                    ->badge()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('message_body')
                     ->label('Pesan')
                     ->limit(50)
@@ -145,6 +185,12 @@ class WhatsappLogResource extends Resource
                     ->dateTime('d-m-Y H:i:s')
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('error_message')
+                    ->label('Error')
+                    ->limit(40)
+                    ->tooltip(fn (WhatsappLog $record) => $record->error_message)
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d-m-Y H:i:s')
@@ -157,6 +203,12 @@ class WhatsappLogResource extends Resource
                         'pending' => 'Pending',
                         'sent' => 'Terkirim',
                         'failed' => 'Gagal',
+                    ]),
+
+                SelectFilter::make('provider')
+                    ->label('Provider')
+                    ->options([
+                        'fonnte' => 'Fonnte',
                     ]),
             ])
             ->defaultSort('created_at', 'desc')
