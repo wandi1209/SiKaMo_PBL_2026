@@ -1,9 +1,9 @@
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const APP_SHELL_CACHE = `sikamo-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `sikamo-runtime-${CACHE_VERSION}`;
+const OFFLINE_POS_URL = '/merchant/sales/catalog';
 const CORE_ASSETS = [
     '/',
-    '/merchant/sales/catalog',
     '/manifest.json',
     '/assets/logo.svg',
 ];
@@ -59,13 +59,21 @@ async function networkFirstNavigation(request) {
 
         if (response.ok) {
             cache.put(request, response.clone());
+
+            const url = new URL(request.url);
+
+            // Simpan halaman kasir dengan key canonical juga.
+            // Jadi saat user offline dari URL dashboard/tenant, SW tetap bisa fallback ke POS offline.
+            if (url.pathname === OFFLINE_POS_URL) {
+                cache.put(OFFLINE_POS_URL, response.clone());
+            }
         }
 
         return response;
     } catch (error) {
         const cached = await cache.match(request)
-            || await cache.match('/merchant/sales/catalog')
-            || await caches.match('/merchant/sales/catalog')
+            || await cache.match(OFFLINE_POS_URL)
+            || await caches.match(OFFLINE_POS_URL)
             || await cache.match('/');
 
         if (cached) {

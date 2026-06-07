@@ -8,9 +8,9 @@
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="color-scheme" content="light">
-    <meta name="theme-color" content="#ffffff">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="{{ asset('assets/logo.svg') }}">
 

@@ -31,7 +31,6 @@ class MerchantPanelProvider extends PanelProvider
         return $panel
             ->id('merchant')
             ->path('merchant')
-            ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
             ->brandLogo(asset('assets/logo.svg'))
             ->brandLogoHeight('2.5rem')

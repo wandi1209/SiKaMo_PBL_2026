@@ -9,14 +9,13 @@
 
 @layer base {
     :root {
-        color-scheme: light;
+        color-scheme: light dark;
         background-color: #ffffff;
     }
 
     html,
     body {
-        color-scheme: light;
-        background-color: #ffffff;
+        color-scheme: light dark;
     }
 }
 

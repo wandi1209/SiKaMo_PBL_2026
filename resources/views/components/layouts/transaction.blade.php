@@ -8,20 +8,27 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="csrf-token" content="{{ csrf_token() }}" />
-        <meta name="color-scheme" content="light" />
-        <meta name="theme-color" content="#ffffff" />
-        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)" />
+        <meta name="color-scheme" content="light dark" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="manifest" href="{{ asset('manifest.json') }}" />
 
         <title>{{ $title }} - SiKaMo</title>
 
-        <!-- Force light mode for the PWA, even when the OS uses dark mode. -->
+        <!-- Theme Initialization Script -->
         <script>
             (function() {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.style.colorScheme = 'light';
-                localStorage.setItem('theme', 'light');
+                window.sikamoApplyTheme = function(theme) {
+                    const selectedTheme = theme || localStorage.getItem('theme') || 'system';
+                    const shouldUseDark = selectedTheme === 'dark'
+                        || (selectedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+                    document.documentElement.classList.toggle('dark', shouldUseDark);
+                    document.documentElement.style.colorScheme = shouldUseDark ? 'dark' : 'light';
+                };
+
+                window.sikamoApplyTheme();
             })();
         </script>
 
@@ -103,7 +110,7 @@
         </style>
     </head>
 
-    <body class="antialiased bg-gray-50">
+    <body class="antialiased bg-gray-50 dark:bg-gray-950">
         <!-- Toast Container -->
         <div id="toast-container" class="toast-container"></div>
 

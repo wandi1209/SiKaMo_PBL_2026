@@ -2,10 +2,10 @@
   "name": "SiKaMo POS",
   "short_name": "SiKaMo",
   "description": "Sistem Kasir Mobile untuk UMKM Modern",
-  "start_url": "/login",
+  "start_url": "/merchant/sales/catalog",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "theme_color": "#15803d",
   "icons": [
     {
       "src": "/assets/logo.svg",

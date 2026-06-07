@@ -24,7 +24,6 @@ class AuthPanelProvider extends PanelProvider
             ->id('auth')
             ->path('') // Jadi ketika diakses URL nya ada di /login
             ->login()
-            ->darkMode(false)
             ->colors([
                 'primary' => Color::hex('#1D9E75'), // Sama seperti admin/merchant
             ])

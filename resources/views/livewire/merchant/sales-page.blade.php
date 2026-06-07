@@ -128,7 +128,14 @@
                            border border-gray-200/60 dark:border-gray-700/60
                            rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40
                            p-2 z-50 space-y-0.5"
-                    style="display: none;">
+                    style="display: none;"
+                    x-data="{
+                        activeTheme: localStorage.getItem('theme') || 'system',
+                        setTheme(newTheme) {
+                            this.activeTheme = newTheme;
+                            window.dispatchEvent(new CustomEvent('theme-changed', { detail: newTheme }));
+                        }
+                    }">
 
                     <!-- User Profile Header -->
                     <div class="flex items-center gap-3 p-3 mb-1 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/20 border border-emerald-100/60 dark:border-emerald-900/40">
@@ -145,11 +152,40 @@
 
                     <p class="px-3 pt-1 pb-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-600">Tampilan</p>
 
-                    <div class="mx-1 flex items-center gap-2 rounded-xl bg-amber-50 p-3 text-xs font-bold text-amber-700 ring-1 ring-amber-100">
-                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m0-12.72.7.7m12.72 12.72.7.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                        </svg>
-                        Mode terang aktif
+                    <div class="flex items-center gap-1 p-1.5 rounded-xl bg-gray-100/80 dark:bg-gray-800/60 mx-1">
+                        <button type="button" @click="setTheme('light')"
+                            title="Mode Terang"
+                            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
+                            :class="activeTheme === 'light'
+                                ? 'bg-white dark:bg-gray-700 shadow text-amber-500 ring-1 ring-amber-200 dark:ring-amber-700/50'
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                            </svg>
+                            <span>Terang</span>
+                        </button>
+                        <button type="button" @click="setTheme('dark')"
+                            title="Mode Gelap"
+                            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
+                            :class="activeTheme === 'dark'
+                                ? 'bg-white dark:bg-gray-700 shadow text-indigo-500 ring-1 ring-indigo-200 dark:ring-indigo-700/50'
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                            </svg>
+                            <span>Gelap</span>
+                        </button>
+                        <button type="button" @click="setTheme('system')"
+                            title="Ikuti Sistem"
+                            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
+                            :class="activeTheme === 'system'
+                                ? 'bg-white dark:bg-gray-700 shadow text-emerald-600 ring-1 ring-emerald-200 dark:ring-emerald-700/50'
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25M3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+                            </svg>
+                            <span>Auto</span>
+                        </button>
                     </div>
 
                     <!-- Divider label for Text Size -->
@@ -232,7 +268,12 @@
             </div>
 
             <div class="relative shrink-0" x-data="{
-                openMobileProfileMenu: false
+                openMobileProfileMenu: false,
+                activeTheme: localStorage.getItem('theme') || 'system',
+                setTheme(newTheme) {
+                    this.activeTheme = newTheme;
+                    window.dispatchEvent(new CustomEvent('theme-changed', { detail: newTheme }));
+                }
             }">
                 <button type="button" @click="openMobileProfileMenu = !openMobileProfileMenu"
                     class="flex h-10 max-w-[168px] items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-2.5 shadow-sm transition dark:border-gray-700 dark:bg-gray-800/80">
@@ -274,11 +315,31 @@
                     </div>
 
                     <p class="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">Tampilan</p>
-                    <div class="flex items-center gap-2 rounded-xl bg-amber-50 p-3 text-[11px] font-black text-amber-700 ring-1 ring-amber-100">
-                        <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m0-12.72.7.7m12.72 12.72.7.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                        </svg>
-                        Mode terang aktif
+                    <div class="grid grid-cols-3 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800/70">
+                        <button type="button" @click="setTheme('light')"
+                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
+                            :class="activeTheme === 'light' ? 'bg-white text-amber-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m0-12.72.7.7m12.72 12.72.7.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                            </svg>
+                            Terang
+                        </button>
+                        <button type="button" @click="setTheme('dark')"
+                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
+                            :class="activeTheme === 'dark' ? 'bg-white text-indigo-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 15A9.75 9.75 0 119 2.25 7.5 7.5 0 0021.75 15z" />
+                            </svg>
+                            Gelap
+                        </button>
+                        <button type="button" @click="setTheme('system')"
+                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
+                            :class="activeTheme === 'system' ? 'bg-white text-emerald-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.01A3 3 0 018.12 20.38L7.5 21h9l-.62-.62A3 3 0 0115 18.26v-1.01M3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25z" />
+                            </svg>
+                            Auto
+                        </button>
                     </div>
 
                     <p class="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">Ukuran Teks</p>
@@ -590,7 +651,7 @@
                         </svg>
                         <span x-text="activeTab === 'scan' ? 'Mode Katalog' : 'Mode Scan'">Mode Scan</span>
                     </button>
-                    <button type="button" @click="offlineMode = true"
+                    <button type="button" @click="enableOfflineMode()"
                         class="shrink-0 inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3 text-xs font-black text-amber-800 shadow-sm transition active:scale-[0.98] dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
                         <span>Mode Offline</span>
                         <span x-show="pendingTransactions.length > 0" class="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] text-white" x-text="pendingTransactions.length"></span>
@@ -2091,6 +2152,20 @@
                     this.installAvailable = false;
                 },
 
+                async enableOfflineMode() {
+                    this.offlineMode = true;
+                    await this.loadOfflineSnapshot();
+                    await this.loadPendingTransactions();
+
+                    if (this.isOnline) {
+                        await this.refreshOfflineSnapshot(false);
+                    }
+
+                    if ((this.offlineSnapshot.products || []).length === 0) {
+                        this.offlineDataWarning = 'Data offline belum tersedia. Saat online, tekan Perbarui Data dulu sebelum kasir dipakai tanpa internet.';
+                    }
+                },
+
                 async loadOfflineSnapshot() {
                     try {
                         const snapshot = await SikamoOfflineStore.getSnapshot();
@@ -2502,7 +2577,12 @@
                     }
 
                     this.activeTab = tab;
-                    this.$wire.setTab(tab);
+
+                    // Saat offline jangan panggil Livewire, karena request ke /livewire/* pasti gagal
+                    // dan bisa membuat flow struk/transaksi offline terasa tidak jalan.
+                    if (this.isOnline) {
+                        this.$wire.setTab(tab);
+                    }
                 },
 
                 initRealtime() {
