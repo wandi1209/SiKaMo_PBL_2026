@@ -26,6 +26,10 @@ class ListProducts extends ListRecords
 
     protected function getHeaderActions(): array
     {
+        if (auth()->user()?->role === 'kasir') {
+            return [];
+        }
+
         return [
             CreateAction::make()
                 ->label('New Produk'),

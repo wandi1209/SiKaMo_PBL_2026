@@ -27,7 +27,8 @@ class ViewTransactionReport extends ViewRecord
                 ->label('Refund')
                 ->icon('heroicon-o-arrow-uturn-left')
                 ->color('danger')
-                ->visible(fn(): bool => $this->record->status === 'completed')
+                ->visible(fn(): bool => $this->record->status === 'completed'
+                    && auth()->user()?->role === 'owner')
                 ->requiresConfirmation()
                 ->modalHeading('Refund transaksi ini?')
                 ->modalDescription('Stok produk akan dikembalikan dan transaksi akan ditandai sebagai refund.')

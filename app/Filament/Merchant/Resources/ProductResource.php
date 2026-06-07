@@ -29,7 +29,22 @@ class ProductResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->role === 'owner';
+        return static::isOwner() || static::isCashier();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::isOwner();
+    }
+
+    public static function canEdit($record): bool
+    {
+        return static::isOwner();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return static::isOwner();
     }
 
     public static function getNavigationBadge(): ?string
@@ -51,6 +66,16 @@ class ProductResource extends Resource
     public static function getNavigationBadgeColor(): string|array|null
     {
         return 'danger';
+    }
+
+    protected static function isOwner(): bool
+    {
+        return auth()->user()?->role === 'owner';
+    }
+
+    protected static function isCashier(): bool
+    {
+        return auth()->user()?->role === 'cashier';
     }
 
     public static function form(Form $form): Form
@@ -303,8 +328,10 @@ class ProductResource extends Resource
                         ->all()),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn(Product $record): bool => static::isOwner()),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn(Product $record): bool => static::isOwner()),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

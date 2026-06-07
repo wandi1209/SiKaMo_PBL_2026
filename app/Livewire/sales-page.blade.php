@@ -976,14 +976,10 @@
                 </div>
             </div>
 
-            <div class="mt-7 grid w-full max-w-lg grid-cols-1 gap-3" :class="receiptRefunded ? 'sm:grid-cols-2' : 'sm:grid-cols-3'">
+            <div class="mt-7 grid w-full max-w-lg grid-cols-1 gap-3 sm:grid-cols-2">
                 <button type="button" @click="printReceipt()" x-show="!receiptRefunded"
                     class="rounded-2xl bg-emerald-700 px-5 py-4 text-sm font-black text-white shadow-md shadow-emerald-700/15 hover:bg-emerald-800 transition cursor-pointer">
                     Cetak Struk
-                </button>
-                <button type="button" @click="refundReceipt()" x-bind:disabled="receiptRefunded || !invoiceNumber"
-                    class="rounded-2xl bg-rose-600 px-5 py-4 text-sm font-black text-white shadow-md shadow-rose-600/15 hover:bg-rose-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed transition cursor-pointer">
-                    <span x-text="receiptRefunded ? 'Sudah Refund' : 'Refund'"></span>
                 </button>
                 <button type="button" @click="closeReceipt(); setTab('produk')"
                     class="rounded-2xl border border-gray-150 bg-white px-5 py-4 text-sm font-black text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-950 transition cursor-pointer">

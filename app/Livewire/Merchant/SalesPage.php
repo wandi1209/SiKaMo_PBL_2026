@@ -318,6 +318,16 @@ class SalesPage extends Component
 
     public function updateQuantity($productId, $quantity)
     {
+        $index = collect($this->cart)->search(fn($item) => $item['id'] == $productId);
+        $oldQuantity = ($index !== false) ? $this->cart[$index]['quantity'] : 1;
+
+        if ($quantity === '' || $quantity === null) {
+            $this->dispatch('quantityUpdateFailed', ['productId' => $productId, 'oldQuantity' => $oldQuantity]);
+            return;
+        }
+
+        $quantity = (int) $quantity;
+
         if ($quantity <= 0) {
             $this->removeFromCart($productId);
             return;
@@ -330,15 +340,16 @@ class SalesPage extends Component
 
         if (!$product) {
             $this->dispatch('showToast', ['type' => 'error', 'message' => 'Produk tidak ditemukan']);
+            $this->dispatch('quantityUpdateFailed', ['productId' => $productId, 'oldQuantity' => $oldQuantity]);
             return;
         }
 
         if ($quantity > $product->stock) {
             $this->dispatch('showToast', ['type' => 'error', 'message' => 'Stok tidak mencukupi']);
+            $this->dispatch('quantityUpdateFailed', ['productId' => $productId, 'oldQuantity' => $oldQuantity]);
             return;
         }
 
-        $index = collect($this->cart)->search(fn($item) => $item['id'] == $productId);
         if ($index !== false) {
             $this->cart[$index]['quantity'] = $quantity;
             $this->calculateTotal();

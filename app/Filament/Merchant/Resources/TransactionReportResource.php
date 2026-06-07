@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Carbon\Carbon;
 use Filament\Tables;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
@@ -27,7 +28,12 @@ class TransactionReportResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->role === 'owner';
+        return auth()->user()?->role === 'owner' || auth()->user()?->role === 'cashier';
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()?->role === 'owner' || auth()->user()?->role === 'cashier';
     }
 
     public static function canCreate(): bool
@@ -49,10 +55,16 @@ class TransactionReportResource extends Resource
     {
         $merchantId = filament()->getTenant()?->id;
 
-        return parent::getEloquentQuery()
+        $query = parent::getEloquentQuery()
             ->with(['user', 'refundedBy', 'member', 'items.product.category'])
             ->whereIn('status', ['completed', 'refunded'])
             ->whereHas('items.product', fn(Builder $query) => $query->where('merchant_id', $merchantId));
+
+        if (auth()->user()?->role === 'cashier') {
+            $query->whereDate('created_at', Carbon::today());
+        }
+
+        return $query;
     }
 
     public static function form(Form $form): Form

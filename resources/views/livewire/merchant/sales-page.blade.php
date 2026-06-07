@@ -33,7 +33,7 @@
                 <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-white dark:border-gray-900 rounded-full shadow-sm"></span>
             </div>
             <div class="min-w-0">
-                <h2 class="font-extrabold text-gray-900 dark:text-white text-sm tracking-tight leading-tight truncate max-w-[160px]">
+                <h2 class="font-extrabold text-sm tracking-tight leading-tight truncate max-w-[160px] text-sikamo-primary">
                     {{ $merchantName }}
                 </h2>
                 <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
@@ -53,7 +53,7 @@
                     class="relative flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer select-none"
                     :class="activeTab === 'produk'
                         ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 dark:shadow-emerald-700/40 scale-[1.02]'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/50'">
+                        : 'text-sikamo-secondary hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/50'">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                             d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -66,7 +66,7 @@
                     class="relative flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer select-none"
                     :class="activeTab === 'keranjang'
                         ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 dark:shadow-emerald-700/40 scale-[1.02]'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/50'">
+                        : 'text-sikamo-secondary hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/50'">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                             d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13l-1.1 5M7 13h10m0 0v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-3.03" />
@@ -85,10 +85,91 @@
                 </button>
 
             </div>
-        </nav>
+        </nav>        <!-- RIGHT: Notification & Profile Button Group -->
+        <div class="flex items-center gap-3 shrink-0">
+            <!-- Low Stock Notification Dropdown -->
+            <div class="relative" x-data="{ openNotification: false }">
+                <button type="button" @click="openNotification = !openNotification"
+                    class="flex h-10 w-10 items-center justify-center rounded-2xl cursor-pointer
+                           bg-gray-50 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800
+                           border border-gray-200/80 dark:border-gray-700/60
+                           shadow-sm hover:shadow-md
+                           transition-all duration-200 focus:outline-none relative">
+                    <!-- Warning/Bell Icon -->
+                    <svg class="w-5 h-5 text-sikamo-secondary {{ $lowStockProductsCount > 0 ? 'animate-bounce' : '' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    @if ($lowStockProductsCount > 0)
+                        <span class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white ring-2 ring-white dark:ring-gray-900 animate-pulse">
+                            {{ $lowStockProductsCount }}
+                        </span>
+                    @endif
+                </button>
 
-        <!-- RIGHT: Profile Button + Dropdown -->
-        <div class="relative shrink-0" x-data="{ openProfileMenu: false }">
+                <!-- Dropdown -->
+                <div x-show="openNotification"
+                    @click.away="openNotification = false"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+                    class="absolute top-full right-0 mt-2.5 w-80
+                           bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl
+                           border border-gray-200/60 dark:border-gray-700/60
+                           rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40
+                           p-3 z-50 space-y-2 text-left"
+                    style="display: none;">
+                    
+                    <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="flex h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
+                            <span class="text-xs font-extrabold text-sikamo-primary">Peringatan Stok Rendah</span>
+                        </div>
+                        <span class="text-[10px] font-bold text-sikamo-secondary">
+                            {{ $lowStockProductsCount }} Produk
+                        </span>
+                    </div>
+
+                    <div class="max-h-60 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
+                        @forelse ($lowStockProducts as $lowStockProduct)
+                            <div class="flex items-center justify-between gap-3 p-2 rounded-xl bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100/30 dark:border-rose-900/20">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs font-bold text-sikamo-primary truncate">
+                                        {{ $lowStockProduct->name }}
+                                    </p>
+                                    <p class="text-[10px] text-sikamo-secondary">
+                                        Batas: {{ $lowStockProduct->low_stock_threshold }} unit
+                                    </p>
+                                </div>
+                                <span class="shrink-0 rounded-lg bg-rose-100 dark:bg-rose-950 px-2 py-1 text-[10px] font-black text-rose-800 dark:text-rose-300 border border-rose-200/40 dark:border-rose-900/40">
+                                    Stok: {{ $lowStockProduct->stock }}
+                                </span>
+                            </div>
+                        @empty
+                            <div class="flex flex-col items-center justify-center py-6 text-center">
+                                <svg class="w-8 h-8 text-emerald-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-xs font-bold text-sikamo-secondary">Semua Stok Aman</p>
+                                <p class="text-[10px] text-sikamo-secondary mt-0.5">Tidak ada produk di bawah batas rendah.</p>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    @if ($lowStockProductsCount > count($lowStockProducts))
+                        <div class="text-center pt-1 border-t border-gray-200/50 dark:border-gray-800/50">
+                            <span class="text-[9px] font-bold text-rose-600 dark:text-rose-400">
+                                +{{ $lowStockProductsCount - count($lowStockProducts) }} produk lain juga menipis
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Profile Button + Dropdown -->
+            <div class="relative shrink-0" x-data="{ openProfileMenu: false }">
                 <button type="button" @click="openProfileMenu = !openProfileMenu"
                     class="flex items-center gap-2.5 px-3 py-2 rounded-2xl cursor-pointer
                            bg-gray-50 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800
@@ -104,10 +185,10 @@
                         </div>
                     </div>
                     <div class="min-w-0 hidden lg:flex flex-col items-start">
-                        <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight truncate max-w-[96px]">{{ $userName }}</span>
-                        <span class="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{{ auth()->user()?->role === 'owner' ? 'Pemilik' : 'Kasir' }}</span>
+                        <span class="text-xs font-bold text-sikamo-primary leading-tight truncate max-w-[96px]">{{ $userName }}</span>
+                        <span class="text-[10px] text-sikamo-secondary font-medium">{{ auth()->user()?->role === 'owner' ? 'Pemilik' : 'Kasir' }}</span>
                     </div>
-                    <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 transition-transform duration-200 shrink-0"
+                    <svg class="w-3.5 h-3.5 text-sikamo-secondary transition-transform duration-200 shrink-0"
                         :class="openProfileMenu ? 'rotate-180' : ''"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
@@ -143,8 +224,8 @@
                             {{ $userInitial }}
                         </div>
                         <div class="min-w-0">
-                            <span class="block text-sm font-bold text-gray-900 dark:text-white truncate">{{ $userName }}</span>
-                            <span class="block text-[10px] font-semibold text-emerald-600 dark:text-emerald-450">
+                            <span class="block text-sm font-bold text-sikamo-primary truncate">{{ $userName }}</span>
+                            <span class="block text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
                                 {{ auth()->user()?->role === 'owner' ? '🏪 Pemilik Toko' : '🧾 Kasir' }}
                             </span>
                         </div>
@@ -158,7 +239,7 @@
                             class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
                             :class="activeTheme === 'light'
                                 ? 'bg-white dark:bg-gray-700 shadow text-amber-500 ring-1 ring-amber-200 dark:ring-amber-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                                : 'text-sikamo-secondary hover:text-gray-700 dark:hover:text-gray-200'">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
                             </svg>
@@ -169,7 +250,7 @@
                             class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
                             :class="activeTheme === 'dark'
                                 ? 'bg-white dark:bg-gray-700 shadow text-indigo-500 ring-1 ring-indigo-200 dark:ring-indigo-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                                : 'text-sikamo-secondary hover:text-gray-700 dark:hover:text-gray-200'">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
                             </svg>
@@ -180,7 +261,7 @@
                             class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
                             :class="activeTheme === 'system'
                                 ? 'bg-white dark:bg-gray-700 shadow text-emerald-600 ring-1 ring-emerald-200 dark:ring-emerald-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                                : 'text-sikamo-secondary hover:text-gray-700 dark:hover:text-gray-200'">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25M3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
                             </svg>
@@ -199,7 +280,7 @@
                             class="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
                             :class="textSize === 'small'
                                 ? 'bg-white dark:bg-gray-700 shadow text-blue-500 ring-1 ring-blue-200 dark:ring-blue-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                                : 'text-sikamo-secondary hover:text-gray-700 dark:hover:text-gray-200'">
                             <span class="text-[10px] font-black">A</span>
                             <span>Kecil</span>
                         </button>
@@ -209,7 +290,7 @@
                             class="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
                             :class="textSize === 'medium'
                                 ? 'bg-white dark:bg-gray-700 shadow text-emerald-500 ring-1 ring-emerald-200 dark:ring-emerald-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                                : 'text-sikamo-secondary hover:text-gray-700 dark:hover:text-gray-200'">
                             <span class="text-[13px] font-black">A</span>
                             <span>Sedang</span>
                         </button>
@@ -219,7 +300,7 @@
                             class="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer"
                             :class="textSize === 'large'
                                 ? 'bg-white dark:bg-gray-700 shadow text-orange-500 ring-1 ring-orange-200/80 dark:ring-orange-700/50'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+                                : 'text-sikamo-secondary hover:text-gray-700 dark:hover:text-gray-200'">
                             <span class="text-[17px] leading-none font-black">A</span>
                             <span>Besar</span>
                         </button>
@@ -235,7 +316,7 @@
                                rounded-xl transition-all duration-200 cursor-pointer group">
                         <div class="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40
                                     flex items-center justify-center transition-colors duration-200">
-                            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-450 transition-colors"
+                            <svg class="w-3.5 h-3.5 text-sikamo-secondary group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors"
                                  fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                             </svg>
@@ -244,6 +325,7 @@
                     </a>
                 </div>
             </div>
+        </div>
     </header>
 
     <!-- Mobile Top Navbar -->
@@ -259,7 +341,7 @@
             </button>
 
             <div class="min-w-0 flex-1" :class="activeTab === 'produk' ? '' : 'text-center'">
-                <p class="truncate text-sm font-black text-gray-950 dark:text-white"
+                <p class="truncate text-sm font-black text-sikamo-primary"
                     x-text="activeTab === 'produk' ? @js($merchantName) : (activeTab === 'keranjang' ? 'Keranjang' : (activeTab === 'scan' ? 'Scan Produk' : (activeTab === 'pembayaran' ? 'Pembayaran' : 'Struk')))">
                     {{ $merchantName }}
                 </p>
@@ -267,103 +349,180 @@
                     x-text="activeTab === 'produk' ? 'Kasir Aktif' : 'SiKaMo POS'">Kasir Aktif</p>
             </div>
 
-            <div class="relative shrink-0" x-data="{
-                openMobileProfileMenu: false,
-                activeTheme: localStorage.getItem('theme') || 'system',
-                setTheme(newTheme) {
-                    this.activeTheme = newTheme;
-                    window.dispatchEvent(new CustomEvent('theme-changed', { detail: newTheme }));
-                }
-            }">
-                <button type="button" @click="openMobileProfileMenu = !openMobileProfileMenu"
-                    class="flex h-10 max-w-[168px] items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-2.5 shadow-sm transition dark:border-gray-700 dark:bg-gray-800/80">
-                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-black text-white shadow-sm">
-                        {{ $userInitial }}
-                    </span>
-                    <span class="min-w-0 flex-1 text-left">
-                        <span class="block truncate text-xs font-black leading-tight text-gray-950 dark:text-white">{{ $userName }}</span>
-                        <span class="block truncate text-[10px] font-bold leading-tight text-gray-400 dark:text-gray-500">
-                            {{ auth()->user()?->role === 'owner' ? 'Pemilik' : 'Kasir' }}
-                        </span>
-                    </span>
-                    <svg class="h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform" :class="openMobileProfileMenu ? 'rotate-180' : ''"
-                        fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
+                        <!-- Mobile RIGHT Controls: Notification & Profile Button -->
+            <div class="flex items-center gap-2 shrink-0">
+                <!-- Mobile Low Stock Notification Dropdown -->
+                <div class="relative" x-data="{ openMobileNotification: false }">
+                    <button type="button" @click="openMobileNotification = !openMobileNotification"
+                        class="flex h-10 w-10 items-center justify-center rounded-2xl cursor-pointer
+                               bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800
+                               border border-gray-200 dark:border-gray-700
+                               shadow-sm hover:shadow-md
+                               transition-all duration-200 focus:outline-none relative">
+                        <!-- Warning/Bell Icon -->
+                        <svg class="w-5 h-5 text-sikamo-secondary {{ $lowStockProductsCount > 0 ? 'animate-bounce' : '' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        @if ($lowStockProductsCount > 0)
+                            <span class="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-black text-white ring-2 ring-white dark:ring-gray-900 animate-pulse">
+                                {{ $lowStockProductsCount }}
+                            </span>
+                        @endif
+                    </button>
 
-                <div x-show="openMobileProfileMenu"
-                    @click.away="openMobileProfileMenu = false"
-                    x-transition:enter="transition ease-out duration-150"
-                    x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
-                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                    x-transition:leave="transition ease-in duration-100"
-                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
-                    class="absolute right-0 top-full mt-2 w-[min(270px,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white/95 p-2 text-left shadow-2xl shadow-gray-950/15 backdrop-blur-xl dark:border-gray-700 dark:bg-gray-900/95 dark:shadow-black/40"
-                    style="display: none;">
-                    <div class="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/80 p-3 dark:border-emerald-900/40 dark:bg-emerald-950/20">
-                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-sm font-black text-white shadow-md">
+                    <!-- Dropdown -->
+                    <div x-show="openMobileNotification"
+                        @click.away="openMobileNotification = false"
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                        x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-100"
+                        x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+                        class="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-2xl border border-gray-200 bg-white/95 p-3 text-left shadow-2xl shadow-gray-950/15 backdrop-blur-xl dark:border-gray-700 dark:bg-gray-900/95 dark:shadow-black/40 z-50 space-y-2"
+                        style="display: none;">
+                        
+                        <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+                            <div class="flex items-center gap-1.5">
+                                <span class="flex h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
+                                <span class="text-xs font-extrabold text-sikamo-primary">Stok Rendah</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-sikamo-secondary">
+                                {{ $lowStockProductsCount }} Produk
+                            </span>
+                        </div>
+
+                        <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
+                            @forelse ($lowStockProducts as $lowStockProduct)
+                                <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100/30 dark:border-rose-900/20">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-[11px] font-bold text-sikamo-primary truncate">
+                                            {{ $lowStockProduct->name }}
+                                        </p>
+                                        <p class="text-[9px] text-sikamo-secondary">
+                                            Batas: {{ $lowStockProduct->low_stock_threshold }} unit
+                                        </p>
+                                    </div>
+                                    <span class="shrink-0 rounded-lg bg-rose-100 dark:bg-rose-950/40 px-2 py-0.5 text-[9px] font-black text-rose-800 dark:text-rose-300 border border-rose-200/40 dark:border-rose-900/40">
+                                        Stok: {{ $lowStockProduct->stock }}
+                                    </span>
+                                </div>
+                            @empty
+                                <div class="flex flex-col items-center justify-center py-4 text-center">
+                                    <p class="text-[11px] font-bold text-sikamo-primary">Semua Stok Aman</p>
+                                </div>
+                            @endforelse
+                        </div>
+
+                        @if ($lowStockProductsCount > count($lowStockProducts))
+                            <div class="text-center pt-1 border-t border-gray-200 dark:border-gray-800">
+                                <span class="text-[9px] font-bold text-rose-600 dark:text-rose-400">
+                                    +{{ $lowStockProductsCount - count($lowStockProducts) }} produk lain juga menipis
+                                </span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown (Mobile) -->
+                <div class="relative shrink-0" x-data="{
+                    openMobileProfileMenu: false,
+                    activeTheme: localStorage.getItem('theme') || 'system',
+                    setTheme(newTheme) {
+                        this.activeTheme = newTheme;
+                        window.dispatchEvent(new CustomEvent('theme-changed', { detail: newTheme }));
+                    }
+                }">
+                    <button type="button" @click="openMobileProfileMenu = !openMobileProfileMenu"
+                        class="flex h-10 max-w-[168px] items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-2.5 shadow-sm transition dark:border-gray-700 dark:bg-gray-800/80">
+                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-black text-white shadow-sm">
                             {{ $userInitial }}
                         </span>
-                        <div class="min-w-0">
-                            <p class="truncate text-sm font-black text-gray-950 dark:text-white">{{ $userName }}</p>
-                            <p class="truncate text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                                {{ auth()->user()?->role === 'owner' ? 'Pemilik Toko' : 'Kasir' }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <p class="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">Tampilan</p>
-                    <div class="grid grid-cols-3 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800/70">
-                        <button type="button" @click="setTheme('light')"
-                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="activeTheme === 'light' ? 'bg-white text-amber-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m0-12.72.7.7m12.72 12.72.7.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                            </svg>
-                            Terang
-                        </button>
-                        <button type="button" @click="setTheme('dark')"
-                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="activeTheme === 'dark' ? 'bg-white text-indigo-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 15A9.75 9.75 0 119 2.25 7.5 7.5 0 0021.75 15z" />
-                            </svg>
-                            Gelap
-                        </button>
-                        <button type="button" @click="setTheme('system')"
-                            class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="activeTheme === 'system' ? 'bg-white text-emerald-600 shadow dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'">
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.01A3 3 0 018.12 20.38L7.5 21h9l-.62-.62A3 3 0 0115 18.26v-1.01M3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25z" />
-                            </svg>
-                            Auto
-                        </button>
-                    </div>
-
-                    <p class="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">Ukuran Teks</p>
-                    <div class="grid grid-cols-3 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800/70">
-                        <button type="button" @click="setTextSize('small')"
-                            class="rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="textSize === 'small' ? 'bg-blue-600 text-white shadow' : 'text-gray-500 dark:text-gray-400'">A Kecil</button>
-                        <button type="button" @click="setTextSize('medium')"
-                            class="rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="textSize === 'medium' ? 'bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white' : 'text-gray-500 dark:text-gray-400'">A Sedang</button>
-                        <button type="button" @click="setTextSize('large')"
-                            class="rounded-lg px-2 py-2 text-[11px] font-black transition"
-                            :class="textSize === 'large' ? 'bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white' : 'text-gray-500 dark:text-gray-400'">A Besar</button>
-                    </div>
-
-                    <a href="{{ $dashboardUrl }}"
-                        class="mt-2 flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-black text-gray-700 transition hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800">
-                        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l9-9 9 9M4.5 9.75V21h5.25v-6h4.5v6h5.25V9.75" />
-                            </svg>
+                        <span class="min-w-0 flex-1 text-left">
+                            <span class="block truncate text-xs font-black leading-tight text-sikamo-primary">{{ $userName }}</span>
+                            <span class="block truncate text-[10px] font-bold leading-tight text-sikamo-secondary">
+                                {{ auth()->user()?->role === 'owner' ? 'Pemilik' : 'Kasir' }}
+                            </span>
                         </span>
-                        Kembali ke Dashboard
-                    </a>
+                        <svg class="h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform" :class="openMobileProfileMenu ? 'rotate-180' : ''"
+                            fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div x-show="openMobileProfileMenu"
+                        @click.away="openMobileProfileMenu = false"
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                        x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-100"
+                        x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+                        class="absolute right-0 top-full mt-2 w-[min(270px,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white/95 p-2 text-left shadow-2xl shadow-gray-950/15 backdrop-blur-xl dark:border-gray-700 dark:bg-gray-900/95 dark:shadow-black/40"
+                        style="display: none;">
+                        <div class="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/80 p-3 dark:border-emerald-900/40 dark:bg-emerald-950/20">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-sm font-black text-white shadow-md">
+                                {{ $userInitial }}
+                            </span>
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-black text-sikamo-primary">{{ $userName }}</p>
+                                <p class="truncate text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                    {{ auth()->user()?->role === 'owner' ? 'Pemilik Toko' : 'Kasir' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">Tampilan</p>
+                        <div class="grid grid-cols-3 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800/70">
+                            <button type="button" @click="setTheme('light')"
+                                class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
+                                :class="activeTheme === 'light' ? 'bg-white text-amber-600 shadow dark:bg-gray-700' : 'text-sikamo-secondary'">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36-6.36-.7.7M6.34 17.66l-.7.7m0-12.72.7.7m12.72 12.72.7.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                                </svg>
+                                Terang
+                            </button>
+                            <button type="button" @click="setTheme('dark')"
+                                class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
+                                :class="activeTheme === 'dark' ? 'bg-white text-indigo-600 shadow dark:bg-gray-700' : 'text-sikamo-secondary'">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 15A9.75 9.75 0 119 2.25 7.5 7.5 0 0021.75 15z" />
+                                </svg>
+                                Gelap
+                            </button>
+                            <button type="button" @click="setTheme('system')"
+                                class="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-black transition"
+                                :class="activeTheme === 'system' ? 'bg-white text-emerald-600 shadow dark:bg-gray-700' : 'text-sikamo-secondary'">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.01A3 3 0 018.12 20.38L7.5 21h9l-.62-.62A3 3 0 0115 18.26v-1.01M3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25z" />
+                                </svg>
+                                Auto
+                            </button>
+                        </div>
+
+                        <p class="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">Ukuran Teks</p>
+                        <div class="grid grid-cols-3 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800/70">
+                            <button type="button" @click="setTextSize('small')"
+                                class="rounded-lg px-2 py-2 text-[11px] font-black transition"
+                                :class="textSize === 'small' ? 'bg-blue-600 text-white shadow' : 'text-sikamo-secondary'">A Kecil</button>
+                            <button type="button" @click="setTextSize('medium')"
+                                class="rounded-lg px-2 py-2 text-[11px] font-black transition"
+                                :class="textSize === 'medium' ? 'bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white' : 'text-sikamo-secondary'">A Sedang</button>
+                            <button type="button" @click="setTextSize('large')"
+                                class="rounded-lg px-2 py-2 text-[11px] font-black transition"
+                                :class="textSize === 'large' ? 'bg-white text-gray-900 shadow dark:bg-gray-700 dark:text-white' : 'text-sikamo-secondary'">A Besar</button>
+                        </div>
+
+                        <a href="{{ $dashboardUrl }}"
+                            class="mt-2 flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-black text-gray-700 transition hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l9-9 9 9M4.5 9.75V21h5.25v-6h4.5v6h5.25V9.75" />
+                                </svg>
+                            </span>
+                            Kembali ke Dashboard
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -409,8 +568,8 @@
                             <span x-text="pendingTransactions.length"></span> transaksi menunggu sinkronisasi
                         </span>
                     </div>
-                    <h2 class="mt-2 text-xl font-black text-gray-950 dark:text-white">Kasir Offline</h2>
-                    <p class="mt-1 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                    <h2 class="mt-2 text-xl font-black text-sikamo-primary">Kasir Offline</h2>
+                    <p class="mt-1 text-xs font-semibold text-sikamo-secondary">
                         Data terakhir: <span x-text="offlineLastSyncLabel"></span>. Mode ini menyimpan transaksi di perangkat ini dulu.
                     </p>
                 </div>
@@ -441,13 +600,13 @@
 
             <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_390px]">
                 <div class="space-y-4">
-                    <div class="flex flex-col gap-3 rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:flex-row md:items-center">
+                    <div class="flex flex-col gap-3 rounded-3xl border border-gray-100 bg-white p-4 shadow-md shadow-gray-100/70 dark:shadow-none dark:border-gray-800 dark:bg-gray-900 md:flex-row md:items-center">
                         <div class="relative flex-1">
                             <input type="text" x-model.debounce.150ms="offlineSearch" placeholder="Cari produk atau barcode..."
-                                class="w-full rounded-2xl border border-gray-150 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                         </div>
                         <select x-model="offlineCategory"
-                            class="rounded-2xl border border-gray-150 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
+                            class="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
                             <option value="all">Semua kategori</option>
                             <template x-for="category in offlineSnapshot.categories" :key="category.id">
                                 <option :value="String(category.id)" x-text="category.name"></option>
@@ -458,17 +617,17 @@
                     <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
                         <template x-for="product in filteredOfflineProducts()" :key="product.id">
                             <button type="button" @click="addOfflineProduct(product)" :disabled="offlineAvailableStock(product) <= 0"
-                                class="group overflow-hidden rounded-2xl border border-gray-100 bg-white text-left shadow-sm transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-900">
+                                class="group overflow-hidden rounded-2xl border border-gray-100 bg-white text-left shadow-md shadow-gray-100/70 dark:shadow-none transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-900">
                                 <div class="flex aspect-[4/3] items-center justify-center bg-gray-50 dark:bg-gray-800">
                                     <img x-show="product.image_url" :src="product.image_url" :alt="product.name" class="h-full w-full object-cover">
                                     <div x-show="!product.image_url" class="text-3xl font-black text-gray-300 dark:text-gray-600" x-text="product.name?.charAt(0) || 'S'"></div>
                                 </div>
                                 <div class="space-y-2 p-3">
                                     <p class="text-[10px] font-black uppercase tracking-wider text-emerald-600" x-text="product.category_name || 'Umum'"></p>
-                                    <h3 class="line-clamp-2 min-h-[2.5rem] text-sm font-black text-gray-900 dark:text-white" x-text="product.name"></h3>
+                                    <h3 class="line-clamp-2 min-h-[2.5rem] text-sm font-black text-sikamo-primary" x-text="product.name"></h3>
                                     <div class="flex items-end justify-between gap-2 border-t border-gray-100 pt-2 dark:border-gray-800">
                                         <div>
-                                            <p class="text-sm font-black text-gray-950 dark:text-white">Rp <span x-text="formatCurrency(product.price)"></span></p>
+                                            <p class="text-sm font-black text-sikamo-primary">Rp <span x-text="formatCurrency(product.price)"></span></p>
                                             <p class="text-[11px] font-bold text-gray-400">Stok lokal: <span x-text="offlineAvailableStock(product)"></span></p>
                                         </div>
                                         <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">+</span>
@@ -479,15 +638,15 @@
                     </div>
 
                     <div x-show="filteredOfflineProducts().length === 0"
-                        class="rounded-3xl border border-gray-100 bg-white p-8 text-center text-sm font-bold text-gray-400 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        class="rounded-3xl border border-gray-100 bg-white p-8 text-center text-sm font-bold text-gray-400 shadow-md shadow-gray-100/70 dark:shadow-none dark:border-gray-800 dark:bg-gray-900">
                         Produk tidak ditemukan di data offline.
                     </div>
                 </div>
 
                 <aside class="space-y-4">
-                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-md shadow-gray-100/70 dark:shadow-none dark:border-gray-800 dark:bg-gray-900">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base font-black text-gray-950 dark:text-white">Keranjang Offline</h3>
+                            <h3 class="text-base font-black text-sikamo-primary">Keranjang Offline</h3>
                             <button type="button" @click="clearOfflineCart()" x-show="offlineCart.length > 0"
                                 class="text-xs font-black text-rose-600">Kosongkan</button>
                         </div>
@@ -497,7 +656,7 @@
                                 <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
                                     <div class="flex items-start justify-between gap-3">
                                         <div class="min-w-0">
-                                            <p class="break-words text-sm font-black text-gray-900 dark:text-white" x-text="item.name"></p>
+                                            <p class="break-words text-sm font-black text-sikamo-primary" x-text="item.name"></p>
                                             <p class="mt-1 text-xs font-bold text-emerald-600">Rp <span x-text="formatCurrency(item.unit_price)"></span></p>
                                         </div>
                                         <button type="button" @click="removeOfflineItem(item.product_id)" class="text-rose-500">
@@ -507,10 +666,10 @@
                                     <div class="mt-3 flex items-center justify-between gap-3">
                                         <div class="flex items-center rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900">
                                             <button type="button" @click="updateOfflineQuantity(item.product_id, item.quantity - 1)" class="h-8 w-8 rounded-lg text-sm font-black text-gray-500">-</button>
-                                            <span class="w-9 text-center text-sm font-black text-gray-900 dark:text-white" x-text="item.quantity"></span>
+                                            <span class="w-9 text-center text-sm font-black text-sikamo-primary" x-text="item.quantity"></span>
                                             <button type="button" @click="updateOfflineQuantity(item.product_id, item.quantity + 1)" class="h-8 w-8 rounded-lg text-sm font-black text-emerald-600">+</button>
                                         </div>
-                                        <p class="text-sm font-black text-gray-950 dark:text-white">Rp <span x-text="formatCurrency(item.unit_price * item.quantity)"></span></p>
+                                        <p class="text-sm font-black text-sikamo-primary">Rp <span x-text="formatCurrency(item.unit_price * item.quantity)"></span></p>
                                     </div>
                                 </div>
                             </template>
@@ -521,13 +680,13 @@
                         </div>
                     </div>
 
-                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-md shadow-gray-100/70 dark:shadow-none dark:border-gray-800 dark:bg-gray-900">
                         <div class="space-y-3">
                             <div>
                                 <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Kode Diskon</label>
                                 <div class="flex gap-2">
                                     <input type="text" x-model="offlineDiscountCode" placeholder="Opsional"
-                                        class="min-w-0 flex-1 rounded-xl border border-gray-150 bg-gray-50 px-3 py-2 text-xs font-bold uppercase dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                        class="min-w-0 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-bold uppercase dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                                     <button type="button" @click="applyOfflineDiscount()" class="rounded-xl bg-emerald-700 px-3 py-2 text-xs font-black text-white">Pakai</button>
                                 </div>
                             </div>
@@ -535,7 +694,7 @@
                                 <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Member</label>
                                 <div class="flex gap-2">
                                     <input type="tel" x-model="offlineMemberPhone" placeholder="Nomor HP"
-                                        class="min-w-0 flex-1 rounded-xl border border-gray-150 bg-gray-50 px-3 py-2 text-xs font-bold dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                        class="min-w-0 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-bold dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                                     <button type="button" @click="findOfflineMember()" class="rounded-xl bg-gray-950 px-3 py-2 text-xs font-black text-white dark:bg-white dark:text-gray-950">Cek</button>
                                 </div>
                                 <p x-show="offlineSelectedMember" class="mt-2 rounded-xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
@@ -549,7 +708,7 @@
                                 <div x-show="offlineDiscountAmount() > 0" class="flex justify-between text-emerald-600"><span>Diskon</span><span>- Rp <span x-text="formatCurrency(offlineDiscountAmount())"></span></span></div>
                                 <div x-show="offlineMemberDiscountAmount() > 0" class="flex justify-between text-sky-600"><span>Diskon Member</span><span>- Rp <span x-text="formatCurrency(offlineMemberDiscountAmount())"></span></span></div>
                                 <div class="flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-800">
-                                    <span class="text-base font-black text-gray-950 dark:text-white">Total</span>
+                                    <span class="text-base font-black text-sikamo-primary">Total</span>
                                     <span class="text-xl font-black text-emerald-600">Rp <span x-text="formatCurrency(offlineTotal())"></span></span>
                                 </div>
                             </div>
@@ -557,7 +716,7 @@
                             <div>
                                 <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Metode Bayar</label>
                                 <select x-model="offlinePaymentMethod"
-                                    class="w-full rounded-xl border border-gray-150 bg-gray-50 px-3 py-3 text-xs font-black dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-xs font-black dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                                     <option value="cash">Tunai</option>
                                     <option value="qris" :disabled="!offlineSnapshot.merchant?.qris_static_image_url">QRIS Statis</option>
                                 </select>
@@ -565,7 +724,7 @@
                             <div x-show="offlinePaymentMethod === 'cash'">
                                 <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Dibayar</label>
                                 <input type="number" x-model="offlineAmountPaid" min="0"
-                                    class="w-full rounded-xl border border-gray-150 bg-gray-50 px-3 py-3 text-sm font-black dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-black dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                                 <p class="mt-2 text-xs font-black text-emerald-700">Kembalian: Rp <span x-text="formatCurrency(offlineChange())"></span></p>
                             </div>
 
@@ -577,8 +736,8 @@
                         </div>
                     </div>
 
-                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                        <h3 class="text-sm font-black text-gray-950 dark:text-white">Riwayat Lokal</h3>
+                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-md shadow-gray-100/70 dark:shadow-none dark:border-gray-800 dark:bg-gray-900">
+                        <h3 class="text-sm font-black text-sikamo-primary">Riwayat Lokal</h3>
                         <div class="mt-3 max-h-64 space-y-2 overflow-y-auto">
                             <template x-for="transaction in pendingTransactions" :key="transaction.client_id">
                                 <div class="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-xs font-bold text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
@@ -613,16 +772,16 @@
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 md:gap-6">
                 <!-- Heading (Left Side) -->
                 <div class="min-w-0">
-                    <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight md:leading-none">Katalog Produk</h1>
-                    <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1.5 md:mt-2 font-medium leading-5">Manajemen stok dan harga kebutuhan pokok harian</p>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-sikamo-primary tracking-tight leading-tight md:leading-none">Katalog Produk</h1>
+                    <p class="text-xs md:text-sm text-sikamo-secondary mt-1.5 md:mt-2 font-medium leading-5">Manajemen stok dan harga kebutuhan pokok harian</p>
                 </div>
 
                 <!-- Unified Controls Group (Right Side) - Zero Spacing Disconnect -->
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
                     <!-- Premium Search Bar & Telusuri Button Group -->
-                    <div class="flex min-w-0 items-center bg-white dark:bg-gray-900 border border-gray-200/85 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500/80 dark:focus-within:ring-emerald-500/50 transition-all duration-200 flex-1 sm:flex-initial">
+                    <div class="flex min-w-0 items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500/80 dark:focus-within:ring-emerald-500/50 transition-all duration-200 flex-1 sm:flex-initial">
                         <div class="relative flex items-center pl-4 py-2.5 bg-transparent flex-1 sm:flex-none">
-                            <span class="pointer-events-none text-gray-400 dark:text-gray-500">
+                            <span class="pointer-events-none text-sikamo-secondary">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -630,7 +789,7 @@
                             </span>
                             <input wire:model.live.debounce.300ms="search" type="text"
                                 placeholder="Cari nama produk atau SKU..."
-                                class="w-full sm:w-48 lg:w-60 pl-3 pr-4 bg-transparent text-xs text-gray-900 dark:text-white placeholder-gray-450 focus:outline-none border-none ring-0 focus:ring-0 focus:border-none" />
+                                class="w-full sm:w-48 lg:w-60 pl-3 pr-4 bg-transparent text-xs text-sikamo-primary placeholder-gray-400 focus:outline-none border-none ring-0 focus:ring-0 focus:border-none" />
                         </div>
                         <button type="button" wire:click="$refresh"
                             class="shrink-0 px-3 md:px-5 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-xs font-bold tracking-wide transition duration-150 cursor-pointer shadow-sm active:scale-95">
@@ -659,67 +818,6 @@
                 </div>
             </div>
 
-            @if ($lowStockProducts->isNotEmpty())
-                <div
-                    class="rounded-3xl border border-rose-200 bg-rose-50 p-5 shadow-sm dark:border-rose-900/50 dark:bg-rose-950/20">
-                    <div class="flex flex-col gap-5 xl:flex-row xl:items-start">
-                        <div class="min-w-0 xl:w-72 xl:shrink-0">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
-                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5"
-                                        viewBox="0 0 24 24" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-black text-rose-800 dark:text-rose-200">Stok Menipis</p>
-                                    <p class="text-3xl font-black text-rose-950 dark:text-rose-100">
-                                        {{ number_format($lowStockProductsCount, 0, ',', '.') }}
-                                    </p>
-                                </div>
-                            </div>
-                            <p class="mt-3 text-sm font-semibold leading-6 text-rose-800 dark:text-rose-200">
-                                Produk ini sudah di bawah batas stok rendah.
-                            </p>
-                        </div>
-
-                        <div class="grid min-w-0 flex-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                            @foreach ($lowStockProducts as $lowStockProduct)
-                                <div
-                                    class="rounded-2xl border border-rose-200 bg-white p-4 shadow-sm dark:border-rose-900/50 dark:bg-gray-900">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div class="min-w-0 flex-1">
-                                            <p class="text-sm font-black leading-5 text-gray-950 break-words dark:text-white">
-                                                {{ $lowStockProduct->name }}
-                                            </p>
-                                            <p class="mt-1 text-xs font-semibold leading-5 text-gray-600 break-words dark:text-gray-300">
-                                                {{ $lowStockProduct->category?->name ?? 'Tanpa kategori' }}
-                                            </p>
-                                        </div>
-                                        <span
-                                            class="shrink-0 rounded-lg bg-rose-100 px-3 py-1.5 text-xs font-black text-rose-800 ring-1 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-200 dark:ring-rose-500/30">
-                                            Stok: {{ number_format($lowStockProduct->stock, 0, ',', '.') }}
-                                        </span>
-                                    </div>
-                                    <p class="mt-3 text-xs font-black text-rose-700 dark:text-rose-300">
-                                        Batas rendah:
-                                        {{ number_format($lowStockProduct->low_stock_threshold, 0, ',', '.') }}
-                                    </p>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    @if ($lowStockProductsCount > $lowStockProducts->count())
-                        <p class="mt-4 text-xs font-black text-rose-800 dark:text-rose-200">
-                            +{{ number_format($lowStockProductsCount - $lowStockProducts->count(), 0, ',', '.') }}
-                            produk lain juga stoknya menipis.
-                        </p>
-                    @endif
-                </div>
-            @endif
 
             <!-- Category Horizontally Scrollable Menu -->
             <div class="flex flex-wrap gap-2.5 overflow-x-auto pb-2 scrollbar-none">
@@ -727,7 +825,7 @@
                     class="px-5 py-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer shadow-sm
                         {{ $category === 'all'
                             ? 'bg-[#006b52] text-white border-[#006b52]'
-                            : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-150 dark:border-gray-800/80 hover:border-emerald-350 hover:text-emerald-700' }}">
+                            : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-800/80 hover:border-emerald-300 hover:text-emerald-700' }}">
                     Semua
                 </button>
                 @foreach ($categories as $cat)
@@ -735,38 +833,51 @@
                         class="px-5 py-2.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer shadow-sm
                             {{ $category == $cat->id
                                 ? 'bg-[#006b52] text-white border-[#006b52]'
-                                : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-150 dark:border-gray-800/80 hover:border-emerald-350 hover:text-emerald-700' }}">
+                                : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-800/80 hover:border-emerald-300 hover:text-emerald-700' }}">
                         {{ $cat->name }}
                     </button>
                 @endforeach
             </div>
 
-            <!-- Product Responsive Grid (4 columns on desktop) -->
+                        <!-- Product Responsive Grid (4 columns on desktop) -->
             <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                 @foreach ($products as $product)
                     <div wire:key="product-card-{{ $product->id }}"
                         @if ($product->stock > 0) wire:click.prevent="addToCart({{ $product->id }})" @endif
-                        class="group relative bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300 ease-out overflow-hidden flex flex-col justify-between select-none
+                        class="group relative rounded-2xl md:rounded-3xl shadow-sm transition-all duration-300 ease-out overflow-hidden flex flex-col justify-between select-none
                          {{ $product->stock > 0
-                             ? 'cursor-pointer hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-250 dark:hover:border-emerald-800/80 active:scale-[0.98]'
-                             : 'cursor-not-allowed opacity-75' }}">
+                             ? ($product->stock <= $product->low_stock_threshold
+                                 ? 'bg-rose-50/10 dark:bg-rose-950/5 border border-rose-300 dark:border-rose-900/60 hover:border-rose-400 dark:hover:border-rose-800 hover:-translate-y-2 hover:shadow-xl hover:shadow-rose-500/5 active:scale-[0.98] cursor-pointer'
+                                 : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-300 dark:hover:border-emerald-800/80 active:scale-[0.98] cursor-pointer shadow-md shadow-gray-100/50 dark:shadow-none')
+                             : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 cursor-not-allowed opacity-75' }}">
                         <div>
                             <!-- Availability status badge -->
                             <div class="absolute top-2 left-2 z-10 md:top-4 md:left-4">
                                 <span
                                     class="inline-flex items-center gap-1 rounded-full px-2 md:px-3 py-1 text-[8px] md:text-[10px] font-bold tracking-wide shadow-sm
                                     {{ $product->stock > 0
-                                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-350'
-                                        : 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-350' }}">
+                                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'
+                                        : 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300' }}">
                                     <span
                                         class="h-1.5 w-1.5 rounded-full {{ $product->stock > 0 ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
                                     {{ $product->stock > 0 ? 'TERSEDIA' : 'HABIS' }}
                                 </span>
                             </div>
 
+                            @if ($product->stock > 0 && $product->stock <= $product->low_stock_threshold)
+                                <div class="absolute top-2 right-2 z-10 md:top-4 md:right-4">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-rose-500 text-white px-2 md:px-3 py-1 text-[8px] md:text-[10px] font-extrabold tracking-wide shadow-md shadow-rose-500/30 animate-pulse">
+                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                        Stok Menipis
+                                    </span>
+                                </div>
+                            @endif
+
                             <!-- Product Image -->
                             <div
-                                class="aspect-[4/3] w-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden border-b border-gray-50 dark:border-gray-850">
+                                class="aspect-[4/3] w-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden border-b border-gray-50 dark:border-gray-800">
                                 @if ($product->image)
                                     <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
                                         class="w-full h-full object-cover object-center transition duration-300 group-hover:scale-105" />
@@ -785,7 +896,7 @@
                             <div class="p-3 md:p-5">
                                 <!-- Category Name -->
                                 <span
-                                    class="text-[8px] md:text-[10px] uppercase tracking-widest font-bold text-emerald-600 dark:text-emerald-450 block mb-1">
+                                    class="text-[8px] md:text-[10px] uppercase tracking-widest font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
                                     {{ $product->category?->name ?? 'UMUM' }}
                                 </span>
                                 <!-- Product Name -->
@@ -798,19 +909,25 @@
 
                         <!-- Price & Stock Footer -->
                         <div class="px-3 md:px-5 pb-3 md:pb-5 pt-0">
-                            <p class="text-sm md:text-base font-bold text-gray-900 dark:text-white mb-2 md:mb-3">
+                            <p class="text-sm md:text-base font-bold text-sikamo-primary mb-2 md:mb-3">
                                 Rp {{ number_format($product->price, 0, ',', '.') }}
                             </p>
                             <div
                                     class="flex items-center justify-between gap-2 md:gap-3 pt-2.5 border-t border-gray-50 dark:border-gray-800/80">
                                 <span
-                                    class="text-[10px] md:text-xs font-semibold {{ $product->stock > 0 ? 'text-gray-400 dark:text-gray-500' : 'text-rose-500' }}">
+                                    class="text-[10px] md:text-xs font-semibold 
+                                    {{ $product->stock > 0 
+                                        ? ($product->stock <= $product->low_stock_threshold ? 'text-rose-600 dark:text-rose-400 font-extrabold' : 'text-sikamo-secondary') 
+                                        : 'text-rose-500' }}">
                                     Stok: {{ $product->stock }} unit
                                 </span>
 
                                 @if ($product->stock > 0)
                                     <div
-                                        class="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-gray-50 group-hover:bg-emerald-50 dark:bg-gray-800 dark:group-hover:bg-emerald-950/40 text-gray-650 group-hover:text-emerald-600 dark:text-gray-300 dark:group-hover:text-emerald-450 flex items-center justify-center transition-all duration-200 border border-gray-100 dark:border-gray-700/50 group-hover:border-emerald-100 dark:group-hover:border-emerald-900/30">
+                                        class="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center transition-all duration-200 border border-gray-100 dark:border-gray-700/50
+                                        {{ $product->stock <= $product->low_stock_threshold
+                                            ? 'group-hover:bg-rose-50 dark:group-hover:bg-rose-950/40 text-sikamo-secondary group-hover:text-rose-600 dark:group-hover:text-rose-400 group-hover:border-rose-200 dark:group-hover:border-rose-900/30'
+                                            : 'group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/40 text-sikamo-secondary group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:border-emerald-100 dark:group-hover:border-emerald-900/30' }}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -819,7 +936,7 @@
                                     </div>
                                 @else
                                     <div
-                                        class="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-350 dark:text-gray-700 flex items-center justify-center border border-gray-50 dark:border-gray-850">
+                                        class="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-700 flex items-center justify-center border border-gray-50 dark:border-gray-800">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -850,9 +967,9 @@
 
             <!-- Header Section -->
             <div class="text-center space-y-2 md:space-y-3">
-                <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">Scan QR untuk Input
+                <h1 class="text-2xl md:text-3xl font-extrabold text-sikamo-primary tracking-tight leading-tight">Scan QR untuk Input
                     &amp; Pesanan</h1>
-                <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 font-medium max-w-xl mx-auto leading-relaxed">
+                <p class="text-xs md:text-sm text-sikamo-secondary font-medium max-w-xl mx-auto leading-relaxed">
                     Arahkan kamera ke barcode/QR code produk untuk memasukkan item secara otomatis ke dalam keranjang
                     pesanan.
                 </p>
@@ -931,7 +1048,7 @@
 
             <!-- Status Indicator Banner -->
             <div class="text-center">
-                <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 inline-block px-5 py-2.5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-850"
+                <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 inline-block px-5 py-2.5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-800"
                     x-text="scannerStatus">
                     Menyiapkan kamera...
                 </p>
@@ -947,8 +1064,8 @@
             <!-- Upload from Gallery Control -->
             <div class="flex justify-center">
                 <label
-                    class="w-full justify-center md:w-auto bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-850 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-800 px-6 py-3.5 rounded-2xl shadow-sm text-sm font-semibold flex items-center gap-3 transition active:scale-[0.98] cursor-pointer">
-                    <svg class="w-5 h-5 text-[#006b52] dark:text-emerald-450" fill="none" stroke="currentColor"
+                    class="w-full justify-center md:w-auto bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-sikamo-secondary border border-gray-200 dark:border-gray-800 px-6 py-3.5 rounded-2xl shadow-sm text-sm font-semibold flex items-center gap-3 transition active:scale-[0.98] cursor-pointer">
+                    <svg class="w-5 h-5 text-[#006b52] dark:text-emerald-400" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -976,7 +1093,7 @@
             <!-- Alert Banner Info -->
             <div
                 class="bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 border border-emerald-100/50 dark:border-emerald-900/30 px-5 py-4 rounded-2xl flex items-start gap-3.5 max-w-xl mx-auto shadow-sm">
-                <svg class="w-5 h-5 mt-0.5 text-emerald-600 dark:text-emerald-450 flex-shrink-0" fill="none"
+                <svg class="w-5 h-5 mt-0.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" fill="none"
                     stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -994,8 +1111,8 @@
 
             <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-2">
                 <div class="min-w-0">
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Detail Keranjang</h1>
-                    <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium font-sans leading-5">Kelola daftar item
+                    <h1 class="text-2xl md:text-3xl font-bold text-sikamo-primary tracking-tight">Detail Keranjang</h1>
+                    <p class="text-xs md:text-sm text-sikamo-secondary mt-1 font-medium font-sans leading-5">Kelola daftar item
                         belanjaan dan selesaikan transaksi penjualan.</p>
                 </div>
                 <button type="button" @click="setTab('produk')"
@@ -1013,7 +1130,7 @@
                 <div class="lg:col-span-2 space-y-4">
                     @if (count($cart) > 0)
                         <div
-                            class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-3 md:p-6 space-y-3 md:space-y-4">
+                            class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-md shadow-gray-100/70 dark:shadow-none p-3 md:p-6 space-y-3 md:space-y-4">
                             @foreach ($cart as $item)
                                 <div
                                     class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100 dark:border-gray-800/60 hover:border-emerald-100 dark:hover:border-emerald-900/30 transition-colors">
@@ -1021,7 +1138,7 @@
                                         <h4
                                             class="font-semibold text-gray-800 dark:text-white text-sm md:text-base break-words sm:truncate leading-snug">
                                             {{ $item['name'] }}</h4>
-                                        <p class="text-sm text-emerald-600 dark:text-emerald-450 font-bold mt-1">Rp
+                                        <p class="text-sm text-emerald-600 dark:text-emerald-400 font-bold mt-1">Rp
                                             {{ number_format($item['price'], 0, ',', '.') }}</p>
                                     </div>
 
@@ -1031,12 +1148,17 @@
                                             class="flex items-center gap-2 bg-white dark:bg-gray-900 p-1 border border-gray-100 dark:border-gray-800 rounded-xl shadow-sm">
                                             <button type="button"
                                                 wire:click="updateQuantity({{ $item['id'] }}, {{ $item['quantity'] - 1 }})"
-                                                class="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-rose-50 hover:text-rose-600 dark:bg-gray-850 dark:hover:bg-rose-950/20 dark:hover:text-rose-405 rounded-lg text-xs font-bold transition-colors cursor-pointer border border-gray-100 dark:border-gray-800">−</button>
-                                            <span
-                                                class="text-sm font-semibold w-8 text-center text-gray-800 dark:text-gray-200">{{ $item['quantity'] }}</span>
+                                                class="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-rose-50 hover:text-rose-600 dark:bg-gray-800 dark:hover:bg-rose-950/20 dark:hover:text-rose-405 rounded-lg text-xs font-bold transition-colors cursor-pointer border border-gray-100 dark:border-gray-800">−</button>
+                                            <input type="number"
+                                                id="cart-item-qty-{{ $item['id'] }}"
+                                                value="{{ $item['quantity'] }}"
+                                                min="1"
+                                                wire:change="updateQuantity({{ $item['id'] }}, $event.target.value)"
+                                                onkeydown="if(event.key==='Enter'){event.target.blur()}"
+                                                class="text-sm font-semibold w-10 text-center text-gray-800 dark:text-gray-200 bg-transparent border-none outline-none focus:ring-0 p-0 m-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                                             <button type="button"
                                                 wire:click="updateQuantity({{ $item['id'] }}, {{ $item['quantity'] + 1 }})"
-                                                class="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-emerald-50 hover:text-emerald-600 dark:bg-gray-850 dark:hover:bg-emerald-950/20 dark:hover:text-emerald-405 rounded-lg text-xs font-bold transition-colors cursor-pointer border border-gray-100 dark:border-gray-800">+</button>
+                                                class="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-emerald-50 hover:text-emerald-600 dark:bg-gray-800 dark:hover:bg-emerald-950/20 dark:hover:text-emerald-405 rounded-lg text-xs font-bold transition-colors cursor-pointer border border-gray-100 dark:border-gray-800">+</button>
                                         </div>
                                         <!-- Subtotal detail -->
                                         <div class="text-right min-w-[100px] hidden sm:block">
@@ -1063,7 +1185,7 @@
                         <div
                             class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 md:p-12 text-center">
                             <div
-                                class="w-20 h-20 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-450 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                                class="w-20 h-20 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
                                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13l-1.1 5M7 13h10m0 0v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-3.03">
@@ -1071,7 +1193,7 @@
                                 </svg>
                             </div>
                             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Keranjang Anda Kosong</h3>
-                            <p class="text-gray-400 dark:text-gray-500 max-w-sm mx-auto mb-6 text-sm font-medium">
+                            <p class="text-sikamo-secondary max-w-sm mx-auto mb-6 text-sm font-medium">
                                 Silakan pilih produk dari katalog belanja untuk ditambahkan ke keranjang belanja Anda.
                             </p>
                             <button type="button" @click="setTab('produk')"
@@ -1085,22 +1207,22 @@
                 <!-- Summary Checkout Card -->
                 <div class="lg:col-span-1">
                     <div
-                        class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 md:p-6 space-y-6 md:sticky md:top-8">
+                        class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-md shadow-gray-100/70 dark:shadow-none p-5 md:p-6 space-y-6 md:sticky md:top-8">
                         <h3
-                            class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-50 dark:border-gray-800 pb-3">
+                            class="text-lg font-bold text-sikamo-primary border-b border-gray-50 dark:border-gray-800 pb-3">
                             Ringkasan Belanja</h3>
 
                         <div class="space-y-4 text-sm font-medium">
-                            <div class="flex justify-between text-gray-500 dark:text-gray-400">
+                            <div class="flex justify-between text-sikamo-secondary">
                                 <span>Total Item</span>
                                 <span class="font-semibold text-gray-800 dark:text-white">{{ count($cart) }}
                                     item</span>
                             </div>
                             <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
-                                <label class="mb-2 block text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500">Kode Diskon</label>
+                                <label class="mb-2 block text-[10px] font-black uppercase tracking-wider text-sikamo-secondary">Kode Diskon</label>
                                 <div class="flex gap-2">
                                     <input type="text" wire:model.defer="discountCode" placeholder="Contoh: HEMAT15"
-                                        class="min-w-0 flex-1 rounded-xl border border-gray-150 bg-white px-3 py-2 text-xs font-bold uppercase text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white">
+                                        class="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-bold uppercase text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white">
                                     <button type="button" wire:click="applyDiscount"
                                         class="rounded-xl bg-emerald-700 px-3 py-2 text-xs font-black text-white transition hover:bg-emerald-800">
                                         Pakai
@@ -1114,10 +1236,10 @@
                                 @endif
                             </div>
                             <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
-                                <label class="mb-2 block text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500">Member</label>
+                                <label class="mb-2 block text-[10px] font-black uppercase tracking-wider text-sikamo-secondary">Member</label>
                                 <div class="flex gap-2">
                                     <input type="tel" wire:model.defer="memberPhone" placeholder="Nomor HP member"
-                                        class="min-w-0 flex-1 rounded-xl border border-gray-150 bg-white px-3 py-2 text-xs font-bold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white">
+                                        class="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-bold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white">
                                     <button type="button" wire:click="findMember"
                                         class="rounded-xl bg-gray-900 px-3 py-2 text-xs font-black text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200">
                                         Cek
@@ -1130,7 +1252,7 @@
                                     </div>
                                 @endif
                             </div>
-                            <div class="flex justify-between text-gray-500 dark:text-gray-400">
+                            <div class="flex justify-between text-sikamo-secondary">
                                 <span>Subtotal</span>
                                 <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                             </div>
@@ -1148,8 +1270,8 @@
                             @endif
                             <div
                                 class="flex justify-between items-center pt-4 border-t border-gray-50 dark:border-gray-800">
-                                <span class="text-base font-bold text-gray-850 dark:text-white">Total Bayar</span>
-                                <span class="text-xl md:text-2xl font-black text-emerald-600 dark:text-emerald-450">Rp
+                                <span class="text-base font-bold text-gray-800 dark:text-white">Total Bayar</span>
+                                <span class="text-xl md:text-2xl font-black text-emerald-600 dark:text-emerald-400">Rp
                                     {{ number_format($total, 0, ',', '.') }}</span>
                             </div>
                         </div>
@@ -1179,16 +1301,16 @@
                 <div class="grid lg:min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.62fr)]">
                     <section class="p-4 sm:p-8 lg:p-10 xl:p-12">
                         <div class="mb-4 md:mb-8">
-                            <h3 class="text-2xl md:text-3xl font-black tracking-tight text-gray-900 dark:text-white">Pembayaran
+                            <h3 class="text-2xl md:text-3xl font-black tracking-tight text-sikamo-primary">Pembayaran
                             </h3>
-                            <p class="mt-1 text-xs font-semibold text-gray-400 dark:text-gray-500">Selesaikan transaksi
+                            <p class="mt-1 text-xs font-semibold text-sikamo-secondary">Selesaikan transaksi
                                 pelanggan</p>
                         </div>
 
                         <div
                             class="overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
                             <div class="px-4 md:px-6 py-4 md:py-5 border-b border-gray-50 dark:border-gray-800">
-                                <h4 class="text-base font-black text-gray-900 dark:text-white">Ringkasan Pesanan</h4>
+                                <h4 class="text-base font-black text-sikamo-primary">Ringkasan Pesanan</h4>
                             </div>
                             <div class="md:hidden divide-y divide-gray-50 dark:divide-gray-800">
                                 @foreach ($cart as $item)
@@ -1198,11 +1320,11 @@
                                                 <p class="break-words text-sm font-black text-gray-800 dark:text-white">
                                                     {{ $item['name'] }}
                                                 </p>
-                                                <p class="mt-1 text-[11px] font-bold text-gray-400 dark:text-gray-500">
+                                                <p class="mt-1 text-[11px] font-bold text-sikamo-secondary">
                                                     {{ $item['quantity'] }} x Rp {{ number_format($item['price'], 0, ',', '.') }}
                                                 </p>
                                             </div>
-                                            <p class="shrink-0 text-right text-sm font-black text-gray-900 dark:text-white">
+                                            <p class="shrink-0 text-right text-sm font-black text-sikamo-primary">
                                                 Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
                                             </p>
                                         </div>
@@ -1210,8 +1332,8 @@
                                 @endforeach
                                 <div class="space-y-2 bg-gray-50/80 px-4 py-4 dark:bg-gray-900/80">
                                     <div class="flex items-center justify-between gap-4">
-                                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400">Subtotal</span>
-                                        <span class="text-sm font-black text-gray-900 dark:text-white">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                                        <span class="text-xs font-bold text-sikamo-secondary">Subtotal</span>
+                                        <span class="text-sm font-black text-sikamo-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                                     </div>
                                     @if ($discountAmount > 0)
                                         <div class="flex items-center justify-between gap-4">
@@ -1226,8 +1348,8 @@
                                         </div>
                                     @endif
                                     <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2 dark:border-gray-800">
-                                        <span class="text-sm font-black text-gray-600 dark:text-gray-300">Total Bayar</span>
-                                        <span class="text-lg font-black text-emerald-600 dark:text-emerald-450">
+                                        <span class="text-sm font-black text-sikamo-secondary">Total Bayar</span>
+                                        <span class="text-lg font-black text-emerald-600 dark:text-emerald-400">
                                             Rp {{ number_format($total, 0, ',', '.') }}
                                         </span>
                                     </div>
@@ -1236,7 +1358,7 @@
                             <div class="hidden overflow-x-auto md:block">
                                 <table class="w-full min-w-[520px] text-left">
                                     <thead
-                                        class="bg-gray-50 dark:bg-gray-900/80 text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                        class="bg-gray-50 dark:bg-gray-900/80 text-[10px] font-black uppercase tracking-wider text-sikamo-secondary">
                                         <tr>
                                             <th class="px-6 py-4">Produk</th>
                                             <th class="px-4 py-4 text-center">Jumlah</th>
@@ -1247,7 +1369,7 @@
                                         @foreach ($cart as $item)
                                             <tr>
                                                 <td
-                                                    class="px-6 py-5 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                                    class="px-6 py-5 text-sm font-semibold text-sikamo-secondary">
                                                     {{ $item['name'] }}</td>
                                                 <td
                                                     class="px-4 py-5 text-center text-sm font-bold text-gray-500 dark:text-gray-300">
@@ -1262,8 +1384,8 @@
                                     </tbody>
                                     <tfoot class="bg-gray-50/80 dark:bg-gray-900/80">
                                         <tr>
-                                            <td colspan="2" class="px-6 pt-5 text-sm font-bold text-gray-500 dark:text-gray-400">Subtotal</td>
-                                            <td class="px-6 pt-5 text-right text-sm font-black text-gray-900 dark:text-white">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                                            <td colspan="2" class="px-6 pt-5 text-sm font-bold text-sikamo-secondary">Subtotal</td>
+                                            <td class="px-6 pt-5 text-right text-sm font-black text-sikamo-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
                                         </tr>
                                         @if ($discountAmount > 0)
                                             <tr>
@@ -1278,8 +1400,8 @@
                                             </tr>
                                         @endif
                                         <tr>
-                                            <td colspan="2" class="px-6 py-5 text-base font-black text-gray-600 dark:text-gray-300">Total Bayar</td>
-                                            <td class="px-6 py-5 text-right text-2xl font-black text-emerald-600 dark:text-emerald-450">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                                            <td colspan="2" class="px-6 py-5 text-base font-black text-sikamo-secondary">Total Bayar</td>
+                                            <td class="px-6 py-5 text-right text-2xl font-black text-emerald-600 dark:text-emerald-400">Rp {{ number_format($total, 0, ',', '.') }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -1289,13 +1411,13 @@
 
                     <aside
                         class="border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 pb-24 sm:p-8 lg:p-10">
-                        <h4 class="text-sm md:text-base font-black text-gray-900 dark:text-white mb-4 md:mb-5">Metode Pembayaran</h4>
+                        <h4 class="text-sm md:text-base font-black text-sikamo-primary mb-4 md:mb-5">Metode Pembayaran</h4>
                         <div class="space-y-3 md:space-y-4 mb-5 md:mb-6">
                             <button type="button" @click="selectedMethod = 'cash'; paymentStep = 1"
                                 class="w-full rounded-2xl border p-3 md:p-4 text-left transition cursor-pointer"
                                 :class="selectedMethod === 'cash' ?
                                     'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/20' :
-                                    'border-gray-150 dark:border-gray-800 hover:border-emerald-300'">
+                                    'border-gray-200 dark:border-gray-800 hover:border-emerald-300'">
                                 <div class="flex items-center gap-3">
                                     <span
                                         class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-white">
@@ -1307,9 +1429,9 @@
                                     </span>
                                     <span class="min-w-0 flex-1">
                                         <span
-                                            class="block text-xs font-black text-gray-900 dark:text-white">Tunai</span>
+                                            class="block text-xs font-black text-sikamo-primary">Tunai</span>
                                         <span
-                                            class="block text-[10px] font-semibold text-gray-400 dark:text-gray-500">Bayar
+                                            class="block text-[10px] font-semibold text-sikamo-secondary">Bayar
                                             dengan uang fisik</span>
                                     </span>
                                     <span
@@ -1322,10 +1444,10 @@
                             <button type="button"
                                 @if ($qrisQrCodeUrl) @click="selectedMethod = 'qris'; paymentStep = 2" @endif
                                 @disabled(! $qrisQrCodeUrl)
-                                class="w-full rounded-2xl border p-3 md:p-4 text-left transition {{ $qrisQrCodeUrl ? 'border-gray-150 dark:border-gray-800 hover:border-emerald-300 cursor-pointer' : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed' }}">
+                                class="w-full rounded-2xl border p-3 md:p-4 text-left transition {{ $qrisQrCodeUrl ? 'border-gray-200 dark:border-gray-800 hover:border-emerald-300 cursor-pointer' : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed' }}">
                                 <div class="flex items-center gap-3">
                                     <span
-                                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-800">
+                                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-950 text-sikamo-secondary border border-gray-100 dark:border-gray-800">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1334,9 +1456,9 @@
                                     </span>
                                     <span class="min-w-0 flex-1">
                                         <span
-                                            class="block text-xs font-black text-gray-900 dark:text-white">QRIS</span>
+                                            class="block text-xs font-black text-sikamo-primary">QRIS</span>
                                         <span
-                                            class="block text-[10px] font-semibold text-gray-400 dark:text-gray-500">
+                                            class="block text-[10px] font-semibold text-sikamo-secondary">
                                             {{ $qrisQrCodeUrl ? 'Nominal otomatis sesuai total belanja' : 'Payload QRIS belum dikonfigurasi' }}</span>
                                     </span>
                                     <span
@@ -1346,20 +1468,20 @@
                         </div>
 
                         <label
-                            class="block text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Uang
+                            class="block text-[10px] font-black uppercase tracking-wider text-sikamo-secondary mb-3">Uang
                             Diterima</label>
                         <div class="relative mb-4">
                             <span
                                 class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">Rp</span>
                             <input type="number" x-model="amountPaid" @input="calcChange()" min="0"
                                 placeholder="0"
-                                class="w-full rounded-2xl border border-gray-150 bg-gray-50 py-4 pl-10 pr-4 text-sm font-black text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                class="w-full rounded-2xl border border-gray-200 bg-gray-50 py-4 pl-10 pr-4 text-sm font-black text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                         </div>
 
                         <div class="grid grid-cols-2 min-[390px]:grid-cols-3 gap-2.5 md:gap-3 mb-5 md:mb-6">
                             <template x-for="nominal in quickNominals" :key="nominal">
                                 <button type="button" @click="amountPaid = nominal; calcChange()"
-                                    class="rounded-xl border border-gray-150 dark:border-gray-800 px-2 py-3 text-[10px] font-black text-gray-500 dark:text-gray-400 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition cursor-pointer"
+                                    class="rounded-xl border border-gray-200 dark:border-gray-800 px-2 py-3 text-[10px] font-black text-sikamo-secondary hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition cursor-pointer"
                                     x-text="'Rp ' + formatCurrency(nominal)"></button>
                             </template>
                         </div>
@@ -1367,13 +1489,13 @@
                         <div
                             class="rounded-2xl bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 p-4 md:p-5 mb-4 md:mb-5 space-y-3 md:space-y-4">
                             <div
-                                class="flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400">
+                                class="flex items-center justify-between text-xs font-bold text-sikamo-secondary">
                                 <span>Total</span>
-                                <span class="text-gray-900 dark:text-white"
+                                <span class="text-sikamo-primary"
                                     x-text="'Rp ' + formatCurrency(cartTotal)"></span>
                             </div>
                             <div
-                                class="flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400">
+                                class="flex items-center justify-between text-xs font-bold text-sikamo-secondary">
                                 <span>Kembalian</span>
                                 <span class="text-base font-black text-emerald-700 dark:text-emerald-400"
                                     x-text="'Rp ' + formatCurrency(change)"></span>
@@ -1387,7 +1509,7 @@
                         </button>
                         <div class="mt-4">
                             <button type="button" @click="setTab('keranjang'); resetPayment()"
-                                class="w-full rounded-xl border border-gray-150 dark:border-gray-800 px-3 py-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-950 transition cursor-pointer">Kembali
+                                class="w-full rounded-xl border border-gray-200 dark:border-gray-800 px-3 py-3 text-[11px] font-bold text-sikamo-secondary hover:bg-gray-50 dark:hover:bg-gray-950 transition cursor-pointer">Kembali
                                 ke Keranjang</button>
                         </div>
                     </aside>
@@ -1403,7 +1525,7 @@
                 <div class="grid lg:grid-cols-[320px_1fr] min-h-[calc(100dvh-8rem)] md:min-h-[calc(100vh-4rem)]">
                     <aside
                         class="bg-white dark:bg-gray-900 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-800 p-4 sm:p-8 flex flex-col">
-                        <h4 class="text-base font-black text-gray-900 dark:text-white mb-5">Ringkasan Pesanan</h4>
+                        <h4 class="text-base font-black text-sikamo-primary mb-5">Ringkasan Pesanan</h4>
                         <div class="max-h-56 space-y-3 overflow-y-auto pr-1 md:max-h-none md:space-y-4">
                             @foreach ($cart as $item)
                                 <div
@@ -1414,11 +1536,11 @@
                                             {{ strtoupper(substr($item['name'], 0, 1)) }}
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="truncate text-xs font-black text-gray-900 dark:text-white">
+                                            <p class="truncate text-xs font-black text-sikamo-primary">
                                                 {{ $item['name'] }}</p>
-                                            <p class="mt-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500">
+                                            <p class="mt-1 text-[10px] font-semibold text-sikamo-secondary">
                                                 {{ $item['quantity'] }} unit</p>
-                                            <p class="mt-1 text-xs font-black text-emerald-600 dark:text-emerald-450">
+                                            <p class="mt-1 text-xs font-black text-emerald-600 dark:text-emerald-400">
                                                 Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
                                             </p>
                                         </div>
@@ -1428,9 +1550,9 @@
                         </div>
                         <div class="mt-auto pt-5 border-t border-gray-100 dark:border-gray-800 space-y-3">
                             <div
-                                class="flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400">
+                                class="flex items-center justify-between text-xs font-bold text-sikamo-secondary">
                                 <span>Subtotal</span>
-                                <span class="text-gray-900 dark:text-white">Rp
+                                <span class="text-sikamo-primary">Rp
                                     {{ number_format($subtotal, 0, ',', '.') }}</span>
                             </div>
                             @if ($discountAmount > 0)
@@ -1448,17 +1570,17 @@
                                 </div>
                             @endif
                             <div class="flex items-center justify-between">
-                                <span class="text-sm font-black text-gray-900 dark:text-white">Total Bayar</span>
-                                <span class="text-lg font-black text-emerald-600 dark:text-emerald-450">Rp
+                                <span class="text-sm font-black text-sikamo-primary">Total Bayar</span>
+                                <span class="text-lg font-black text-emerald-600 dark:text-emerald-400">Rp
                                     {{ number_format($total, 0, ',', '.') }}</span>
                             </div>
                         </div>
                     </aside>
 
                     <section class="flex flex-col items-center justify-center p-4 sm:p-12 text-center">
-                        <h3 class="text-2xl md:text-3xl font-black tracking-tight text-gray-900 dark:text-white">Pembayaran QRIS
+                        <h3 class="text-2xl md:text-3xl font-black tracking-tight text-sikamo-primary">Pembayaran QRIS
                         </h3>
-                        <p class="mt-2 text-xs font-semibold text-gray-400 dark:text-gray-500">Silakan pindai kode QR
+                        <p class="mt-2 text-xs font-semibold text-sikamo-secondary">Silakan pindai kode QR
                             untuk menyelesaikan transaksi</p>
 
                         <div
@@ -1477,7 +1599,7 @@
                             </div>
                             <div class="mt-6 border-t border-gray-100 dark:border-gray-800 pt-5">
                                 <p
-                                    class="text-[10px] font-black uppercase tracking-[0.24em] text-gray-350 dark:text-gray-600">
+                                    class="text-[10px] font-black uppercase tracking-[0.24em] text-gray-400 dark:text-gray-600">
                                     QRIS Dinamis</p>
                             </div>
                         </div>
@@ -1493,11 +1615,11 @@
                             Selesaikan Transaksi
                         </button>
                         <button type="button" @click="selectedMethod = 'cash'; paymentStep = 1"
-                            class="mt-3 text-xs font-bold text-gray-400 dark:text-gray-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition cursor-pointer">
+                            class="mt-3 text-xs font-bold text-sikamo-secondary hover:text-emerald-700 dark:hover:text-emerald-400 transition cursor-pointer">
                             Kembali ke Pembayaran Tunai
                         </button>
                         <button type="button" @click="setTab('keranjang'); resetPayment()"
-                            class="mt-2 text-xs font-bold text-gray-400 dark:text-gray-500 hover:text-rose-600 transition cursor-pointer">
+                            class="mt-2 text-xs font-bold text-sikamo-secondary hover:text-rose-600 transition cursor-pointer">
                             Batalkan Transaksi
                         </button>
                     </section>
@@ -1523,9 +1645,9 @@
                             d="M9 14 4 9m0 0 5-5M4 9h11a5 5 0 0 1 0 10h-1" />
                     </svg>
                 </div>
-                <h3 class="text-xl md:text-2xl font-black text-gray-900 dark:text-white"
+                <h3 class="text-xl md:text-2xl font-black text-sikamo-primary"
                     x-text="receiptRefunded ? 'Refund Berhasil' : 'Pembayaran Berhasil'"></h3>
-                <p class="mt-2 text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400"
+                <p class="mt-2 text-xs md:text-sm font-medium text-sikamo-secondary"
                     x-text="receiptRefunded
                         ? 'Transaksi telah direfund dan stok produk sudah dikembalikan.'
                         : 'Transaksi Anda telah diproses dengan sukses.'"></p>
@@ -1536,9 +1658,9 @@
                 <div class="px-5 md:px-8 py-6 md:py-7 text-center">
                     <h4 class="text-lg font-black text-emerald-600 dark:text-emerald-400"
                         x-text="receiptMerchantName"></h4>
-                    <p class="mt-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500"
+                    <p class="mt-1 text-[11px] font-semibold text-sikamo-secondary"
                         x-text="receiptMerchantAddress"></p>
-                    <div class="mt-6 space-y-2 text-left text-[11px] md:text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <div class="mt-6 space-y-2 text-left text-[11px] md:text-xs font-semibold text-sikamo-secondary">
                         <div class="flex justify-between gap-4">
                             <span>ID Transaksi</span>
                             <span class="min-w-0 break-all text-right font-mono text-gray-800 dark:text-gray-100" x-text="invoiceNumber"></span>
@@ -1573,23 +1695,23 @@
                     <template x-for="item in receiptItems" :key="item.name + item.quantity">
                         <div class="flex justify-between gap-5 py-3">
                             <div class="min-w-0 text-left">
-                                <p class="break-words text-sm font-black text-gray-900 dark:text-white"
+                                <p class="break-words text-sm font-black text-sikamo-primary"
                                     x-text="item.name"></p>
-                                <p class="mt-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
+                                <p class="mt-1 text-[11px] font-semibold text-sikamo-secondary">
                                     <span x-text="item.quantity"></span> unit x Rp <span
                                         x-text="formatCurrency(item.price)"></span>
                                 </p>
                             </div>
-                            <p class="shrink-0 text-right text-sm font-black text-gray-900 dark:text-white">Rp <span
+                            <p class="shrink-0 text-right text-sm font-black text-sikamo-primary">Rp <span
                                     x-text="formatCurrency(item.subtotal)"></span></p>
                         </div>
                     </template>
                 </div>
 
                 <div class="px-5 md:px-8 py-5 space-y-4">
-                    <div class="flex justify-between text-sm font-semibold text-gray-400 dark:text-gray-500">
+                    <div class="flex justify-between text-sm font-semibold text-sikamo-secondary">
                         <span>Subtotal</span>
-                        <span class="text-gray-900 dark:text-white">Rp <span
+                        <span class="text-sikamo-primary">Rp <span
                                 x-text="formatCurrency(receiptSubtotal)"></span></span>
                     </div>
                     <div x-show="receiptDiscountAmount > 0" class="flex justify-between text-sm font-semibold text-emerald-600 dark:text-emerald-400">
@@ -1601,7 +1723,7 @@
                         <span>- Rp <span x-text="formatCurrency(receiptMemberDiscountAmount)"></span></span>
                     </div>
                     <div class="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
-                        <span class="text-base font-black text-gray-900 dark:text-white"
+                        <span class="text-base font-black text-sikamo-primary"
                             x-text="receiptRefunded ? 'TOTAL REFUND' : 'TOTAL BAYAR'"></span>
                         <span
                             class="text-lg md:text-xl font-black"
@@ -1612,7 +1734,7 @@
                 </div>
 
                 <div class="bg-gray-50 px-5 md:px-8 py-6 text-center dark:bg-gray-950/50">
-                    <p class="text-[11px] italic font-medium text-gray-400 dark:text-gray-500"
+                    <p class="text-[11px] italic font-medium text-sikamo-secondary"
                         x-text="receiptRefunded ? 'Refund telah diproses oleh kasir.' : 'Terima kasih telah berbelanja.'"></p>
                     <p
                         class="receipt-powered mt-4 text-xs font-black tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
@@ -1620,17 +1742,13 @@
                 </div>
             </div>
 
-            <div class="mt-5 md:mt-7 grid w-full max-w-lg grid-cols-1 gap-3" :class="receiptRefunded ? 'sm:grid-cols-2' : 'sm:grid-cols-3'">
+            <div class="mt-5 md:mt-7 grid w-full max-w-lg grid-cols-1 gap-3 sm:grid-cols-2">
                 <button type="button" @click="printReceipt()" x-show="!receiptRefunded"
                     class="rounded-2xl bg-emerald-700 px-5 py-4 text-sm font-black text-white shadow-md shadow-emerald-700/15 hover:bg-emerald-800 transition cursor-pointer">
                     Cetak Struk
                 </button>
-                <button type="button" @click="refundReceipt()" x-bind:disabled="receiptRefunded || !invoiceNumber"
-                    class="rounded-2xl bg-rose-600 px-5 py-4 text-sm font-black text-white shadow-md shadow-rose-600/15 hover:bg-rose-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed transition cursor-pointer">
-                    <span x-text="receiptRefunded ? 'Sudah Refund' : 'Refund'"></span>
-                </button>
                 <button type="button" @click="closeReceipt(); setTab('produk')"
-                    class="rounded-2xl border border-gray-150 bg-white px-5 py-4 text-sm font-black text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-950 transition cursor-pointer">
+                    class="rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm font-black text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-950 transition cursor-pointer">
                     Kembali ke Transaksi
                 </button>
             </div>
@@ -1656,8 +1774,8 @@
                                     d="M9 14 4 9m0 0 5-5M4 9h11a5 5 0 0 1 0 10h-1" />
                             </svg>
                         </div>
-                        <h3 class="mt-4 text-xl font-black text-gray-950 dark:text-white">Refund transaksi?</h3>
-                        <p class="mt-2 text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">
+                        <h3 class="mt-4 text-xl font-black text-sikamo-primary">Refund transaksi?</h3>
+                        <p class="mt-2 text-sm font-medium leading-6 text-sikamo-secondary">
                             Transaksi <span class="font-mono font-bold text-gray-800 dark:text-gray-100"
                                 x-text="invoiceNumber"></span> akan ditandai refund dan stok produk dikembalikan.
                         </p>
@@ -1851,6 +1969,18 @@
                     const msg = d?.message || 'Notifikasi';
                     const type = d?.type || 'info';
                     if (window.toastr && toastr[type]) toastr[type](msg);
+                });
+
+                Livewire.on('quantityUpdateFailed', function(data) {
+                    const d = Array.isArray(data) ? data[0] : data;
+                    const productId = d?.productId;
+                    const oldQuantity = d?.oldQuantity;
+                    if (productId) {
+                        const input = document.getElementById('cart-item-qty-' + productId);
+                        if (input) {
+                            input.value = oldQuantity;
+                        }
+                    }
                 });
 
                 Livewire.on('checkoutSuccess', function(data) {

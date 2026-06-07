@@ -104,3 +104,150 @@
     pointer-events: none;
     opacity: 0.4;
 }
+
+/* --------------------------------------------------
+   Theme Refinement & Color Calibration
+   - Softens high-contrast text in light mode (keeps palette)
+   - Calibrates border opacity and shadow strength
+   - Keeps existing color palette and utility classes intact
+-------------------------------------------------- */
+
+/* Light-mode contrast tuning: apply only when .dark is not present */
+html:not(.dark) {
+    --sikamo-text-primary: rgba(17, 24, 39, 0.92); /* softer than pure #111827 */
+    --sikamo-text-secondary: rgba(55, 65, 81, 0.72);
+    --sikamo-border: rgba(15, 23, 42, 0.06);
+    --sikamo-surface: #f8fafc; /* subtle off-white surface */
+    --sikamo-shadow: 0 8px 28px rgba(2,6,23,0.06);
+}
+
+/* Dark-mode calibration: slightly increased contrast for readability */
+.dark {
+    --sikamo-text-primary: rgba(255,255,255,0.94);
+    --sikamo-text-secondary: rgba(203,213,225,0.64);
+    --sikamo-border: rgba(255,255,255,0.04);
+    --sikamo-surface: #0f1724; /* deep but not pitch-black */
+    --sikamo-shadow: 0 8px 28px rgba(2,6,23,0.36);
+}
+
+/* Override frequently used utility classes to harmonize contrast without
+   changing the color tokens used elsewhere in the app. These rules are
+   intentionally light-touch and placed after Tailwind output. */
+
+/* Text contrast refinement */
+html:not(.dark) .text-gray-900 { color: var(--sikamo-text-primary) !important; }
+html:not(.dark) .text-gray-700 { color: var(--sikamo-text-secondary) !important; }
+html:not(.dark) .text-gray-600 { color: rgba(55,65,81,0.54) !important; }
+
+.dark .text-white { color: var(--sikamo-text-primary) !important; }
+.dark .text-gray-300 { color: var(--sikamo-text-secondary) !important; }
+
+/* Background / surface tuning */
+html:not(.dark) .bg-white { background-color: var(--sikamo-surface) !important; }
+.dark .bg-gray-950, .dark .bg-gray-900 { background-color: var(--sikamo-surface) !important; }
+
+/* Border opacity adjustments */
+html:not(.dark) .border-gray-200 { border-color: var(--sikamo-border) !important; }
+html:not(.dark) .border-gray-100 { border-color: rgba(15,23,42,0.04) !important; }
+.dark .border-gray-800 { border-color: rgba(255,255,255,0.04) !important; }
+
+/* Shadow / elevation tuning */
+html:not(.dark) .shadow-sm { box-shadow: 0 4px 12px rgba(2,6,23,0.04) !important; }
+html:not(.dark) .shadow-md { box-shadow: var(--sikamo-shadow) !important; }
+html:not(.dark) .shadow-lg { box-shadow: 0 18px 48px rgba(2,6,23,0.06) !important; }
+
+.dark .shadow-sm { box-shadow: 0 4px 10px rgba(0,0,0,0.28) !important; }
+.dark .shadow-md { box-shadow: 0 10px 30px rgba(0,0,0,0.34) !important; }
+.dark .shadow-lg { box-shadow: 0 18px 60px rgba(0,0,0,0.42) !important; }
+
+/* Glass card refinement: more translucent in light mode, deeper in dark */
+.glass-card {
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(15,23,42,0.05);
+}
+.dark .glass-card {
+    background: rgba(12,17,23,0.28);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Subtle helpers for interactive controls to avoid pure-black on white */
+html:not(.dark) .hover\:bg-white\/60:hover { background-color: rgba(255,255,255,0.88) !important; }
+html:not(.dark) .hover\:text-gray-800:hover { color: rgba(17,24,39,0.85) !important; }
+
+/* Keep noise overlay low-contrast */
+.noise::before { opacity: 0.28; }
+
+/* --------------------------------------------------
+   Element-level contrast & accessibility helpers
+   - Ensure inputs, buttons, tables, links, code blocks,
+     and scrollbars remain legible in both light & dark
+   - Uses existing palette tokens; does not change core colors
+-------------------------------------------------- */
+
+/* Links */
+a { color: var(--color-sikamo-primary); text-underline-offset: 3px; }
+a:hover { text-decoration: underline; }
+
+/* Form controls */
+input, textarea, select, button, .form-input {
+    background-color: var(--sikamo-surface) !important;
+    color: var(--sikamo-text-primary) !important;
+    border-color: var(--sikamo-border) !important;
+    caret-color: var(--color-sikamo-primary) !important;
+}
+
+::placeholder { color: var(--sikamo-text-secondary) !important; opacity: 0.9; }
+
+/* Focus ring that works for both modes without changing palette */
+button:focus, input:focus, textarea:focus, select:focus, .focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.10) !important; /* soft green halo */
+}
+.dark button:focus, .dark input:focus, .dark textarea:focus, .dark select:focus {
+    box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.16) !important;
+}
+
+/* Tables */
+table { color: var(--sikamo-text-primary); border-collapse: collapse; }
+table th, table td { border-bottom: 1px solid var(--sikamo-border); }
+html:not(.dark) table tr:nth-child(even) { background-color: rgba(15,23,42,0.02); }
+.dark table tr:nth-child(even) { background-color: rgba(255,255,255,0.02); }
+
+/* Code / pre blocks */
+pre, code, kbd, samp { background-color: rgba(0,0,0,0.04); color: var(--sikamo-text-primary); padding: 0.125rem 0.25rem; border-radius: 6px; }
+.dark pre, .dark code, .dark kbd, .dark samp { background-color: rgba(255,255,255,0.03); }
+
+/* Scrollbars (WebKit) */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background-color: rgba(15,23,42,0.08); border-radius: 10px; }
+.dark *::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.06); }
+
+/* Buttons & interactive helpers */
+.btn, button { transition: box-shadow .15s ease, transform .12s ease; }
+.btn:active, button:active { transform: translateY(1px); }
+
+/* Badges & chips: ensure text contrast */
+.badge, .chip { color: var(--sikamo-text-primary); }
+
+/* Modal/backdrop readability */
+.modal-backdrop { background: rgba(2,6,23,0.45); }
+.dark .modal-backdrop { background: rgba(2,6,23,0.6); }
+
+/* Ensure focus-visible is visible even when outline suppressed by libs */
+.focus-ring {
+    box-shadow: 0 0 0 4px rgba(101,163,13,0.12);
+}
+
+/* Utility helpers that map to theme tokens for easier markup updates */
+.text-sikamo-primary { color: var(--sikamo-text-primary) !important; }
+.text-sikamo-secondary { color: var(--sikamo-text-secondary) !important; }
+.bg-sikamo-surface { background-color: var(--sikamo-surface) !important; }
+.border-sikamo { border-color: var(--sikamo-border) !important; }
+
+
+
