@@ -1,33 +1,6 @@
 <x-filament-panels::page>
-    @php
-        $oldValues = $this->changedOldValues();
-        $newValues = $this->changedNewValues();
-        $fields = collect(array_keys($oldValues))->merge(array_keys($newValues))->unique()->values();
-        $isReviewed = filled($record->reviewed_at);
-        $tz = config('app.timezone');
-
-        $formatDateTime = function ($value, string $format) use ($tz): string {
-            if (blank($value)) {
-                return '-';
-            }
-
-            return \Illuminate\Support\Carbon::parse($value)
-                ->timezone($tz)
-                ->translatedFormat($format);
-        };
-
-        $formatTime = function ($value) use ($tz): string {
-            if (blank($value)) {
-                return '-';
-            }
-
-            return \Illuminate\Support\Carbon::parse($value)
-                ->timezone($tz)
-                ->format('H:i');
-        };
-    @endphp
-
     <div class="space-y-6">
+        <!-- Header Section -->
         <x-filament::section>
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-start gap-4">
@@ -43,13 +16,13 @@
                         </div>
                         <p class="mt-1 text-sm font-medium text-gray-600 dark:text-gray-400">
                             {{ $record->merchant?->name ?? 'Merchant' }} -
-                            {{ $formatDateTime($record->created_at, 'd M Y, H:i:s') }}
+                            {{ $record->created_at?->translatedFormat('d M Y, H:i:s') ?? '-' }}
                         </p>
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-2 sm:flex-row">
-                    @if ($isReviewed)
+                    @if (filled($record->reviewed_at))
                         <span class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-emerald-50 px-4 text-sm font-bold text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30">
                             <x-heroicon-m-check-circle class="h-5 w-5" />
                             Sudah ditinjau
@@ -59,6 +32,7 @@
             </div>
         </x-filament::section>
 
+        <!-- Flag Alert -->
         @if ($this->flagDescription())
             <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
                 <div class="flex items-start gap-2">
@@ -68,12 +42,15 @@
             </div>
         @endif
 
+        <!-- Main Content Grid -->
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+            <!-- Sidebar: Data Details -->
             <div class="space-y-6 xl:col-span-1">
                 <x-filament::section>
                     <x-slot name="heading">Detail Data</x-slot>
 
                     <div class="space-y-4">
+                        <!-- Module Card -->
                         <div class="rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-gray-950">
                             <div class="flex items-center gap-4">
                                 <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-white text-primary-600 shadow-sm dark:bg-gray-900 dark:text-primary-300">
@@ -86,6 +63,7 @@
                             </div>
                         </div>
 
+                        <!-- Data Fields -->
                         <div class="grid gap-4">
                             <div>
                                 <p class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Nama Data</p>
@@ -104,7 +82,7 @@
                                     <p class="mt-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
                                         Dipicu oleh {{ $record->metadata['triggered_by_user_name'] }}
                                         @if (!empty($record->metadata['triggered_by_user_role']))
-                                            ({{ \Illuminate\Support\Str::headline($record->metadata['triggered_by_user_role']) }})
+                                            ({{ Str::headline($record->metadata['triggered_by_user_role']) }})
                                         @endif
                                     </p>
                                 @endif
@@ -131,12 +109,19 @@
                 </x-filament::section>
             </div>
 
+            <!-- Main Content: Data Changes -->
             <div class="space-y-6 xl:col-span-2">
                 <x-filament::section>
                     <x-slot name="heading">Perubahan Data</x-slot>
+                    @php
+                        $oldValues = $this->changedOldValues();
+                        $newValues = $this->changedNewValues();
+                        $fields = collect(array_keys($oldValues))->merge(array_keys($newValues))->unique()->values();
+                    @endphp
                     <x-slot name="description">{{ $fields->count() }} field tercatat pada log ini.</x-slot>
 
                     <div class="space-y-5">
+                        <!-- Change Summary -->
                         <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-gray-950">
                             <div class="flex items-start gap-3">
                                 <div class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-primary-600 shadow-sm dark:bg-gray-900 dark:text-primary-300">
@@ -151,6 +136,7 @@
                             </div>
                         </div>
 
+                        <!-- Changes Table -->
                         <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-white/10">
                             <table class="w-full divide-y divide-gray-200 text-left text-sm dark:divide-white/10">
                                 <thead class="bg-gray-50 dark:bg-white/5">
@@ -188,20 +174,22 @@
             </div>
         </div>
 
+        <!-- Session Timeline -->
         @php
             $sessionLogs = $this->sessionLogs();
             $sessionLogin = $this->sessionLogin();
             $sessionLogout = $this->sessionLogout();
+            $hasSessionLogs = $record->user_name && $sessionLogs->isNotEmpty();
         @endphp
 
-        @if ($record->user_name && $sessionLogs->isNotEmpty())
+        @if ($hasSessionLogs)
             <x-filament::section>
-                <x-slot name="heading">Timeline sesi user</x-slot>
+                <x-slot name="heading">Timeline Sesi User</x-slot>
                 <x-slot name="description">
                     Sesi {{ $record->user_name }} dari
-                    {{ $sessionLogin ? $formatDateTime($sessionLogin->created_at, 'd M Y, H:i') : 'waktu tidak diketahui' }}
+                    {{ $sessionLogin?->created_at?->translatedFormat('d M Y, H:i') ?? 'waktu tidak diketahui' }}
                     sampai
-                    {{ $sessionLogout ? $formatDateTime($sessionLogout->created_at, 'd M Y, H:i') : 'sekarang / belum logout' }}.
+                    {{ $sessionLogout?->created_at?->translatedFormat('d M Y, H:i') ?? 'sekarang / belum logout' }}.
                 </x-slot>
 
                 <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-white/10">
@@ -217,7 +205,7 @@
                             @foreach ($sessionLogs as $log)
                                 <tr class="{{ $log->id === $record->id ? 'bg-primary-50/60 dark:bg-primary-500/10' : '' }}">
                                     <td class="px-4 py-3 font-semibold text-gray-950 dark:text-white">
-                                        {{ $formatTime($log->created_at) }}
+                                        {{ $log->created_at?->format('H:i') ?? '-' }}
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex flex-wrap items-center gap-2">
@@ -246,6 +234,7 @@
             </x-filament::section>
         @endif
 
+        <!-- Review Notes Section -->
         <x-filament::section>
             <x-slot name="heading">Catatan Peninjau</x-slot>
             <x-slot name="description">Catatan dapat diisi untuk semua log sebagai hasil verifikasi owner.</x-slot>
@@ -260,8 +249,8 @@
 
                 <div class="flex flex-col gap-3 border-t border-gray-200 pt-4 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between">
                     <p class="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                        @if ($isReviewed)
-                            Ditinjau pada {{ $formatDateTime($record->reviewed_at, 'd M Y, H:i:s') }}.
+                        @if (filled($record->reviewed_at))
+                            Ditinjau pada {{ $record->reviewed_at->translatedFormat('d M Y, H:i:s') }}.
                         @elseif ($this->canMarkReviewed())
                             Simpan catatan sekaligus tandai log ini sudah ditinjau.
                         @else

@@ -5,6 +5,7 @@
 <x-filament-widgets::widget>
     <x-filament::section>
         <div class="flex flex-col gap-5">
+            <!-- Header -->
             <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h2 class="text-xl font-bold text-gray-950 dark:text-white">Audit Log</h2>
@@ -13,13 +14,14 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-2 text-sm font-semibold text-gray-500 dark:text-gray-400">
-                    {{-- Gunakan ikon bawaan Filament agar tetap muncul walau Blade Icon Components dinonaktifkan --}}
                     <x-filament::icon icon="heroicon-m-clock" class="h-5 w-5 text-primary-500" />
                     <span>{{ now()->translatedFormat('d M Y') }}</span>
                 </div>
             </div>
 
+            <!-- Stats Grid -->
             <div class="grid gap-3 md:grid-cols-3">
+                <!-- Total Logs Today -->
                 <div class="h-full rounded-lg border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
                     <div class="flex items-start justify-between gap-3">
                         <div>
@@ -34,6 +36,7 @@
                     </div>
                 </div>
 
+                <!-- Pending Flags -->
                 <div class="h-full rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm dark:border-amber-500/30 dark:bg-amber-500/10">
                     <div class="flex items-start justify-between gap-3">
                         <div>
@@ -48,6 +51,7 @@
                     </div>
                 </div>
 
+                <!-- Active Users -->
                 <div class="h-full rounded-lg border border-sky-200 bg-sky-50 p-4 shadow-sm dark:border-sky-500/30 dark:bg-sky-500/10">
                     <div class="flex items-start justify-between gap-3">
                         <div>
