@@ -241,7 +241,7 @@ class PurchaseResource extends Resource
                 ])->save();
 
                 $product->refresh();
-                DB::afterCommit(fn() => event(ProductStockUpdated::fromProduct($product)));
+                DB::afterCommit(fn() => ProductStockUpdated::dispatchSafely($product));
 
                 StockLog::create([
                     'product_id' => $product->id,

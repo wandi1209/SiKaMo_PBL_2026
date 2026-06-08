@@ -23,7 +23,7 @@ class SalesPage extends Component
 {
     use WithPagination;
 
-    protected const PRODUCTS_PER_PAGE = 12;
+    protected const PRODUCTS_PER_PAGE = 15;
     protected const MOBILE_PRODUCTS_PER_PAGE = 8;
 
     public $search = '';
@@ -271,6 +271,7 @@ class SalesPage extends Component
         }
 
         $this->calculateTotal();
+        $this->persistCartToBrowser();
         $this->dispatch('showToast', ['type' => 'success', 'message' => 'Produk ditambahkan ke keranjang']);
     }
 
@@ -314,6 +315,7 @@ class SalesPage extends Component
         })->values()->all();
 
         $this->calculateTotal();
+        $this->persistCartToBrowser();
     }
 
     public function updateQuantity($productId, $quantity)
@@ -353,6 +355,68 @@ class SalesPage extends Component
         if ($index !== false) {
             $this->cart[$index]['quantity'] = $quantity;
             $this->calculateTotal();
+            $this->persistCartToBrowser();
+        }
+    }
+
+    public function restoreCartFromStorage($items): void
+    {
+        if (! empty($this->cart) || ! is_array($items)) {
+            return;
+        }
+
+        $merchantId = $this->getMerchantId();
+
+        if (! $merchantId) {
+            return;
+        }
+
+        $requestedItems = collect($items)
+            ->filter(fn($item) => is_array($item) && isset($item['id'], $item['quantity']))
+            ->map(fn($item) => [
+                'id' => (int) $item['id'],
+                'quantity' => max(1, (int) $item['quantity']),
+            ])
+            ->filter(fn($item) => $item['id'] > 0)
+            ->values();
+
+        if ($requestedItems->isEmpty()) {
+            return;
+        }
+
+        $products = Product::query()
+            ->where('merchant_id', $merchantId)
+            ->whereIn('id', $requestedItems->pluck('id')->all())
+            ->get()
+            ->keyBy('id');
+
+        $this->cart = $requestedItems
+            ->map(function ($item) use ($products) {
+                $product = $products->get($item['id']);
+
+                if (! $product || $product->stock <= 0) {
+                    return null;
+                }
+
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'quantity' => min($item['quantity'], (int) $product->stock),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        $this->calculateTotal();
+        $this->persistCartToBrowser();
+
+        if (! empty($this->cart)) {
+            $this->dispatch('showToast', [
+                'type' => 'info',
+                'message' => 'Keranjang dipulihkan dari perangkat ini',
+            ]);
         }
     }
 
@@ -731,7 +795,7 @@ class SalesPage extends Component
                         $product->decrement('stock', $itemData['quantity']);
                         $product->refresh();
 
-                        DB::afterCommit(fn() => event(ProductStockUpdated::fromProduct($product)));
+                        DB::afterCommit(fn() => ProductStockUpdated::dispatchSafely($product));
                     } finally {
                         app()->forgetInstance('audit_context');
                     }
@@ -789,6 +853,7 @@ class SalesPage extends Component
             $this->memberPhone = '';
             $this->selectedMember = null;
             $this->memberDiscountAmount = 0;
+            $this->persistCartToBrowser();
 
             $this->dispatch('showToast', [
                 'type' => 'success',
@@ -859,8 +924,30 @@ class SalesPage extends Component
             'lowStockProductsCount' => $this->getLowStockProductsCount(),
             'qrisQrCodeUrl' => $this->getQrisQrCodeUrl(),
             'merchantRealtimeChannel' => $this->getMerchantId() ? 'merchant.' . $this->getMerchantId() : null,
+            'cartStorageKey' => $this->getCartStorageKey(),
         ])->layout('components.layouts.transaction', [
             'title' => 'Transaksi Penjualan',
         ]);
+    }
+
+    private function persistCartToBrowser(): void
+    {
+        $this->dispatch('cartUpdated', [
+            'key' => $this->getCartStorageKey(),
+            'cart' => collect($this->cart)
+                ->map(fn($item) => [
+                    'id' => (int) $item['id'],
+                    'name' => (string) $item['name'],
+                    'price' => (float) $item['price'],
+                    'quantity' => (int) $item['quantity'],
+                ])
+                ->values()
+                ->all(),
+        ]);
+    }
+
+    private function getCartStorageKey(): string
+    {
+        return 'sikamo_cart_' . ($this->getMerchantId() ?? 'guest') . '_' . (auth()->id() ?? 'guest');
     }
 }

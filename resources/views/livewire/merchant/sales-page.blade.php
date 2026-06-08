@@ -614,23 +614,23 @@
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+                    <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                         <template x-for="product in filteredOfflineProducts()" :key="product.id">
                             <button type="button" @click="addOfflineProduct(product)" :disabled="offlineAvailableStock(product) <= 0"
                                 class="group overflow-hidden rounded-2xl border border-gray-100 bg-white text-left shadow-md shadow-gray-100/70 dark:shadow-none transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-900">
-                                <div class="flex aspect-[4/3] items-center justify-center bg-gray-50 dark:bg-gray-800">
+                                <div class="flex h-36 items-center justify-center bg-gray-50 dark:bg-gray-800 md:h-40 xl:h-44">
                                     <img x-show="product.image_url" :src="product.image_url" :alt="product.name" class="h-full w-full object-cover">
-                                    <div x-show="!product.image_url" class="text-3xl font-black text-gray-300 dark:text-gray-600" x-text="product.name?.charAt(0) || 'S'"></div>
+                                    <div x-show="!product.image_url" class="text-2xl font-black text-gray-300 dark:text-gray-600" x-text="product.name?.charAt(0) || 'S'"></div>
                                 </div>
-                                <div class="space-y-2 p-3">
-                                    <p class="text-[10px] font-black uppercase tracking-wider text-emerald-600" x-text="product.category_name || 'Umum'"></p>
-                                    <h3 class="line-clamp-2 min-h-[2.5rem] text-sm font-black text-sikamo-primary" x-text="product.name"></h3>
+                                <div class="space-y-1.5 p-3">
+                                    <p class="text-[9px] font-black uppercase tracking-wider text-emerald-600" x-text="product.category_name || 'Umum'"></p>
+                                    <h3 class="line-clamp-2 min-h-[2.25rem] text-[13px] font-black leading-snug text-sikamo-primary" x-text="product.name"></h3>
                                     <div class="flex items-end justify-between gap-2 border-t border-gray-100 pt-2 dark:border-gray-800">
                                         <div>
-                                            <p class="text-sm font-black text-sikamo-primary">Rp <span x-text="formatCurrency(product.price)"></span></p>
-                                            <p class="text-[11px] font-bold text-gray-400">Stok lokal: <span x-text="offlineAvailableStock(product)"></span></p>
+                                            <p class="text-[13px] font-black text-sikamo-primary">Rp <span x-text="formatCurrency(product.price)"></span></p>
+                                            <p class="text-[10px] font-bold text-gray-400">Stok lokal: <span x-text="offlineAvailableStock(product)"></span></p>
                                         </div>
-                                        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">+</span>
+                                        <span class="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">+</span>
                                     </div>
                                 </div>
                             </button>
@@ -839,22 +839,22 @@
                 @endforeach
             </div>
 
-                        <!-- Product Responsive Grid (4 columns on desktop) -->
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+                        <!-- Product Responsive Grid -->
+            <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
                 @foreach ($products as $product)
                     <div wire:key="product-card-{{ $product->id }}"
                         @if ($product->stock > 0) wire:click.prevent="addToCart({{ $product->id }})" @endif
-                        class="group relative rounded-2xl md:rounded-3xl shadow-sm transition-all duration-300 ease-out overflow-hidden flex flex-col justify-between select-none
+                        class="group relative overflow-hidden rounded-2xl shadow-sm transition-all duration-300 ease-out flex flex-col justify-between select-none
                          {{ $product->stock > 0
                              ? ($product->stock <= $product->low_stock_threshold
-                                 ? 'bg-rose-50/10 dark:bg-rose-950/5 border border-rose-300 dark:border-rose-900/60 hover:border-rose-400 dark:hover:border-rose-800 hover:-translate-y-2 hover:shadow-xl hover:shadow-rose-500/5 active:scale-[0.98] cursor-pointer'
-                                 : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-300 dark:hover:border-emerald-800/80 active:scale-[0.98] cursor-pointer shadow-md shadow-gray-100/50 dark:shadow-none')
+                                 ? 'bg-rose-50/10 dark:bg-rose-950/5 border border-rose-300 dark:border-rose-900/60 hover:border-rose-400 dark:hover:border-rose-800 hover:-translate-y-1 hover:shadow-lg hover:shadow-rose-500/5 active:scale-[0.98] cursor-pointer'
+                                 : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/5 hover:border-emerald-300 dark:hover:border-emerald-800/80 active:scale-[0.98] cursor-pointer shadow-md shadow-gray-100/50 dark:shadow-none')
                              : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 cursor-not-allowed opacity-75' }}">
                         <div>
                             <!-- Availability status badge -->
-                            <div class="absolute top-2 left-2 z-10 md:top-4 md:left-4">
+                            <div class="absolute top-2 left-2 z-10">
                                 <span
-                                    class="inline-flex items-center gap-1 rounded-full px-2 md:px-3 py-1 text-[8px] md:text-[10px] font-bold tracking-wide shadow-sm
+                                    class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[8px] font-bold tracking-wide shadow-sm md:text-[9px]
                                     {{ $product->stock > 0
                                         ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'
                                         : 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300' }}">
@@ -865,8 +865,8 @@
                             </div>
 
                             @if ($product->stock > 0 && $product->stock <= $product->low_stock_threshold)
-                                <div class="absolute top-2 right-2 z-10 md:top-4 md:right-4">
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-rose-500 text-white px-2 md:px-3 py-1 text-[8px] md:text-[10px] font-extrabold tracking-wide shadow-md shadow-rose-500/30 animate-pulse">
+                                <div class="absolute top-2 right-2 z-10">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-rose-500 text-white px-2 py-1 text-[8px] font-extrabold tracking-wide shadow-md shadow-rose-500/30 animate-pulse md:text-[9px]">
                                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                         </svg>
@@ -877,14 +877,14 @@
 
                             <!-- Product Image -->
                             <div
-                                class="aspect-[4/3] w-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden border-b border-gray-50 dark:border-gray-800">
+                                class="flex h-40 w-full items-center justify-center overflow-hidden border-b border-gray-50 bg-gray-50 dark:border-gray-800 dark:bg-gray-800 sm:h-44 lg:h-48 2xl:h-44">
                                 @if ($product->image)
                                     <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
                                         class="w-full h-full object-cover object-center transition duration-300 group-hover:scale-105" />
                                 @else
                                     <div
                                         class="flex flex-col items-center justify-center w-full h-full text-gray-300 dark:text-gray-600 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-                                        <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor"
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -893,29 +893,29 @@
                                 @endif
                             </div>
 
-                            <div class="p-3 md:p-5">
+                            <div class="p-3">
                                 <!-- Category Name -->
                                 <span
-                                    class="text-[8px] md:text-[10px] uppercase tracking-widest font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
+                                    class="mb-1 block text-[8px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 md:text-[9px]">
                                     {{ $product->category?->name ?? 'UMUM' }}
                                 </span>
                                 <!-- Product Name -->
                                 <h3
-                                    class="text-xs md:text-sm font-semibold text-gray-800 dark:text-white mb-1.5 line-clamp-2 leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                                    class="mb-1 line-clamp-2 text-[13px] font-semibold leading-snug text-gray-800 transition-colors group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
                                     {{ $product->name }}
                                 </h3>
                             </div>
                         </div>
 
                         <!-- Price & Stock Footer -->
-                        <div class="px-3 md:px-5 pb-3 md:pb-5 pt-0">
-                            <p class="text-sm md:text-base font-bold text-sikamo-primary mb-2 md:mb-3">
+                        <div class="px-3 pb-3 pt-0">
+                            <p class="mb-2 text-sm font-bold text-sikamo-primary">
                                 Rp {{ number_format($product->price, 0, ',', '.') }}
                             </p>
                             <div
-                                    class="flex items-center justify-between gap-2 md:gap-3 pt-2.5 border-t border-gray-50 dark:border-gray-800/80">
+                                    class="flex items-center justify-between gap-2 border-t border-gray-50 pt-2 dark:border-gray-800/80">
                                 <span
-                                    class="text-[10px] md:text-xs font-semibold 
+                                    class="text-[10px] font-semibold 
                                     {{ $product->stock > 0 
                                         ? ($product->stock <= $product->low_stock_threshold ? 'text-rose-600 dark:text-rose-400 font-extrabold' : 'text-sikamo-secondary') 
                                         : 'text-rose-500' }}">
@@ -924,7 +924,7 @@
 
                                 @if ($product->stock > 0)
                                     <div
-                                        class="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center transition-all duration-200 border border-gray-100 dark:border-gray-700/50
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 transition-all duration-200 dark:border-gray-700/50 dark:bg-gray-800
                                         {{ $product->stock <= $product->low_stock_threshold
                                             ? 'group-hover:bg-rose-50 dark:group-hover:bg-rose-950/40 text-sikamo-secondary group-hover:text-rose-600 dark:group-hover:text-rose-400 group-hover:border-rose-200 dark:group-hover:border-rose-900/30'
                                             : 'group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/40 text-sikamo-secondary group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:border-emerald-100 dark:group-hover:border-emerald-900/30' }}">
@@ -936,7 +936,7 @@
                                     </div>
                                 @else
                                     <div
-                                        class="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-700 flex items-center justify-center border border-gray-50 dark:border-gray-800">
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl border border-gray-50 bg-gray-50 text-gray-400 dark:border-gray-800 dark:bg-gray-800 dark:text-gray-700">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -977,10 +977,14 @@
 
             <!-- Scanner Viewfinder Container -->
             <div
-                class="relative bg-gray-950 rounded-3xl border border-gray-800/80 shadow-2xl overflow-hidden aspect-[3/4] md:aspect-[16/9] w-full flex flex-col justify-between p-4 md:p-6">
+                class="sikamo-scanner-shell relative bg-gray-950 rounded-3xl border border-gray-800/80 shadow-2xl overflow-hidden aspect-[3/4] md:aspect-[16/9] w-full flex flex-col justify-between p-4 md:p-6">
+
+                <!-- HTML5 QR Code Native Target Camera Feed -->
+                <div id="sales-barcode-reader" class="absolute inset-0 z-0 h-full w-full overflow-hidden rounded-3xl bg-black"></div>
+                <div class="absolute inset-0 z-[1] pointer-events-none bg-black/20"></div>
 
                 <!-- Scanner Viewfinder Header with Mode Badge -->
-                <div class="z-10 flex justify-center w-full">
+                <div class="z-20 flex justify-center w-full">
                     <div
                         class="bg-black/60 backdrop-blur-md px-3 md:px-4 py-2 rounded-full border border-gray-800 flex items-center gap-2.5 md:gap-4 text-[10px] md:text-xs font-bold select-none">
                         <span class="text-gray-500 cursor-not-allowed">MODE INPUT</span>
@@ -991,10 +995,10 @@
                 </div>
 
                 <!-- Viewfinder Center Target Overlay with laser line animation -->
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
                     <!-- Target Box with styled corner borders -->
                     <div
-                        class="relative w-[82%] md:w-[65%] h-[34%] md:h-[40%] max-w-lg border border-emerald-500/20 rounded-2xl">
+                        class="relative w-[82%] h-[34%] max-w-lg border border-emerald-500/20 rounded-2xl">
                         <!-- Corners styling -->
                         <div
                             class="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-emerald-500 rounded-tl-xl -mt-[2px] -ml-[2px]">
@@ -1016,11 +1020,8 @@
                     </div>
                 </div>
 
-                <!-- HTML5 QR Code Native Target Camera Feed -->
-                <div id="sales-barcode-reader" class="absolute inset-0 w-full h-full object-cover rounded-3xl"></div>
-
                 <!-- Bottom Controls Inside Viewfinder -->
-                <div class="z-10 flex justify-center gap-2 md:gap-3 w-full">
+                <div class="z-20 flex justify-center gap-2 md:gap-3 w-full">
                     <button type="button" @click="senterOn = !senterOn"
                         class="bg-black/60 hover:bg-black/80 backdrop-blur-md text-white px-3 md:px-4 py-2.5 rounded-full border border-gray-800/80 text-xs font-semibold flex items-center gap-2 transition-all active:scale-95 cursor-pointer">
                         <!-- Flashlight Icon -->
@@ -1297,20 +1298,34 @@
         <div x-show="activeTab === 'pembayaran' && paymentStep === 1" x-cloak class="space-y-4 md:space-y-6"
             style="display: none;">
             <div
-                class="w-full overflow-hidden rounded-2xl md:rounded-3xl bg-[#f8fafc] dark:bg-gray-950 border border-gray-100 dark:border-gray-800 shadow-sm">
-                <div class="grid lg:min-h-[calc(100vh-4rem)] lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.62fr)]">
-                    <section class="p-4 sm:p-8 lg:p-10 xl:p-12">
-                        <div class="mb-4 md:mb-8">
-                            <h3 class="text-2xl md:text-3xl font-black tracking-tight text-sikamo-primary">Pembayaran
-                            </h3>
-                            <p class="mt-1 text-xs font-semibold text-sikamo-secondary">Selesaikan transaksi
-                                pelanggan</p>
+                class="mx-auto w-full max-w-7xl overflow-hidden rounded-2xl md:rounded-3xl border border-gray-100 bg-[#f7faf8] shadow-sm dark:border-gray-800 dark:bg-gray-950">
+                <div class="grid lg:min-h-[calc(100vh-10rem)] lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_460px]">
+                    <section class="p-4 sm:p-7 lg:p-9 xl:p-10">
+                        <div class="mb-5 flex flex-col gap-4 md:mb-7 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <span class="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:ring-emerald-900/30">
+                                    Checkout
+                                </span>
+                                <h3 class="mt-3 text-2xl font-black tracking-tight text-sikamo-primary md:text-3xl">Pembayaran</h3>
+                                <p class="mt-1 text-xs font-semibold text-sikamo-secondary">Cek pesanan, pilih metode bayar, lalu selesaikan transaksi.</p>
+                            </div>
+                            <div class="rounded-2xl border border-emerald-100 bg-white px-5 py-4 text-right shadow-sm dark:border-emerald-900/30 dark:bg-gray-900">
+                                <p class="text-[10px] font-black uppercase tracking-wider text-sikamo-secondary">Total Bayar</p>
+                                <p class="mt-1 text-2xl font-black text-emerald-700 dark:text-emerald-400">Rp {{ number_format($total, 0, ',', '.') }}</p>
+                            </div>
                         </div>
 
                         <div
-                            class="overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                            <div class="px-4 md:px-6 py-4 md:py-5 border-b border-gray-50 dark:border-gray-800">
-                                <h4 class="text-base font-black text-sikamo-primary">Ringkasan Pesanan</h4>
+                            class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                            <div class="flex items-center justify-between gap-4 border-b border-gray-50 px-4 py-4 dark:border-gray-800 md:px-6 md:py-5">
+                                <div>
+                                    <h4 class="text-base font-black text-sikamo-primary">Ringkasan Pesanan</h4>
+                                    <p class="mt-1 text-[11px] font-semibold text-sikamo-secondary">{{ count($cart) }} item dalam keranjang</p>
+                                </div>
+                                <button type="button" @click="setTab('keranjang')"
+                                    class="rounded-xl border border-gray-100 px-3 py-2 text-[11px] font-bold text-sikamo-secondary transition hover:border-emerald-200 hover:text-emerald-700 dark:border-gray-800 dark:hover:border-emerald-900">
+                                    Ubah
+                                </button>
                             </div>
                             <div class="md:hidden divide-y divide-gray-50 dark:divide-gray-800">
                                 @foreach ($cart as $item)
@@ -1331,10 +1346,12 @@
                                     </div>
                                 @endforeach
                                 <div class="space-y-2 bg-gray-50/80 px-4 py-4 dark:bg-gray-900/80">
-                                    <div class="flex items-center justify-between gap-4">
-                                        <span class="text-xs font-bold text-sikamo-secondary">Subtotal</span>
-                                        <span class="text-sm font-black text-sikamo-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
-                                    </div>
+                                    @if ($discountAmount > 0 || $memberDiscountAmount > 0)
+                                        <div class="flex items-center justify-between gap-4">
+                                            <span class="text-xs font-bold text-sikamo-secondary">Subtotal</span>
+                                            <span class="text-sm font-black text-sikamo-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                                        </div>
+                                    @endif
                                     @if ($discountAmount > 0)
                                         <div class="flex items-center justify-between gap-4">
                                             <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Diskon</span>
@@ -1358,7 +1375,7 @@
                             <div class="hidden overflow-x-auto md:block">
                                 <table class="w-full min-w-[520px] text-left">
                                     <thead
-                                        class="bg-gray-50 dark:bg-gray-900/80 text-[10px] font-black uppercase tracking-wider text-sikamo-secondary">
+                                        class="bg-slate-50/80 text-[10px] font-black uppercase tracking-wider text-sikamo-secondary dark:bg-gray-900/80">
                                         <tr>
                                             <th class="px-6 py-4">Produk</th>
                                             <th class="px-4 py-4 text-center">Jumlah</th>
@@ -1369,24 +1386,26 @@
                                         @foreach ($cart as $item)
                                             <tr>
                                                 <td
-                                                    class="px-6 py-5 text-sm font-semibold text-sikamo-secondary">
+                                                    class="px-6 py-4 text-sm font-bold text-sikamo-primary">
                                                     {{ $item['name'] }}</td>
                                                 <td
-                                                    class="px-4 py-5 text-center text-sm font-bold text-gray-500 dark:text-gray-300">
+                                                    class="px-4 py-4 text-center text-sm font-bold text-gray-500 dark:text-gray-300">
                                                     {{ $item['quantity'] }}</td>
                                                 <td
-                                                    class="px-6 py-5 text-right text-sm font-black text-gray-800 dark:text-white">
+                                                    class="px-6 py-4 text-right text-sm font-black text-gray-800 dark:text-white">
                                                     Rp
                                                     {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
                                                 </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
-                                    <tfoot class="bg-gray-50/80 dark:bg-gray-900/80">
-                                        <tr>
-                                            <td colspan="2" class="px-6 pt-5 text-sm font-bold text-sikamo-secondary">Subtotal</td>
-                                            <td class="px-6 pt-5 text-right text-sm font-black text-sikamo-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
-                                        </tr>
+                                    <tfoot class="bg-white dark:bg-gray-900">
+                                        @if ($discountAmount > 0 || $memberDiscountAmount > 0)
+                                            <tr>
+                                                <td colspan="2" class="border-t border-gray-100 px-6 pt-5 text-sm font-bold text-sikamo-secondary dark:border-gray-800">Subtotal</td>
+                                                <td class="border-t border-gray-100 px-6 pt-5 text-right text-sm font-black text-sikamo-primary dark:border-gray-800">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endif
                                         @if ($discountAmount > 0)
                                             <tr>
                                                 <td colspan="2" class="px-6 pt-2 text-sm font-bold text-emerald-600 dark:text-emerald-400">Diskon {{ $appliedDiscount['code'] ?? '' }}</td>
@@ -1400,8 +1419,8 @@
                                             </tr>
                                         @endif
                                         <tr>
-                                            <td colspan="2" class="px-6 py-5 text-base font-black text-sikamo-secondary">Total Bayar</td>
-                                            <td class="px-6 py-5 text-right text-2xl font-black text-emerald-600 dark:text-emerald-400">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                                            <td colspan="2" class="px-6 py-5 text-base font-black text-sikamo-primary">Total Bayar</td>
+                                            <td class="px-6 py-5 text-right text-2xl font-black text-emerald-700 dark:text-emerald-400">Rp {{ number_format($total, 0, ',', '.') }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -1410,13 +1429,19 @@
                     </section>
 
                     <aside
-                        class="border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 pb-24 sm:p-8 lg:p-10">
-                        <h4 class="text-sm md:text-base font-black text-sikamo-primary mb-4 md:mb-5">Metode Pembayaran</h4>
+                        class="border-t border-gray-100 bg-white p-4 pb-24 dark:border-gray-800 dark:bg-gray-900 sm:p-7 lg:border-l lg:border-t-0 lg:p-8 xl:p-10">
+                        <div class="mb-5 rounded-3xl bg-gradient-to-br from-emerald-700 to-emerald-900 p-5 text-white shadow-lg shadow-emerald-900/10">
+                            <p class="text-[10px] font-black uppercase tracking-wider text-emerald-100/80">Tagihan</p>
+                            <p class="mt-2 text-3xl font-black">Rp {{ number_format($total, 0, ',', '.') }}</p>
+                            <p class="mt-1 text-xs font-semibold text-emerald-100/80">{{ count($cart) }} item siap dibayar</p>
+                        </div>
+
+                        <h4 class="mb-4 text-sm font-black text-sikamo-primary md:text-base">Metode Pembayaran</h4>
                         <div class="space-y-3 md:space-y-4 mb-5 md:mb-6">
                             <button type="button" @click="selectedMethod = 'cash'; paymentStep = 1"
-                                class="w-full rounded-2xl border p-3 md:p-4 text-left transition cursor-pointer"
+                                class="w-full rounded-2xl border p-4 text-left transition cursor-pointer"
                                 :class="selectedMethod === 'cash' ?
-                                    'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/20' :
+                                    'border-emerald-600 bg-emerald-50 shadow-sm shadow-emerald-700/5 dark:bg-emerald-950/20' :
                                     'border-gray-200 dark:border-gray-800 hover:border-emerald-300'">
                                 <div class="flex items-center gap-3">
                                     <span
@@ -1444,7 +1469,7 @@
                             <button type="button"
                                 @if ($qrisQrCodeUrl) @click="selectedMethod = 'qris'; paymentStep = 2" @endif
                                 @disabled(! $qrisQrCodeUrl)
-                                class="w-full rounded-2xl border p-3 md:p-4 text-left transition {{ $qrisQrCodeUrl ? 'border-gray-200 dark:border-gray-800 hover:border-emerald-300 cursor-pointer' : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed' }}">
+                                class="w-full rounded-2xl border p-4 text-left transition {{ $qrisQrCodeUrl ? 'border-gray-200 dark:border-gray-800 hover:border-emerald-300 cursor-pointer' : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed' }}">
                                 <div class="flex items-center gap-3">
                                     <span
                                         class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-950 text-sikamo-secondary border border-gray-100 dark:border-gray-800">
@@ -1487,7 +1512,7 @@
                         </div>
 
                         <div
-                            class="rounded-2xl bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 p-4 md:p-5 mb-4 md:mb-5 space-y-3 md:space-y-4">
+                            class="mb-4 space-y-3 rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 md:mb-5 md:space-y-4 md:p-5">
                             <div
                                 class="flex items-center justify-between text-xs font-bold text-sikamo-secondary">
                                 <span>Total</span>
@@ -1504,7 +1529,7 @@
 
                         <button type="button" @click="confirmCash()"
                             :disabled="cartTotal > 0 && (!amountPaid || Number(amountPaid) < cartTotal)"
-                            class="w-full rounded-2xl bg-emerald-700 px-4 py-4 text-sm font-black text-white shadow-md shadow-emerald-700/15 hover:bg-emerald-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed transition cursor-pointer">
+                            class="w-full rounded-2xl bg-emerald-700 px-4 py-4 text-sm font-black text-white shadow-lg shadow-emerald-700/15 transition hover:bg-emerald-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer">
                             Selesaikan Transaksi
                         </button>
                         <div class="mt-4">
@@ -1983,6 +2008,29 @@
                     }
                 });
 
+                Livewire.on('cartUpdated', function(data) {
+                    const d = Array.isArray(data) ? data[0] : data;
+                    const key = d?.key;
+                    const cart = Array.isArray(d?.cart) ? d.cart : [];
+
+                    if (!key) {
+                        return;
+                    }
+
+                    try {
+                        if (cart.length === 0) {
+                            localStorage.removeItem(key);
+                        } else {
+                            localStorage.setItem(key, JSON.stringify({
+                                cart,
+                                savedAt: new Date().toISOString(),
+                            }));
+                        }
+                    } catch (error) {
+                        console.warn('Gagal menyimpan keranjang POS', error);
+                    }
+                });
+
                 Livewire.on('checkoutSuccess', function(data) {
                     const d = Array.isArray(data) ? data[0] : data;
                     window.dispatchEvent(new CustomEvent('sikamo:checkoutSuccess', {
@@ -2135,6 +2183,8 @@
                 refundProcessing: false,
                 realtimeChannel: @js($merchantRealtimeChannel),
                 realtimeRefreshTimer: null,
+                cartStorageKey: @js($cartStorageKey),
+                cartRestoreStarted: false,
 
                 // Offline POS state
                 isOnline: navigator.onLine,
@@ -2167,6 +2217,7 @@
                 facingMode: 'environment', // Kamera belakang default
 
                 init() {
+                    this.restoreCartFromStorage();
                     this.initRealtime();
                     this.initOfflinePos();
                     this.initPwaInstallPrompt();
@@ -2741,6 +2792,35 @@
 
                         this.$wire.call('$refresh');
                     }, 250);
+                },
+
+                restoreCartFromStorage() {
+                    if (this.cartRestoreStarted || !this.cartStorageKey) {
+                        return;
+                    }
+
+                    this.cartRestoreStarted = true;
+
+                    try {
+                        const raw = localStorage.getItem(this.cartStorageKey);
+
+                        if (!raw) {
+                            return;
+                        }
+
+                        const payload = JSON.parse(raw);
+                        const cart = Array.isArray(payload?.cart) ? payload.cart : [];
+
+                        if (cart.length === 0) {
+                            localStorage.removeItem(this.cartStorageKey);
+                            return;
+                        }
+
+                        this.$wire.call('restoreCartFromStorage', cart);
+                    } catch (error) {
+                        localStorage.removeItem(this.cartStorageKey);
+                        console.warn('Gagal memulihkan keranjang POS', error);
+                    }
                 },
 
                 async startScanning() {

@@ -214,6 +214,27 @@ input, textarea, select, .form-input {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
 
+.sikamo-scanner-shell #sales-barcode-reader,
+.sikamo-scanner-shell #sales-barcode-reader > div {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+.sikamo-scanner-shell #sales-barcode-reader video {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.sikamo-scanner-shell #qr-shaded-region {
+    display: none !important;
+}
+
 ::placeholder { color: var(--sikamo-text-secondary) !important; opacity: 0.9; }
 
 /* Focus ring that works for both modes without changing palette */
@@ -262,4 +283,3 @@ pre, code, kbd, samp { background-color: rgba(0,0,0,0.04); color: var(--sikamo-t
 .text-sikamo-secondary { color: var(--sikamo-text-secondary) !important; }
 .bg-sikamo-surface { background-color: var(--sikamo-surface) !important; }
 .border-sikamo { border-color: var(--sikamo-border) !important; }
-

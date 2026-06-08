@@ -30,10 +30,9 @@ window.SiKaMoBarcodeScanner = {
             { facingMode: facingMode },
             {
                 fps: 15,
-                aspectRatio: 1.777778,
                 qrbox: (viewfinderWidth, viewfinderHeight) => {
-                    const width = Math.floor(viewfinderWidth * 0.86);
-                    const height = Math.max(90, Math.floor(viewfinderHeight * 0.28));
+                    const width = Math.floor(viewfinderWidth * 0.82);
+                    const height = Math.max(120, Math.floor(viewfinderHeight * 0.34));
 
                     return { width, height };
                 },

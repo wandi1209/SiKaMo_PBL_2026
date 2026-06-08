@@ -47,7 +47,7 @@ class TransactionRefundService
                 try {
                     $product->forceFill(['stock' => $stockAfter])->save();
                     $product->refresh();
-                    DB::afterCommit(fn() => event(ProductStockUpdated::fromProduct($product)));
+                    DB::afterCommit(fn() => ProductStockUpdated::dispatchSafely($product));
                 } finally {
                     app()->forgetInstance('audit_context');
                 }

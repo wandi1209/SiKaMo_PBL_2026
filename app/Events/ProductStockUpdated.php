@@ -6,7 +6,9 @@ use App\Models\Product;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
+use Throwable;
 
 class ProductStockUpdated implements ShouldBroadcastNow
 {
@@ -30,6 +32,19 @@ class ProductStockUpdated implements ShouldBroadcastNow
             stock: (int) $product->stock,
             lowStockThreshold: (int) $product->low_stock_threshold,
         );
+    }
+
+    public static function dispatchSafely(Product $product): void
+    {
+        try {
+            event(self::fromProduct($product));
+        } catch (Throwable $exception) {
+            Log::warning('Realtime stok produk gagal dikirim.', [
+                'product_id' => $product->id,
+                'merchant_id' => $product->merchant_id,
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 
     public function broadcastOn(): PrivateChannel

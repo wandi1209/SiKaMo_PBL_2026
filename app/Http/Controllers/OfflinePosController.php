@@ -300,7 +300,7 @@ class OfflinePosController extends Controller
                     $product->decrement('stock', $itemData['quantity']);
                     $product->refresh();
 
-                    DB::afterCommit(fn () => event(ProductStockUpdated::fromProduct($product)));
+                    DB::afterCommit(fn () => ProductStockUpdated::dispatchSafely($product));
                 } finally {
                     app()->forgetInstance('audit_context');
                 }
