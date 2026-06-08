@@ -32,8 +32,8 @@ class MerchantPanelProvider extends PanelProvider
             ->id('merchant')
             ->path('merchant')
             ->sidebarCollapsibleOnDesktop()
-            ->brandLogo(asset('assets/logo.svg'))
-            ->brandLogoHeight('2.5rem')
+            ->brandLogo(asset('assets/logo.png'))
+            ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::hex('#1D9E75'),
                 'success' => Color::hex('#639922'),

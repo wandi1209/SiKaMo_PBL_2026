@@ -606,7 +606,7 @@
                                 class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                         </div>
                         <select x-model="offlineCategory"
-                            class="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
+                            class="sikamo-native-select rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
                             <option value="all">Semua kategori</option>
                             <template x-for="category in offlineSnapshot.categories" :key="category.id">
                                 <option :value="String(category.id)" x-text="category.name"></option>
@@ -716,7 +716,7 @@
                             <div>
                                 <label class="mb-1 block text-[10px] font-black uppercase tracking-wider text-gray-400">Metode Bayar</label>
                                 <select x-model="offlinePaymentMethod"
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-xs font-black dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+                                    class="sikamo-native-select w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-xs font-black dark:border-gray-800 dark:bg-gray-950 dark:text-white">
                                     <option value="cash">Tunai</option>
                                     <option value="qris" :disabled="!offlineSnapshot.merchant?.qris_static_image_url">QRIS Statis</option>
                                 </select>

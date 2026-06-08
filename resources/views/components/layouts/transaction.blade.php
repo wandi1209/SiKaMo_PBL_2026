@@ -13,6 +13,8 @@
         <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="manifest" href="{{ asset('manifest.json') }}" />
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any" />
+        <link rel="apple-touch-icon" href="{{ asset('assets/logo.png') }}" />
 
         <title>{{ $title }} - SiKaMo</title>
 

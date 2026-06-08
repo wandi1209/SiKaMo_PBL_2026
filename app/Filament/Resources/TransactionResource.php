@@ -22,6 +22,7 @@ class TransactionResource extends Resource
     protected static ?string $modelLabel = 'Transaksi';
     protected static ?string $pluralModelLabel = 'Riwayat Transaksi';
     protected static ?int $navigationSort = 1;
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function canCreate(): bool
     {

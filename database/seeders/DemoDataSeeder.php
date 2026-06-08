@@ -15,16 +15,55 @@ use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DemoDataSeeder extends Seeder
 {
+    /**
+     * @var array<int, array{name: string, category: string, supplier: string, cost: int, price: int, opening: int, low: int}>
+     */
+    private array $productTemplates = [
+        ['name' => 'Beras Premium 5kg', 'category' => 'Sembako', 'supplier' => 'CV Sumber Pangan', 'cost' => 64000, 'price' => 75000, 'opening' => 70, 'low' => 10],
+        ['name' => 'Minyak Goreng 2L', 'category' => 'Sembako', 'supplier' => 'CV Sumber Pangan', 'cost' => 31000, 'price' => 36500, 'opening' => 82, 'low' => 12],
+        ['name' => 'Gula Pasir 1kg', 'category' => 'Sembako', 'supplier' => 'CV Sumber Pangan', 'cost' => 14500, 'price' => 17500, 'opening' => 96, 'low' => 15],
+        ['name' => 'Telur Ayam 1kg', 'category' => 'Sembako', 'supplier' => 'CV Sumber Pangan', 'cost' => 24500, 'price' => 29000, 'opening' => 64, 'low' => 10],
+        ['name' => 'Indomie Goreng', 'category' => 'Makanan Ringan', 'supplier' => 'UD Camilan Jaya', 'cost' => 2800, 'price' => 3500, 'opening' => 180, 'low' => 25],
+        ['name' => 'Keripik Singkong', 'category' => 'Makanan Ringan', 'supplier' => 'UD Camilan Jaya', 'cost' => 11000, 'price' => 15000, 'opening' => 75, 'low' => 12],
+        ['name' => 'Oreo Vanilla 133g', 'category' => 'Makanan Ringan', 'supplier' => 'UD Camilan Jaya', 'cost' => 8200, 'price' => 10500, 'opening' => 88, 'low' => 15],
+        ['name' => 'Chitato Sapi Panggang', 'category' => 'Makanan Ringan', 'supplier' => 'UD Camilan Jaya', 'cost' => 9200, 'price' => 12500, 'opening' => 80, 'low' => 14],
+        ['name' => 'Aqua Galon 19L', 'category' => 'Minuman', 'supplier' => 'PT Segar Sentosa', 'cost' => 18000, 'price' => 22000, 'opening' => 48, 'low' => 8],
+        ['name' => 'Teh Pucuk 350ml', 'category' => 'Minuman', 'supplier' => 'PT Segar Sentosa', 'cost' => 3100, 'price' => 4500, 'opening' => 140, 'low' => 20],
+        ['name' => 'Kopi Kapal Api Mix', 'category' => 'Minuman', 'supplier' => 'PT Segar Sentosa', 'cost' => 11200, 'price' => 14500, 'opening' => 115, 'low' => 18],
+        ['name' => 'Susu UHT Coklat', 'category' => 'Minuman', 'supplier' => 'PT Segar Sentosa', 'cost' => 5100, 'price' => 7000, 'opening' => 96, 'low' => 15],
+        ['name' => 'Sabun Lifebuoy', 'category' => 'Kebersihan', 'supplier' => 'PT Bersih Sejahtera', 'cost' => 3800, 'price' => 5000, 'opening' => 105, 'low' => 18],
+        ['name' => 'Rinso Bubuk 800g', 'category' => 'Kebersihan', 'supplier' => 'PT Bersih Sejahtera', 'cost' => 27000, 'price' => 32000, 'opening' => 60, 'low' => 10],
+        ['name' => 'Pasta Gigi Pepsodent', 'category' => 'Kebersihan', 'supplier' => 'PT Bersih Sejahtera', 'cost' => 8700, 'price' => 11500, 'opening' => 90, 'low' => 15],
+        ['name' => 'Kecap Bango 550ml', 'category' => 'Bumbu Dapur', 'supplier' => 'CV Sumber Pangan', 'cost' => 20000, 'price' => 24000, 'opening' => 70, 'low' => 10],
+        ['name' => 'Saus Sambal ABC', 'category' => 'Bumbu Dapur', 'supplier' => 'CV Sumber Pangan', 'cost' => 9800, 'price' => 13000, 'opening' => 84, 'low' => 12],
+        ['name' => 'Garam Dapur', 'category' => 'Bumbu Dapur', 'supplier' => 'CV Sumber Pangan', 'cost' => 2100, 'price' => 3000, 'opening' => 130, 'low' => 20],
+    ];
+
+    /**
+     * @var array<int, array{slug: string, name: string, owner: string, city: string, phone: string, address: string}>
+     */
+    private array $merchantTemplates = [
+        ['slug' => 'toko-budi', 'name' => 'Toko Budi', 'owner' => 'Budi Santoso', 'city' => 'Malang', 'phone' => '08123456789', 'address' => 'Jl. Contoh No. 1, Malang'],
+        ['slug' => 'warung-sari-rasa', 'name' => 'Warung Sari Rasa', 'owner' => 'Sari Wulandari', 'city' => 'Surabaya', 'phone' => '08123456790', 'address' => 'Jl. Manyar No. 22, Surabaya'],
+        ['slug' => 'minimarket-makmur', 'name' => 'Minimarket Makmur', 'owner' => 'Hendra Wijaya', 'city' => 'Sidoarjo', 'phone' => '08123456791', 'address' => 'Jl. Pahlawan No. 18, Sidoarjo'],
+        ['slug' => 'toko-amanah', 'name' => 'Toko Amanah', 'owner' => 'Nur Aisyah', 'city' => 'Kediri', 'phone' => '08123456792', 'address' => 'Jl. Diponegoro No. 9, Kediri'],
+        ['slug' => 'kedai-sejahtera', 'name' => 'Kedai Sejahtera', 'owner' => 'Agus Prasetyo', 'city' => 'Blitar', 'phone' => '08123456793', 'address' => 'Jl. Merdeka No. 14, Blitar'],
+        ['slug' => 'toserba-nusantara', 'name' => 'Toserba Nusantara', 'owner' => 'Rina Amelia', 'city' => 'Madiun', 'phone' => '08123456794', 'address' => 'Jl. Panglima Sudirman No. 31, Madiun'],
+    ];
+
     public function run(): void
     {
         DB::transaction(function (): void {
-            $admin = User::updateOrCreate(
+            User::updateOrCreate(
                 ['email' => 'admin@sikamo.com'],
                 [
                     'name' => 'Administrator',
@@ -35,353 +74,366 @@ class DemoDataSeeder extends Seeder
                 ],
             );
 
-            $owner = User::updateOrCreate(
-                ['email' => 'owner@tokobudi.com'],
+            foreach ($this->merchantTemplates as $index => $template) {
+                $this->seedMerchant($template, $index + 1);
+            }
+        });
+
+        $this->command?->info('DemoDataSeeder selesai.');
+        $this->command?->info('Admin: admin@sikamo.com / admin123');
+        $this->command?->info('Owner utama: owner@tokobudi.com / owner123');
+        $this->command?->info('Kasir utama: kasir@tokobudi.com / kasir123');
+    }
+
+    /**
+     * @param array{slug: string, name: string, owner: string, city: string, phone: string, address: string} $template
+     */
+    private function seedMerchant(array $template, int $merchantNumber): void
+    {
+        $ownerEmail = $merchantNumber === 1
+            ? 'owner@tokobudi.com'
+            : 'owner' . $merchantNumber . '@sikamo.test';
+
+        $owner = User::updateOrCreate(
+            ['email' => $ownerEmail],
+            [
+                'name' => $template['owner'],
+                'password' => Hash::make($merchantNumber === 1 ? 'owner123' : 'owner12345'),
+                'is_active' => true,
+                'role' => 'owner',
+                'merchant_id' => null,
+            ],
+        );
+
+        $merchant = Merchant::updateOrCreate(
+            ['slug' => $template['slug']],
+            [
+                'owner_id' => $owner->id,
+                'name' => $template['name'],
+                'phone' => $template['phone'],
+                'address' => $template['address'],
+                'operational_start_time' => '07:00',
+                'operational_end_time' => $merchantNumber % 2 === 0 ? '21:30' : '22:00',
+                'qris_payload' => $this->demoQrisPayload($template['name'], $template['city']),
+                'member_discount_is_active' => true,
+                'member_discount_type' => 'percent',
+                'member_discount_value' => 5 + ($merchantNumber % 3) * 2,
+                'member_discount_max_amount' => 15000 + ($merchantNumber * 2500),
+                'member_discount_min_purchase' => 35000 + ($merchantNumber * 5000),
+                'is_active' => true,
+            ],
+        );
+
+        $cashiers = $this->seedCashiers($merchant, $merchantNumber);
+        $categories = $this->seedCategories($merchant);
+        $suppliers = $this->seedSuppliers($merchant, $template['city'], $merchantNumber);
+        $products = $this->seedProducts($merchant, $categories, $suppliers, $merchantNumber);
+        $members = $this->seedMembers($merchant, $merchantNumber);
+        $discounts = $this->seedDiscounts($merchant, $merchantNumber);
+
+        $this->seedOpeningStockLogs($products, $owner, $merchantNumber);
+        $this->seedPurchases($merchant, $owner, $suppliers, $products, $merchantNumber);
+        $transactions = $this->seedTransactions($merchant, $cashiers, $members, $discounts, $products, $merchantNumber);
+        $this->seedDailyReports($merchant, $transactions);
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    private function seedCashiers(Merchant $merchant, int $merchantNumber): Collection
+    {
+        $rows = [
+            [
+                'email' => $merchantNumber === 1 ? 'kasir@tokobudi.com' : 'kasir' . $merchantNumber . 'a@sikamo.test',
+                'name' => $merchantNumber === 1 ? 'Siti Kasir' : 'Kasir ' . $merchantNumber . ' A',
+            ],
+            [
+                'email' => $merchantNumber === 1 ? 'kasir2@tokobudi.com' : 'kasir' . $merchantNumber . 'b@sikamo.test',
+                'name' => $merchantNumber === 1 ? 'Andi Kasir' : 'Kasir ' . $merchantNumber . ' B',
+            ],
+        ];
+
+        return collect($rows)->map(fn (array $row): User => User::updateOrCreate(
+            ['email' => $row['email']],
+            [
+                'name' => $row['name'],
+                'password' => Hash::make($merchantNumber === 1 ? 'kasir123' : 'kasir12345'),
+                'is_active' => true,
+                'role' => 'cashier',
+                'merchant_id' => $merchant->id,
+            ],
+        ));
+    }
+
+    /**
+     * @return Collection<string, Category>
+     */
+    private function seedCategories(Merchant $merchant): Collection
+    {
+        return collect([
+            'Sembako' => 'Bahan pokok kebutuhan dapur.',
+            'Makanan Ringan' => 'Camilan dan makanan kemasan.',
+            'Minuman' => 'Minuman siap saji dan produk seduh.',
+            'Kebersihan' => 'Produk kebersihan rumah tangga.',
+            'Bumbu Dapur' => 'Bumbu masak dan pelengkap dapur.',
+        ])->map(fn (string $description, string $name): Category => Category::updateOrCreate(
+            ['merchant_id' => $merchant->id, 'name' => $name],
+            ['description' => $description],
+        ));
+    }
+
+    /**
+     * @return Collection<string, Supplier>
+     */
+    private function seedSuppliers(Merchant $merchant, string $city, int $merchantNumber): Collection
+    {
+        $rows = [
+            ['name' => 'CV Sumber Pangan', 'suffix' => 'pangan'],
+            ['name' => 'UD Camilan Jaya', 'suffix' => 'camilan'],
+            ['name' => 'PT Segar Sentosa', 'suffix' => 'segar'],
+            ['name' => 'PT Bersih Sejahtera', 'suffix' => 'bersih'],
+        ];
+
+        return collect($rows)->mapWithKeys(fn (array $row, int $index): array => [
+            $row['name'] => Supplier::updateOrCreate(
+                ['merchant_id' => $merchant->id, 'name' => $row['name']],
                 [
-                    'name' => 'Budi Santoso',
-                    'password' => Hash::make('owner123'),
+                    'phone' => '0811' . str_pad((string) ($merchantNumber * 1000 + $index + 1), 8, '0', STR_PAD_LEFT),
+                    'email' => $row['suffix'] . $merchantNumber . '@supplier.test',
+                    'address' => 'Gudang ' . $city . ' No. ' . ($index + 1),
+                    'notes' => 'Supplier demo untuk ' . $merchant->name . '.',
                     'is_active' => true,
-                    'role' => 'owner',
-                    'merchant_id' => null,
+                ],
+            ),
+        ]);
+    }
+
+    /**
+     * @param Collection<string, Category> $categories
+     * @param Collection<string, Supplier> $suppliers
+     * @return Collection<int, array{model: Product, opening: int}>
+     */
+    private function seedProducts(Merchant $merchant, Collection $categories, Collection $suppliers, int $merchantNumber): Collection
+    {
+        return collect($this->productTemplates)->map(function (array $template, int $index) use ($merchant, $categories, $suppliers, $merchantNumber): array {
+            $priceFactor = 1 + (($merchantNumber - 1) * 0.025);
+            $opening = $template['opening'] + ($merchantNumber * 4) + ($index % 5);
+            $barcode = '899' . str_pad((string) $merchantNumber, 2, '0', STR_PAD_LEFT) . str_pad((string) ($index + 1), 9, '0', STR_PAD_LEFT);
+
+            $product = Product::updateOrCreate(
+                ['merchant_id' => $merchant->id, 'barcode' => $barcode],
+                [
+                    'supplier_id' => $suppliers[$template['supplier']]->id,
+                    'category_id' => $categories[$template['category']]->id,
+                    'name' => $template['name'],
+                    'price' => (int) round($template['price'] * $priceFactor / 500) * 500,
+                    'cost_price' => (int) round($template['cost'] * $priceFactor / 100) * 100,
+                    'stock' => $opening,
+                    'low_stock_threshold' => $template['low'],
                 ],
             );
 
-            $merchant = Merchant::updateOrCreate(
-                ['slug' => 'toko-budi'],
+            return ['model' => $product, 'opening' => $opening];
+        });
+    }
+
+    /**
+     * @return Collection<int, Member>
+     */
+    private function seedMembers(Merchant $merchant, int $merchantNumber): Collection
+    {
+        $names = ['Rina Amelia', 'Dimas Pratama', 'Maya Lestari', 'Fajar Nugroho', 'Laila Putri', 'Reza Firmansyah'];
+
+        return collect($names)->map(function (string $name, int $index) use ($merchant, $merchantNumber): Member {
+            $phone = '0822' . str_pad((string) ($merchantNumber * 100000 + $index + 1), 8, '0', STR_PAD_LEFT);
+
+            return Member::updateOrCreate(
+                ['merchant_id' => $merchant->id, 'phone' => $phone],
                 [
-                    'owner_id' => $owner->id,
-                    'name' => 'Toko Budi',
-                    'phone' => '08123456789',
-                    'address' => 'Jl. Contoh No. 1, Malang',
-                    'operational_start_time' => '07:00',
-                    'operational_end_time' => '22:00',
-                    'qris_payload' => '00020101021126670016COM.NOBUBANK.WWW01189360050300000879140214531234567890180303UMI51440014ID.CO.QRIS.WWW0215ID10200255943330303UMI5204541153033605802ID5909TOKO BUDI6011KOTA MALANG61056514162070703A01',
-                    'member_discount_is_active' => true,
-                    'member_discount_type' => 'percent',
-                    'member_discount_value' => 10,
-                    'member_discount_max_amount' => 20000,
-                    'member_discount_min_purchase' => 50000,
+                    'name' => $name,
+                    'email' => Str::slug($name) . $merchantNumber . '@member.test',
+                    'address' => 'Alamat member demo ' . ($index + 1),
+                    'joined_at' => now()->subMonths(3)->addDays($index)->toDateString(),
+                    'notes' => 'Member demo SiKaMo.',
                     'is_active' => true,
                 ],
             );
+        });
+    }
 
-            User::updateOrCreate(
-                ['email' => 'kasir@tokobudi.com'],
-                [
-                    'name' => 'Siti Kasir',
-                    'password' => Hash::make('kasir123'),
-                    'is_active' => true,
-                    'role' => 'cashier',
-                    'merchant_id' => $merchant->id,
-                ],
-            );
-
-            User::updateOrCreate(
-                ['email' => 'kasir2@tokobudi.com'],
-                [
-                    'name' => 'Andi Kasir',
-                    'password' => Hash::make('kasir123'),
-                    'is_active' => true,
-                    'role' => 'cashier',
-                    'merchant_id' => $merchant->id,
-                ],
-            );
-
-            $categories = collect([
-                ['name' => 'Sembako', 'description' => 'Bahan pokok kebutuhan dapur.'],
-                ['name' => 'Makanan Ringan', 'description' => 'Camilan dan makanan kemasan.'],
-                ['name' => 'Minuman & Produk Seduh', 'description' => 'Minuman siap saji dan produk seduh.'],
-                ['name' => 'Kebutuhan Mandi & Kebersihan', 'description' => 'Produk kebersihan rumah tangga dan perawatan diri.'],
-                ['name' => 'Bumbu & Pelengkap Dapur', 'description' => 'Bumbu masak dan pelengkap dapur.'],
-            ])->mapWithKeys(fn(array $data): array => [
-                $data['name'] => Category::updateOrCreate(
-                    ['merchant_id' => $merchant->id, 'name' => $data['name']],
-                    ['description' => $data['description']],
-                ),
-            ]);
-
-            $suppliers = collect([
-                ['name' => 'CV Sumber Pangan', 'phone' => '081111111001', 'email' => 'sales@sumberpangan.test', 'address' => 'Jl. Pasar Besar No. 10, Malang'],
-                ['name' => 'UD Camilan Jaya', 'phone' => '081111111002', 'email' => 'admin@camilanjaya.test', 'address' => 'Jl. Industri No. 8, Malang'],
-                ['name' => 'PT Bersih Sejahtera', 'phone' => '081111111003', 'email' => 'order@bersihsejahtera.test', 'address' => 'Jl. Raya Gadang No. 21, Malang'],
-            ])->mapWithKeys(fn(array $data): array => [
-                $data['name'] => Supplier::updateOrCreate(
-                    ['merchant_id' => $merchant->id, 'name' => $data['name']],
-                    [
-                        'phone' => $data['phone'],
-                        'email' => $data['email'],
-                        'address' => $data['address'],
-                        'notes' => 'Supplier demo SiKaMo.',
-                        'is_active' => true,
-                    ],
-                ),
-            ]);
-
-            $productRows = [
-                ['name' => 'Beras Premium 5kg', 'barcode' => '8991234560012', 'category' => 'Sembako', 'supplier' => 'CV Sumber Pangan', 'cost' => 64000, 'price' => 75000, 'opening' => 12, 'restock' => 20, 'sold' => 4],
-                ['name' => 'Minyak Goreng 2L', 'barcode' => '8991234560029', 'category' => 'Sembako', 'supplier' => 'CV Sumber Pangan', 'cost' => 31000, 'price' => 36500, 'opening' => 10, 'restock' => 18, 'sold' => 5],
-                ['name' => 'Gula Pasir 1kg', 'barcode' => '8991234560036', 'category' => 'Sembako', 'supplier' => 'CV Sumber Pangan', 'cost' => 14500, 'price' => 17500, 'opening' => 20, 'restock' => 30, 'sold' => 6],
-                ['name' => 'Indomie Goreng', 'barcode' => '8991234560043', 'category' => 'Makanan Ringan', 'supplier' => 'CV Sumber Pangan', 'cost' => 2800, 'price' => 3500, 'opening' => 60, 'restock' => 80, 'sold' => 18],
-                ['name' => 'Keripik Singkong', 'barcode' => '8991234560050', 'category' => 'Makanan Ringan', 'supplier' => 'UD Camilan Jaya', 'cost' => 11000, 'price' => 15000, 'opening' => 15, 'restock' => 25, 'sold' => 7],
-                ['name' => 'Oreo Vanilla 133g', 'barcode' => '8991234560067', 'category' => 'Makanan Ringan', 'supplier' => 'UD Camilan Jaya', 'cost' => 8200, 'price' => 10500, 'opening' => 25, 'restock' => 30, 'sold' => 8],
-                ['name' => 'Aqua Galon 19L', 'barcode' => '8991234560074', 'category' => 'Minuman & Produk Seduh', 'supplier' => 'CV Sumber Pangan', 'cost' => 18000, 'price' => 22000, 'opening' => 8, 'restock' => 10, 'sold' => 3],
-                ['name' => 'Kopi Kapal Api Mix', 'barcode' => '8991234560098', 'category' => 'Minuman & Produk Seduh', 'supplier' => 'CV Sumber Pangan', 'cost' => 11200, 'price' => 14500, 'opening' => 30, 'restock' => 40, 'sold' => 9],
-                ['name' => 'Sabun Lifebuoy', 'barcode' => '8991234560111', 'category' => 'Kebutuhan Mandi & Kebersihan', 'supplier' => 'PT Bersih Sejahtera', 'cost' => 3800, 'price' => 5000, 'opening' => 40, 'restock' => 50, 'sold' => 10],
-                ['name' => 'Rinso Bubuk 800g', 'barcode' => '8991234560128', 'category' => 'Kebutuhan Mandi & Kebersihan', 'supplier' => 'PT Bersih Sejahtera', 'cost' => 27000, 'price' => 32000, 'opening' => 12, 'restock' => 18, 'sold' => 4],
-                ['name' => 'Kecap Bango 550ml', 'barcode' => '8991234560142', 'category' => 'Bumbu & Pelengkap Dapur', 'supplier' => 'CV Sumber Pangan', 'cost' => 20000, 'price' => 24000, 'opening' => 14, 'restock' => 20, 'sold' => 3],
-                ['name' => 'Garam Dapur', 'barcode' => '8991234560159', 'category' => 'Bumbu & Pelengkap Dapur', 'supplier' => 'CV Sumber Pangan', 'cost' => 2100, 'price' => 3000, 'opening' => 35, 'restock' => 50, 'sold' => 12],
-            ];
-
-            $products = collect($productRows)->mapWithKeys(function (array $data) use ($merchant, $categories, $suppliers): array {
-                $currentStock = $data['opening'] + $data['restock'] - $data['sold'];
-
-                $product = Product::updateOrCreate(
-                    ['merchant_id' => $merchant->id, 'barcode' => $data['barcode']],
-                    [
-                        'supplier_id' => $suppliers[$data['supplier']]->id,
-                        'category_id' => $categories[$data['category']]->id,
-                        'name' => $data['name'],
-                        'price' => $data['price'],
-                        'cost_price' => $data['cost'],
-                        'stock' => $currentStock,
-                        'low_stock_threshold' => 10,
-                    ],
-                );
-
-                return [$data['barcode'] => ['model' => $product, 'seed' => $data]];
-            });
-
-            $productIds = $products->pluck('model.id')->all();
-            StockLog::whereIn('product_id', $productIds)->where('note', 'like', 'Seeder demo:%')->delete();
-            Transaction::whereIn('invoice_number', ['INV-DEMO-001', 'INV-DEMO-002', 'INV-DEMO-003'])->delete();
-            Purchase::whereIn('invoice_number', ['PO-DEMO-001', 'PO-DEMO-002'])->delete();
-            DailyReport::where('merchant_id', $merchant->id)->whereDate('report_date', now()->toDateString())->delete();
-
-            $members = collect([
-                ['name' => 'Rina Amelia', 'phone' => '081234560001', 'email' => 'rina@example.test', 'address' => 'Jl. Ijen No. 7, Malang'],
-                ['name' => 'Dimas Pratama', 'phone' => '081234560002', 'email' => 'dimas@example.test', 'address' => 'Jl. Soekarno Hatta No. 12, Malang'],
-                ['name' => 'Maya Lestari', 'phone' => '081234560003', 'email' => 'maya@example.test', 'address' => 'Jl. Veteran No. 5, Malang'],
-            ])->mapWithKeys(fn(array $data): array => [
-                $data['phone'] => Member::updateOrCreate(
-                    ['merchant_id' => $merchant->id, 'phone' => $data['phone']],
-                    [
-                        'name' => $data['name'],
-                        'email' => $data['email'],
-                        'address' => $data['address'],
-                        'joined_at' => now()->subMonths(2)->toDateString(),
-                        'notes' => 'Member demo SiKaMo.',
-                        'is_active' => true,
-                    ],
-                ),
-            ]);
-
+    /**
+     * @return Collection<int, Discount>
+     */
+    private function seedDiscounts(Merchant $merchant, int $merchantNumber): Collection
+    {
+        return collect([
             Discount::updateOrCreate(
-                ['merchant_id' => $merchant->id, 'code' => 'HEMAT15'],
+                ['merchant_id' => $merchant->id, 'code' => 'HEMAT' . (10 + $merchantNumber)],
                 [
-                    'name' => 'Diskon 15% Maksimal 30 Ribu',
+                    'name' => 'Diskon Hemat ' . (10 + $merchantNumber) . '%',
                     'type' => 'percent',
-                    'value' => 15,
-                    'max_discount_amount' => 30000,
+                    'value' => 10 + $merchantNumber,
+                    'max_discount_amount' => 25000,
                     'min_purchase_amount' => 50000,
-                    'quota' => 100,
-                    'used_count' => 1,
-                    'starts_at' => now()->subWeek(),
-                    'ends_at' => now()->addMonth(),
+                    'quota' => 250,
+                    'used_count' => 0,
+                    'starts_at' => now()->subMonths(2),
+                    'ends_at' => now()->addMonths(2),
                     'is_active' => true,
                 ],
-            );
-
+            ),
             Discount::updateOrCreate(
-                ['merchant_id' => $merchant->id, 'code' => 'POTONG5000'],
+                ['merchant_id' => $merchant->id, 'code' => 'POTONG' . (5000 + ($merchantNumber * 1000))],
                 [
-                    'name' => 'Potongan Langsung Rp5.000',
+                    'name' => 'Potongan Langsung',
                     'type' => 'fixed',
-                    'value' => 5000,
+                    'value' => 5000 + ($merchantNumber * 1000),
                     'max_discount_amount' => null,
-                    'min_purchase_amount' => 30000,
+                    'min_purchase_amount' => 35000,
                     'quota' => null,
                     'used_count' => 0,
-                    'starts_at' => now()->subWeek(),
-                    'ends_at' => now()->addMonth(),
+                    'starts_at' => now()->subMonths(2),
+                    'ends_at' => now()->addMonths(2),
                     'is_active' => true,
                 ],
-            );
+            ),
+        ]);
+    }
 
-            foreach ($products as $entry) {
+    /**
+     * @param Collection<int, array{model: Product, opening: int}> $products
+     */
+    private function seedOpeningStockLogs(Collection $products, User $owner, int $merchantNumber): void
+    {
+        foreach ($products as $index => $entry) {
+            StockLog::create([
+                'product_id' => $entry['model']->id,
+                'user_id' => $owner->id,
+                'quantity_change' => $entry['opening'],
+                'stock_before' => 0,
+                'stock_after' => $entry['opening'],
+                'type' => 'in',
+                'note' => 'Seeder demo: stok awal produk',
+                'created_at' => now()->subMonths(3)->addDays($merchantNumber + $index),
+                'updated_at' => now()->subMonths(3)->addDays($merchantNumber + $index),
+            ]);
+        }
+    }
+
+    /**
+     * @param Collection<string, Supplier> $suppliers
+     * @param Collection<int, array{model: Product, opening: int}> $products
+     */
+    private function seedPurchases(Merchant $merchant, User $owner, Collection $suppliers, Collection $products, int $merchantNumber): void
+    {
+        foreach ([1, 2, 3] as $purchaseIndex) {
+            $supplier = $suppliers->values()[($purchaseIndex + $merchantNumber) % $suppliers->count()];
+            $date = now()->subMonths(2)->addWeeks($purchaseIndex + $merchantNumber);
+            $invoice = 'PO-' . str_pad((string) $merchantNumber, 2, '0', STR_PAD_LEFT) . '-' . $date->format('Ymd') . '-' . $purchaseIndex;
+
+            $purchase = Purchase::create([
+                'merchant_id' => $merchant->id,
+                'supplier_id' => $supplier->id,
+                'user_id' => $owner->id,
+                'invoice_number' => $invoice,
+                'purchase_date' => $date->toDateString(),
+                'total_amount' => 0,
+                'status' => 'completed',
+                'notes' => 'Seeder demo: restock supplier.',
+                'created_at' => $date,
+                'updated_at' => $date,
+            ]);
+
+            $total = 0;
+
+            foreach ($products->slice(($purchaseIndex - 1) * 5, 6) as $entry) {
                 $product = $entry['model'];
-                $seed = $entry['seed'];
+                $quantity = 12 + ($purchaseIndex * 3) + ($merchantNumber % 4);
+                $subtotal = ((float) $product->cost_price) * $quantity;
+                $total += $subtotal;
+
+                PurchaseItem::create([
+                    'purchase_id' => $purchase->id,
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                    'unit_cost' => $product->cost_price,
+                    'subtotal' => $subtotal,
+                    'created_at' => $date,
+                    'updated_at' => $date,
+                ]);
+
+                $before = $product->stock;
+                $product->increment('stock', $quantity);
 
                 StockLog::create([
                     'product_id' => $product->id,
                     'user_id' => $owner->id,
-                    'quantity_change' => $seed['opening'],
-                    'stock_before' => 0,
-                    'stock_after' => $seed['opening'],
+                    'quantity_change' => $quantity,
+                    'stock_before' => $before,
+                    'stock_after' => $before + $quantity,
                     'type' => 'in',
-                    'note' => 'Seeder demo: stok awal produk',
-                    'created_at' => now()->subDays(10),
-                    'updated_at' => now()->subDays(10),
+                    'note' => 'Seeder demo: pembelian ' . $invoice,
+                    'created_at' => $date,
+                    'updated_at' => $date,
                 ]);
             }
 
-            $purchaseOne = $this->createPurchase(
-                $merchant,
-                $owner,
-                $suppliers['CV Sumber Pangan'],
-                'PO-DEMO-001',
-                [
-                    ['barcode' => '8991234560012', 'quantity' => 20],
-                    ['barcode' => '8991234560029', 'quantity' => 18],
-                    ['barcode' => '8991234560036', 'quantity' => 30],
-                    ['barcode' => '8991234560043', 'quantity' => 80],
-                ],
-                $products,
-            );
-
-            $purchaseTwo = $this->createPurchase(
-                $merchant,
-                $owner,
-                $suppliers['PT Bersih Sejahtera'],
-                'PO-DEMO-002',
-                [
-                    ['barcode' => '8991234560111', 'quantity' => 50],
-                    ['barcode' => '8991234560128', 'quantity' => 18],
-                ],
-                $products,
-            );
-
-            $this->createPurchaseStockLogs($purchaseOne, $products);
-            $this->createPurchaseStockLogs($purchaseTwo, $products);
-
-            $cashier = User::where('email', 'kasir@tokobudi.com')->firstOrFail();
-            $discount = Discount::where('merchant_id', $merchant->id)->where('code', 'HEMAT15')->firstOrFail();
-
-            $this->createTransaction(
-                'INV-DEMO-001',
-                $cashier,
-                $members['081234560001'],
-                $discount,
-                'cash',
-                [
-                    ['barcode' => '8991234560012', 'quantity' => 2],
-                    ['barcode' => '8991234560029', 'quantity' => 1],
-                    ['barcode' => '8991234560043', 'quantity' => 5],
-                ],
-                $products,
-            );
-
-            $this->createTransaction(
-                'INV-DEMO-002',
-                $cashier,
-                null,
-                null,
-                'qris',
-                [
-                    ['barcode' => '8991234560050', 'quantity' => 3],
-                    ['barcode' => '8991234560067', 'quantity' => 2],
-                    ['barcode' => '8991234560159', 'quantity' => 6],
-                ],
-                $products,
-            );
-
-            $this->createTransaction(
-                'INV-DEMO-003',
-                $cashier,
-                $members['081234560002'],
-                null,
-                'cash',
-                [
-                    ['barcode' => '8991234560111', 'quantity' => 4],
-                    ['barcode' => '8991234560128', 'quantity' => 1],
-                    ['barcode' => '8991234560142', 'quantity' => 2],
-                ],
-                $products,
-            );
-
-            $todayTransactions = Transaction::whereIn('invoice_number', ['INV-DEMO-001', 'INV-DEMO-002', 'INV-DEMO-003'])->get();
-
-            DailyReport::create([
-                'merchant_id' => $merchant->id,
-                'report_date' => now()->toDateString(),
-                'total_transactions' => $todayTransactions->count(),
-                'total_revenue' => $todayTransactions->sum('total_amount'),
-                'total_items_sold' => TransactionItem::whereIn('transaction_id', $todayTransactions->pluck('id'))->sum('quantity'),
-                'sent_to_whatsapp' => false,
-                'sent_at' => null,
-            ]);
-        });
-
-        $this->command?->info('DemoDataSeeder selesai. Login: admin@sikamo.com/admin123, owner@tokobudi.com/owner123, kasir@tokobudi.com/kasir123.');
-    }
-
-    private function createPurchase(Merchant $merchant, User $owner, Supplier $supplier, string $invoiceNumber, array $items, $products): Purchase
-    {
-        $purchase = Purchase::create([
-            'merchant_id' => $merchant->id,
-            'supplier_id' => $supplier->id,
-            'user_id' => $owner->id,
-            'invoice_number' => $invoiceNumber,
-            'purchase_date' => now()->subDays(5)->toDateString(),
-            'total_amount' => 0,
-            'status' => 'completed',
-            'notes' => 'Seeder demo: pembelian/restock supplier.',
-        ]);
-
-        $total = 0;
-
-        foreach ($items as $item) {
-            $product = $products[$item['barcode']]['model'];
-            $unitCost = (float) $product->cost_price;
-            $subtotal = $unitCost * $item['quantity'];
-            $total += $subtotal;
-
-            PurchaseItem::create([
-                'purchase_id' => $purchase->id,
-                'product_id' => $product->id,
-                'quantity' => $item['quantity'],
-                'unit_cost' => $unitCost,
-                'subtotal' => $subtotal,
-            ]);
-        }
-
-        $purchase->forceFill(['total_amount' => $total])->save();
-
-        return $purchase;
-    }
-
-    private function createPurchaseStockLogs(Purchase $purchase, $products): void
-    {
-        foreach ($purchase->items as $item) {
-            $seed = $products->first(fn(array $entry): bool => $entry['model']->id === $item->product_id)['seed'];
-            $stockBefore = $seed['opening'];
-
-            StockLog::create([
-                'product_id' => $item->product_id,
-                'user_id' => $purchase->user_id,
-                'quantity_change' => $item->quantity,
-                'stock_before' => $stockBefore,
-                'stock_after' => $stockBefore + $item->quantity,
-                'type' => 'in',
-                'note' => 'Seeder demo: pembelian ' . $purchase->invoice_number,
-                'created_at' => now()->subDays(5),
-                'updated_at' => now()->subDays(5),
-            ]);
+            $purchase->forceFill(['total_amount' => $total])->save();
         }
     }
 
-    private function createTransaction(string $invoiceNumber, User $cashier, ?Member $member, ?Discount $discount, string $paymentMethod, array $items, $products): Transaction
+    /**
+     * @param Collection<int, User> $cashiers
+     * @param Collection<int, Member> $members
+     * @param Collection<int, Discount> $discounts
+     * @param Collection<int, array{model: Product, opening: int}> $products
+     * @return Collection<int, Transaction>
+     */
+    private function seedTransactions(Merchant $merchant, Collection $cashiers, Collection $members, Collection $discounts, Collection $products, int $merchantNumber): Collection
+    {
+        $transactions = collect();
+        $baseDate = CarbonImmutable::now()->startOfMonth()->subMonths(2);
+
+        for ($i = 1; $i <= 45; $i++) {
+            $date = $baseDate
+                ->addDays(($i * 2 + $merchantNumber) % 76)
+                ->setTime(8 + ($i % 12), ($i * 7) % 60);
+
+            $invoiceNumber = 'INV-' . str_pad((string) $merchantNumber, 2, '0', STR_PAD_LEFT) . '-' . $date->format('Ymd') . '-' . str_pad((string) $i, 4, '0', STR_PAD_LEFT);
+            $cashier = $cashiers[$i % $cashiers->count()];
+            $member = $i % 3 === 0 ? $members[$i % $members->count()] : null;
+            $discount = $i % 5 === 0 ? $discounts[$i % $discounts->count()] : null;
+            $paymentMethod = $i % 4 === 0 ? 'qris' : 'cash';
+
+            $lineCount = 2 + ($i % 4);
+            $items = collect(range(0, $lineCount - 1))->map(function (int $offset) use ($products, $i): array {
+                $entry = $products[($i + ($offset * 3)) % $products->count()];
+
+                return [
+                    'product' => $entry['model'],
+                    'quantity' => 1 + (($i + $offset) % 4),
+                ];
+            });
+
+            $transactions->push($this->createTransaction($invoiceNumber, $cashier, $member, $discount, $paymentMethod, $items, $date));
+        }
+
+        return $transactions;
+    }
+
+    /**
+     * @param Collection<int, array{product: Product, quantity: int}> $items
+     */
+    private function createTransaction(string $invoiceNumber, User $cashier, ?Member $member, ?Discount $discount, string $paymentMethod, Collection $items, CarbonImmutable $date): Transaction
     {
         $subtotal = 0;
-        $totalCost = 0;
 
         foreach ($items as $item) {
-            $product = $products[$item['barcode']]['model'];
-            $subtotal += ((float) $product->price) * $item['quantity'];
-            $totalCost += ((float) $product->cost_price) * $item['quantity'];
+            $subtotal += ((float) $item['product']->price) * $item['quantity'];
         }
 
-        $voucherDiscount = $discount ? $discount->calculateDiscount($subtotal) : 0;
-        $memberDiscount = $member ? min(($subtotal - $voucherDiscount) * 0.10, 20000) : 0;
+        $voucherDiscount = ($discount && $discount->isUsableFor($subtotal)) ? $discount->calculateDiscount($subtotal) : 0;
+        $memberDiscount = $member ? min(($subtotal - $voucherDiscount) * 0.05, 20000) : 0;
         $totalDiscount = $voucherDiscount + $memberDiscount;
         $total = max(0, $subtotal - $totalDiscount);
         $paid = $paymentMethod === 'cash' ? ceil($total / 10000) * 10000 : $total;
@@ -402,54 +454,90 @@ class DemoDataSeeder extends Seeder
             'change_amount' => $paid - $total,
             'payment_method' => $paymentMethod,
             'status' => 'completed',
-            'created_at' => now()->subHours(3),
-            'updated_at' => now()->subHours(3),
+            'created_at' => $date,
+            'updated_at' => $date,
         ]);
 
         $allocatedDiscount = 0;
-        $lastIndex = count($items) - 1;
+        $lastIndex = $items->count() - 1;
 
-        foreach ($items as $index => $item) {
-            $product = $products[$item['barcode']]['model'];
-            $itemSubtotal = ((float) $product->price) * $item['quantity'];
-            $itemCost = ((float) $product->cost_price) * $item['quantity'];
+        foreach ($items->values() as $index => $item) {
+            /** @var Product $product */
+            $product = $item['product']->fresh();
+            $quantity = $item['quantity'];
+            $itemSubtotal = ((float) $product->price) * $quantity;
+            $itemCost = ((float) $product->cost_price) * $quantity;
             $itemDiscount = $index === $lastIndex
                 ? $totalDiscount - $allocatedDiscount
-                : round($totalDiscount * ($itemSubtotal / $subtotal), 2);
-
+                : round($totalDiscount * ($itemSubtotal / max($subtotal, 1)), 2);
             $allocatedDiscount += $itemDiscount;
 
             TransactionItem::create([
                 'transaction_id' => $transaction->id,
                 'product_id' => $product->id,
-                'quantity' => $item['quantity'],
+                'quantity' => $quantity,
                 'unit_price' => $product->price,
                 'unit_cost' => $product->cost_price,
                 'subtotal' => $itemSubtotal,
                 'total_cost' => $itemCost,
                 'gross_profit' => $itemSubtotal - $itemDiscount - $itemCost,
+                'created_at' => $date,
+                'updated_at' => $date,
             ]);
 
-            $seed = $products[$item['barcode']]['seed'];
-            $stockBefore = $seed['opening'] + $seed['restock'];
-            $previousSold = StockLog::query()
-                ->where('product_id', $product->id)
-                ->where('note', 'like', 'Seeder demo: penjualan%')
-                ->sum(DB::raw('ABS(quantity_change)'));
+            $before = $product->stock;
+            $after = max(0, $before - $quantity);
+            $product->forceFill(['stock' => $after])->save();
 
             StockLog::create([
                 'product_id' => $product->id,
                 'user_id' => $cashier->id,
-                'quantity_change' => -1 * $item['quantity'],
-                'stock_before' => $stockBefore - $previousSold,
-                'stock_after' => $stockBefore - $previousSold - $item['quantity'],
+                'quantity_change' => -1 * $quantity,
+                'stock_before' => $before,
+                'stock_after' => $after,
                 'type' => 'out',
                 'note' => 'Seeder demo: penjualan ' . $invoiceNumber,
-                'created_at' => now()->subHours(3),
-                'updated_at' => now()->subHours(3),
+                'created_at' => $date,
+                'updated_at' => $date,
             ]);
         }
 
+        if ($discount) {
+            $discount->increment('used_count');
+        }
+
         return $transaction;
+    }
+
+    /**
+     * @param Collection<int, Transaction> $transactions
+     */
+    private function seedDailyReports(Merchant $merchant, Collection $transactions): void
+    {
+        $transactions
+            ->groupBy(fn (Transaction $transaction): string => $transaction->created_at->toDateString())
+            ->each(function (Collection $dailyTransactions, string $date) use ($merchant): void {
+                DailyReport::updateOrCreate(
+                    ['merchant_id' => $merchant->id, 'report_date' => $date],
+                    [
+                        'total_transactions' => $dailyTransactions->count(),
+                        'total_revenue' => $dailyTransactions->sum('total_amount'),
+                        'total_items_sold' => TransactionItem::whereIn('transaction_id', $dailyTransactions->pluck('id'))->sum('quantity'),
+                        'sent_to_whatsapp' => false,
+                        'sent_at' => null,
+                    ],
+                );
+            });
+    }
+
+    private function demoQrisPayload(string $merchantName, string $city): string
+    {
+        $name = strtoupper(Str::limit($merchantName, 18, ''));
+        $cityName = strtoupper(Str::limit($city, 12, ''));
+
+        return '00020101021126670016COM.NOBUBANK.WWW01189360050300000879140214531234567890180303UMI51440014ID.CO.QRIS.WWW0215ID10200255943330303UMI5204541153033605802ID59'
+            . str_pad((string) strlen($name), 2, '0', STR_PAD_LEFT) . $name
+            . '60' . str_pad((string) strlen($cityName), 2, '0', STR_PAD_LEFT) . $cityName
+            . '61056514162070703A01';
     }
 }

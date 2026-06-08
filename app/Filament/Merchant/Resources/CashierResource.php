@@ -22,6 +22,7 @@ class CashierResource extends Resource
     protected static ?string $pluralModelLabel = 'Kasir';
     protected static ?string $navigationGroup = 'Manajemen Toko';
     protected static ?string $slug = 'cashiers';
+    protected static ?string $tenantRelationshipName = 'cashiers';
     protected static ?int $navigationSort = 3;
     protected static ?string $tenantOwnershipRelationshipName = 'employedAt';
 

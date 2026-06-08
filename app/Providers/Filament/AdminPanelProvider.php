@@ -28,8 +28,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->sidebarCollapsibleOnDesktop()
-            ->brandLogo(asset('assets/logo.svg'))
-            ->brandLogoHeight('2.5rem')
+            ->brandLogo(asset('assets/logo.png'))
+            ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::hex('#1D9E75'),
                 'success' => Color::hex('#639922'),

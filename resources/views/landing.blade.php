@@ -8,11 +8,12 @@
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="apple-touch-icon" href="{{ asset('assets/logo.svg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/logo.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +50,14 @@
             background: linear-gradient(135deg, #15803d 0%, #22c55e 50%, #65a30d 100%);
             background-size: 200% auto;
             animation: shimmer 3s linear infinite;
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(15, 23, 42, 0.22);
             transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary svg,
+        .btn-primary span {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff;
         }
         .btn-primary:hover {
             transform: translateY(-2px) scale(1.02);
@@ -135,7 +143,7 @@
 
         {{-- Logo --}}
         <a href="/" class="flex items-center gap-2.5 group shrink-0">
-            <img src="{{ asset('assets/logo.svg') }}" alt="SiKaMo" class="h-9 w-auto group-hover:scale-105 transition-transform duration-300">
+            <img src="{{ asset('assets/logo.png') }}" alt="SiKaMo" class="h-12 w-auto group-hover:scale-105 transition-transform duration-300">
             <span class="font-outfit font-black text-2xl text-slate-900">SiKaMo<span class="text-green-600">.</span></span>
         </a>
 
@@ -233,7 +241,7 @@
                                 Coba Gratis Sekarang
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                             </a>
-                            <button id="install-pwa-btn-guest" class="hidden inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white border border-green-200 text-green-700 font-semibold hover:bg-green-50 transition-all text-base shadow-sm">
+                            <button id="install-pwa-btn-guest" class="hidden inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all text-base shadow-sm">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 Install App
                             </button>
@@ -610,7 +618,7 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div class="md:col-span-2">
                 <div class="flex items-center gap-2.5 mb-4">
-                    <img src="{{ asset('assets/logo.svg') }}" alt="SiKaMo" class="h-8 w-auto">
+                    <img src="{{ asset('assets/logo.png') }}" alt="SiKaMo" class="h-11 w-auto">
                     <span class="font-outfit font-black text-xl text-white">SiKaMo<span class="text-green-400">.</span></span>
                 </div>
                 <p class="text-slate-400 text-sm leading-relaxed max-w-xs">

@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\Login as AuthLogin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -23,7 +24,10 @@ class AuthPanelProvider extends PanelProvider
         return $panel
             ->id('auth')
             ->path('') // Jadi ketika diakses URL nya ada di /login
-            ->login()
+            ->login(AuthLogin::class)
+            ->brandName('SiKaMo')
+            ->brandLogo(asset('assets/logo.png'))
+            ->brandLogoHeight('3.5rem')
             ->colors([
                 'primary' => Color::hex('#1D9E75'), // Sama seperti admin/merchant
             ])

@@ -5,7 +5,7 @@ const OFFLINE_POS_URL = '/merchant/sales/catalog';
 const CORE_ASSETS = [
     '/',
     '/manifest.json',
-    '/assets/logo.svg',
+    '/assets/logo.png',
 ];
 
 self.addEventListener('install', (event) => {

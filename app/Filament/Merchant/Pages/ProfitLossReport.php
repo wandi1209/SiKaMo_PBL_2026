@@ -3,11 +3,17 @@
 namespace App\Filament\Merchant\Pages;
 
 use App\Models\TransactionItem;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 
-class ProfitLossReport extends Page
+class ProfitLossReport extends Page implements HasForms
 {
+    use InteractsWithForms;
+
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
     protected static ?string $navigationLabel = 'Laba/Rugi';
@@ -20,9 +26,9 @@ class ProfitLossReport extends Page
 
     protected static string $view = 'filament.merchant.pages.profit-loss-report';
 
-    public ?string $startDate = null;
+    public ?int $selectedMonth = null;
 
-    public ?string $endDate = null;
+    public ?int $selectedYear = null;
 
     public static function canAccess(): bool
     {
@@ -31,8 +37,49 @@ class ProfitLossReport extends Page
 
     public function mount(): void
     {
-        $this->startDate = now()->startOfMonth()->toDateString();
-        $this->endDate = now()->toDateString();
+        $this->selectedMonth = now()->month;
+        $this->selectedYear = now()->year;
+
+        $this->form->fill([
+            'selectedMonth' => $this->selectedMonth,
+            'selectedYear' => $this->selectedYear,
+        ]);
+    }
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Select::make('selectedMonth')
+                    ->label('Bulan')
+                    ->options([
+                        1 => 'Januari',
+                        2 => 'Februari',
+                        3 => 'Maret',
+                        4 => 'April',
+                        5 => 'Mei',
+                        6 => 'Juni',
+                        7 => 'Juli',
+                        8 => 'Agustus',
+                        9 => 'September',
+                        10 => 'Oktober',
+                        11 => 'November',
+                        12 => 'Desember',
+                    ])
+                    ->native(false)
+                    ->live()
+                    ->required(),
+
+                Select::make('selectedYear')
+                    ->label('Tahun')
+                    ->options(collect(range(now()->year - 3, now()->year + 1))->mapWithKeys(
+                        fn (int $year): array => [$year => (string) $year],
+                    )->all())
+                    ->native(false)
+                    ->live()
+                    ->required(),
+            ])
+            ->columns(2);
     }
 
     public function getSummaryProperty(): array
@@ -100,8 +147,8 @@ class ProfitLossReport extends Page
             ->whereHas('transaction', function (Builder $query): Builder {
                 return $query
                     ->where('status', 'completed')
-                    ->when($this->startDate, fn(Builder $query, string $date): Builder => $query->whereDate('created_at', '>=', $date))
-                    ->when($this->endDate, fn(Builder $query, string $date): Builder => $query->whereDate('created_at', '<=', $date));
+                    ->when($this->selectedMonth, fn(Builder $query, int $month): Builder => $query->whereMonth('created_at', $month))
+                    ->when($this->selectedYear, fn(Builder $query, int $year): Builder => $query->whereYear('created_at', $year));
             });
     }
 }

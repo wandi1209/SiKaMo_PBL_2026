@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\StockLog;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\Filter;
@@ -67,6 +69,60 @@ class StockLogResource extends Resource
                 ])
                 ->columns(2),
         ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('Detail Riwayat Stok')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('product.name')
+                            ->label('Produk')
+                            ->placeholder('Produk sudah dihapus'),
+
+                        Infolists\Components\TextEntry::make('user.name')
+                            ->label('User')
+                            ->placeholder('System'),
+
+                        Infolists\Components\TextEntry::make('type')
+                            ->label('Jenis')
+                            ->badge()
+                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                'in' => 'Masuk',
+                                'out' => 'Keluar',
+                                'adjustment' => 'Koreksi',
+                                default => filled($state) ? ucfirst($state) : '-',
+                            })
+                            ->color(fn (?string $state): string => match ($state) {
+                                'in' => 'success',
+                                'out' => 'danger',
+                                'adjustment' => 'warning',
+                                default => 'gray',
+                            }),
+
+                        Infolists\Components\TextEntry::make('quantity_change')
+                            ->label('Perubahan')
+                            ->formatStateUsing(fn (?int $state): string => $state === null
+                                ? '-'
+                                : ($state > 0 ? '+' : '') . number_format($state, 0, ',', '.'))
+                            ->color(fn (?int $state): string => ($state ?? 0) < 0 ? 'danger' : 'success'),
+
+                        Infolists\Components\TextEntry::make('stock_before')
+                            ->label('Stok Sebelum')
+                            ->numeric(),
+
+                        Infolists\Components\TextEntry::make('stock_after')
+                            ->label('Stok Sesudah')
+                            ->numeric(),
+
+                        Infolists\Components\TextEntry::make('note')
+                            ->label('Catatan')
+                            ->placeholder('-')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+            ]);
     }
 
     public static function table(Table $table): Table
