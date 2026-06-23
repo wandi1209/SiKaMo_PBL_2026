@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Events\ProductStockUpdated;
+use App\Models\Discount;
 use App\Models\StockLog;
 use App\Models\Transaction;
 use App\Models\User;
@@ -61,6 +62,19 @@ class TransactionRefundService
                     'type' => 'in',
                     'note' => 'Refund transaksi ' . $transaction->invoice_number,
                 ]);
+            }
+
+            // Return the voucher quota consumed by this sale so a refunded
+            // transaction does not permanently burn a discount use.
+            if ($transaction->discount_id) {
+                $discount = Discount::query()
+                    ->whereKey($transaction->discount_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($discount && $discount->used_count > 0) {
+                    $discount->decrement('used_count');
+                }
             }
 
             $transaction->forceFill([

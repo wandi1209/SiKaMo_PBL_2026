@@ -78,8 +78,18 @@ class TransactionReportResource extends Resource
                     Forms\Components\TextInput::make('member_phone')->label('Nomor HP Member')->disabled(),
                     Forms\Components\TextInput::make('payment_method')->label('Metode Pembayaran')->disabled(),
                     Forms\Components\TextInput::make('subtotal_amount')->label('Subtotal')->prefix('Rp')->disabled(),
-                    Forms\Components\TextInput::make('discount_amount')->label('Diskon')->prefix('Rp')->disabled(),
-                    Forms\Components\TextInput::make('member_discount_amount')->label('Diskon Member')->prefix('Rp')->disabled(),
+                    // discount_amount already INCLUDES member discount, so show
+                    // the voucher-only portion here to avoid double counting.
+                    Forms\Components\TextInput::make('discount_amount')
+                        ->label('Diskon Voucher')
+                        ->prefix('Rp')
+                        ->formatStateUsing(fn(Transaction $record): string => number_format(max(0, (float) $record->discount_amount - (float) $record->member_discount_amount), 0, ',', '.'))
+                        ->disabled(),
+                    Forms\Components\TextInput::make('member_discount_amount')
+                        ->label('Diskon Member')
+                        ->prefix('Rp')
+                        ->formatStateUsing(fn(Transaction $record): string => number_format((float) $record->member_discount_amount, 0, ',', '.'))
+                        ->disabled(),
                     Forms\Components\TextInput::make('total_amount')->label('Total Bayar')->prefix('Rp')->disabled(),
                     Forms\Components\TextInput::make('amount_paid')->label('Dibayar')->prefix('Rp')->disabled(),
                     Forms\Components\TextInput::make('change_amount')->label('Kembalian')->prefix('Rp')->disabled(),
@@ -88,6 +98,11 @@ class TransactionReportResource extends Resource
                         ->content(fn(Transaction $record): string => $record->items
                             ->map(fn($item): string => "{$item->product?->name} x{$item->quantity} = Rp " . number_format($item->subtotal, 0, ',', '.'))
                             ->implode("\n")),
+                    Forms\Components\Placeholder::make('sync_warning')
+                        ->label('⚠️ Peringatan Sinkronisasi Offline')
+                        ->content(fn(Transaction $record): string => (string) $record->sync_warning)
+                        ->visible(fn(Transaction $record): bool => ! empty($record->sync_warning))
+                        ->columnSpanFull(),
                 ])
                 ->columns(2),
         ]);
@@ -147,10 +162,11 @@ class TransactionReportResource extends Resource
                     ->money('IDR')
                     ->sortable(),
 
+                // Voucher-only portion (discount_amount includes member discount).
                 Tables\Columns\TextColumn::make('discount_amount')
-                    ->label('Diskon')
+                    ->label('Diskon Voucher')
+                    ->state(fn(Transaction $record): float => max(0, (float) $record->discount_amount - (float) $record->member_discount_amount))
                     ->money('IDR')
-                    ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('member_discount_amount')
@@ -158,6 +174,17 @@ class TransactionReportResource extends Resource
                     ->money('IDR')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\IconColumn::make('sync_warning')
+                    ->label('Peringatan')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-exclamation-triangle')
+                    ->falseIcon('heroicon-o-check-circle')
+                    ->getStateUsing(fn(Transaction $record): bool => ! empty($record->sync_warning))
+                    ->trueColor('warning')
+                    ->falseColor('gray')
+                    ->tooltip(fn(Transaction $record): ?string => $record->sync_warning)
+                    ->toggleable(),
             ])
             ->filters([
                 Filter::make('created_at')
@@ -210,7 +237,7 @@ class TransactionReportResource extends Resource
         return response()->streamDownload(function () use ($merchantId): void {
             $handle = fopen('php://output', 'w');
 
-            fputcsv($handle, ['Invoice', 'Waktu', 'Kasir', 'Member', 'Nomor HP Member', 'Metode Pembayaran', 'Subtotal', 'Diskon', 'Diskon Member', 'Total', 'Item']);
+            fputcsv($handle, ['Invoice', 'Waktu', 'Kasir', 'Member', 'Nomor HP Member', 'Metode Pembayaran', 'Subtotal', 'Diskon Voucher', 'Diskon Member', 'Total', 'Item']);
 
             static::getEloquentQuery()
                 ->whereHas('items.product', fn(Builder $query) => $query->where('merchant_id', $merchantId))
@@ -225,7 +252,8 @@ class TransactionReportResource extends Resource
                             $transaction->member_phone,
                             $transaction->payment_method,
                             $transaction->subtotal_amount,
-                            $transaction->discount_amount,
+                            // Voucher-only (discount_amount includes member discount).
+                            max(0, (float) $transaction->discount_amount - (float) $transaction->member_discount_amount),
                             $transaction->member_discount_amount,
                             $transaction->total_amount,
                             $transaction->items
