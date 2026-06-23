@@ -14,6 +14,7 @@ use App\Models\Discount;
 use App\Models\Member;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Services\InvoiceNumberGenerator;
 use App\Services\QrisPayloadService;
 use App\Services\TransactionRefundService;
 use Illuminate\Support\Facades\DB;
@@ -730,7 +731,7 @@ class SalesPage extends Component
                     $change = 0;
                 }
 
-                $invoiceNumber = $this->generateInvoiceNumber();
+                $invoiceNumber = $this->generateInvoiceNumber($merchantId);
 
                 $transaction = Transaction::create([
                     'user_id' => $user->id,
@@ -878,6 +879,13 @@ class SalesPage extends Component
             return false;
         }
 
+        // Refund is a sensitive operation — restrict to store owner / admin.
+        if (! $user->isOwner() && ! $user->isAdmin()) {
+            $this->dispatch('showToast', ['type' => 'error', 'message' => 'Hanya pemilik toko yang dapat melakukan refund']);
+
+            return false;
+        }
+
         $transaction = Transaction::query()
             ->where('invoice_number', $invoiceNumber)
             ->whereHas('items.product', fn($query) => $query->where('merchant_id', $merchantId))
@@ -903,17 +911,11 @@ class SalesPage extends Component
         }
     }
 
-    private function generateInvoiceNumber()
+    private function generateInvoiceNumber(int $merchantId): string
     {
-        $date = now()->format('Ymd');
-        $latestTransaction = Transaction::whereDate('created_at', now())
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $sequence = $latestTransaction ? intval(substr($latestTransaction->invoice_number, -4)) + 1 : 1;
-        $sequence = str_pad($sequence, 4, '0', STR_PAD_LEFT);
-
-        return "INV-{$date}-{$sequence}";
+        // Atomic, per-merchant, race-safe. Runs inside the checkout DB
+        // transaction so the counter is only consumed on commit.
+        return app(InvoiceNumberGenerator::class)->next($merchantId);
     }
 
     public function render()

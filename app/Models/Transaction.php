@@ -21,6 +21,7 @@ class Transaction extends Model
         'offline_client_id',
         'offline_created_at',
         'synced_at',
+        'sync_warning',
         'subtotal_amount',
         'discount_amount',
         'member_discount_amount',

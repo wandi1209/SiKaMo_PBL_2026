@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\StockLog;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Services\InvoiceNumberGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -175,6 +176,7 @@ class OfflinePosController extends Controller
 
             $subtotalAmount = 0;
             $transactionItems = [];
+            $warnings = [];
 
             foreach ($payload['items'] as $item) {
                 $product = Product::query()
@@ -183,15 +185,17 @@ class OfflinePosController extends Controller
                     ->find($item['product_id']);
 
                 if (! $product) {
+                    // Hard failure: cannot record a sale for a product that
+                    // does not exist in this merchant.
                     throw ValidationException::withMessages([
                         'items' => "Produk ID {$item['product_id']} tidak ditemukan di toko ini.",
                     ]);
                 }
 
                 if ((int) $product->stock < (int) $item['quantity']) {
-                    throw ValidationException::withMessages([
-                        'stock' => "Stok {$product->name} tidak mencukupi. Stok tersedia: {$product->stock}.",
-                    ]);
+                    // The sale already physically happened offline — never drop
+                    // it. Allow the stock to go negative and flag for review.
+                    $warnings[] = "Stok {$product->name} minus saat sync (tersedia {$product->stock}, terjual {$item['quantity']}).";
                 }
 
                 $unitPrice = (float) $item['unit_price'];
@@ -212,7 +216,20 @@ class OfflinePosController extends Controller
                 ];
             }
 
-            [$discount, $voucherDiscountAmount] = $this->resolveDiscount($payload, $merchant, $subtotalAmount);
+            // A voucher that expired / hit its quota between the offline sale
+            // and the sync must not discard the sale — drop the voucher and
+            // flag it instead.
+            try {
+                [$discount, $voucherDiscountAmount] = $this->resolveDiscount($payload, $merchant, $subtotalAmount);
+            } catch (ValidationException $e) {
+                $discount = null;
+                $voucherDiscountAmount = 0;
+
+                if (! empty($payload['discount_code'])) {
+                    $warnings[] = "Diskon {$payload['discount_code']} tidak berlaku saat sync, diabaikan.";
+                }
+            }
+
             [$member, $memberDiscountAmount] = $this->resolveMemberDiscount($payload, $merchant, $subtotalAmount, $voucherDiscountAmount);
 
             $totalDiscountAmount = $voucherDiscountAmount + $memberDiscountAmount;
@@ -222,9 +239,13 @@ class OfflinePosController extends Controller
                 : $totalAmount;
 
             if ($amountPaid < $totalAmount) {
-                throw ValidationException::withMessages([
-                    'amount_paid' => 'Jumlah pembayaran kurang dari total belanja.',
-                ]);
+                // Can happen if a discount the cashier applied offline was
+                // dropped above. Record the sale anyway and flag the shortfall
+                // rather than losing it.
+                $warnings[] = 'Pembayaran kurang dari total saat sync (selisih Rp ' . number_format($totalAmount - $amountPaid, 0, ',', '.') . ').';
+                $changeAmount = 0;
+            } else {
+                $changeAmount = $amountPaid - $totalAmount;
             }
 
             $offlineCreatedAt = Carbon::parse($payload['created_at']);
@@ -237,16 +258,17 @@ class OfflinePosController extends Controller
                 'member_id' => $member?->id,
                 'member_name' => $member?->name,
                 'member_phone' => $member?->phone,
-                'invoice_number' => $this->generateInvoiceNumber($offlineCreatedAt),
+                'invoice_number' => $this->generateInvoiceNumber($merchant->id, $offlineCreatedAt),
                 'offline_client_id' => $payload['client_id'],
                 'offline_created_at' => $offlineCreatedAt,
                 'synced_at' => now(),
+                'sync_warning' => empty($warnings) ? null : implode(' ', $warnings),
                 'subtotal_amount' => $subtotalAmount,
                 'discount_amount' => $totalDiscountAmount,
                 'member_discount_amount' => $memberDiscountAmount,
                 'total_amount' => $totalAmount,
                 'amount_paid' => $amountPaid,
-                'change_amount' => $amountPaid - $totalAmount,
+                'change_amount' => $changeAmount,
                 'payment_method' => $payload['payment_method'],
                 'status' => 'completed',
                 'created_at' => $offlineCreatedAt,
@@ -389,17 +411,11 @@ class OfflinePosController extends Controller
         return [$member, min((float) $merchant->member_discount_value, $discountableAmount)];
     }
 
-    private function generateInvoiceNumber(Carbon $createdAt): string
+    private function generateInvoiceNumber(int $merchantId, Carbon $createdAt): string
     {
-        $date = $createdAt->timezone(config('app.timezone'))->format('Ymd');
-        $latestTransaction = Transaction::query()
-            ->whereDate('created_at', $createdAt->toDateString())
-            ->orderByDesc('id')
-            ->first();
-
-        $sequence = $latestTransaction ? ((int) substr($latestTransaction->invoice_number, -4)) + 1 : 1;
-
-        return 'INV-' . $date . '-' . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+        // Atomic, per-merchant, race-safe. Runs inside the sync DB transaction
+        // so the counter is only consumed if the transaction commits.
+        return app(InvoiceNumberGenerator::class)->next($merchantId, $createdAt);
     }
 
     private function merchantFor($user): ?Merchant
