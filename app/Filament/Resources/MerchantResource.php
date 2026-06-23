@@ -10,7 +10,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MerchantResource extends Resource
@@ -105,16 +104,8 @@ class MerchantResource extends Resource
                     ->label('Aktif')
                     ->boolean(),
 
-                Tables\Columns\TextColumn::make('monthly_revenue')
-                    ->label('Omzet Bulan Ini')
-                    ->state(fn (Merchant $record): float => static::monthlyRevenue($record))
-                    ->money('IDR'),
-
-                Tables\Columns\TextColumn::make('monthly_transactions')
-                    ->label('Transaksi Bulan Ini')
-                    ->state(fn (Merchant $record): int => static::monthlyTransactions($record))
-                    ->badge(),
-
+                // Tenant isolation (UU PDP): per-tenant omzet/transaksi removed —
+                // the platform admin only sees account + operational data.
                 Tables\Columns\TextColumn::make('low_stock_products')
                     ->label('Stok Menipis')
                     ->state(fn (Merchant $record): int => $record->products()->whereColumn('stock', '<=', 'low_stock_threshold')->count())
@@ -185,38 +176,12 @@ class MerchantResource extends Resource
         ];
     }
 
-    private static function monthlyRevenue(Merchant $merchant): float
-    {
-        return (float) DB::table('t_transactions')
-            ->select('t_transactions.id', 't_transactions.total_amount')
-            ->join('t_transaction_items', 't_transaction_items.transaction_id', '=', 't_transactions.id')
-            ->join('m_products', 'm_products.id', '=', 't_transaction_items.product_id')
-            ->where('m_products.merchant_id', $merchant->id)
-            ->where('t_transactions.status', 'completed')
-            ->whereBetween('t_transactions.created_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->groupBy('t_transactions.id', 't_transactions.total_amount')
-            ->get()
-            ->sum('total_amount');
-    }
-
-    private static function monthlyTransactions(Merchant $merchant): int
-    {
-        return DB::table('t_transactions')
-            ->join('t_transaction_items', 't_transaction_items.transaction_id', '=', 't_transactions.id')
-            ->join('m_products', 'm_products.id', '=', 't_transaction_items.product_id')
-            ->where('m_products.merchant_id', $merchant->id)
-            ->where('t_transactions.status', 'completed')
-            ->whereBetween('t_transactions.created_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->distinct('t_transactions.id')
-            ->count('t_transactions.id');
-    }
-
     private static function exportCsv(): StreamedResponse
     {
         return response()->streamDownload(function (): void {
             $handle = fopen('php://output', 'w');
 
-            fputcsv($handle, ['Nama Toko', 'Owner', 'Telepon', 'Status', 'Omzet Bulan Ini', 'Transaksi Bulan Ini']);
+            fputcsv($handle, ['Nama Toko', 'Owner', 'Telepon', 'Status']);
 
             Merchant::query()
                 ->with('owner')
@@ -228,8 +193,6 @@ class MerchantResource extends Resource
                             $merchant->owner?->name,
                             $merchant->phone,
                             $merchant->is_active ? 'Aktif' : 'Nonaktif',
-                            static::monthlyRevenue($merchant),
-                            static::monthlyTransactions($merchant),
                         ]);
                     }
                 });

@@ -6,16 +6,18 @@ use App\Models\Merchant;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Support\Facades\DB;
 
 class MerchantPerformanceWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Performa Merchant Bulan Ini';
+    protected static ?string $heading = 'Monitoring Operasional Merchant';
     protected static ?int $sort = 3;
     protected int | string | array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
+        // Tenant isolation (UU PDP): the platform admin must NOT see per-tenant
+        // revenue / sales figures. Only operational health (status, stock) is
+        // exposed here so support can help without accessing tenant omzet.
         return $table
             ->query(Merchant::query()->with('owner'))
             ->columns([
@@ -28,15 +30,9 @@ class MerchantPerformanceWidget extends BaseWidget
                     ->label('Owner')
                     ->placeholder('-'),
 
-                Tables\Columns\TextColumn::make('revenue')
-                    ->label('Omzet')
-                    ->state(fn (Merchant $record): float => $this->monthlyRevenue($record))
-                    ->money('IDR'),
-
-                Tables\Columns\TextColumn::make('transactions')
-                    ->label('Transaksi')
-                    ->state(fn (Merchant $record): int => $this->monthlyTransactions($record))
-                    ->badge(),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Status')
+                    ->boolean(),
 
                 Tables\Columns\TextColumn::make('low_stock')
                     ->label('Stok Menipis')
@@ -45,31 +41,5 @@ class MerchantPerformanceWidget extends BaseWidget
                     ->color(fn (int $state): string => $state > 0 ? 'danger' : 'success'),
             ])
             ->paginated(false);
-    }
-
-    private function monthlyRevenue(Merchant $merchant): float
-    {
-        return (float) DB::query()
-            ->fromSub($this->merchantTransactionsQuery($merchant), 'merchant_transactions')
-            ->sum('total_amount');
-    }
-
-    private function monthlyTransactions(Merchant $merchant): int
-    {
-        return DB::query()
-            ->fromSub($this->merchantTransactionsQuery($merchant), 'merchant_transactions')
-            ->count();
-    }
-
-    private function merchantTransactionsQuery(Merchant $merchant)
-    {
-        return DB::table('t_transactions')
-            ->select('t_transactions.id', 't_transactions.total_amount')
-            ->join('t_transaction_items', 't_transaction_items.transaction_id', '=', 't_transactions.id')
-            ->join('m_products', 'm_products.id', '=', 't_transaction_items.product_id')
-            ->where('m_products.merchant_id', $merchant->id)
-            ->where('t_transactions.status', 'completed')
-            ->whereBetween('t_transactions.created_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->groupBy('t_transactions.id', 't_transactions.total_amount');
     }
 }

@@ -24,6 +24,19 @@ class TransactionResource extends Resource
     protected static ?int $navigationSort = 1;
     protected static bool $shouldRegisterNavigation = false;
 
+    // Tenant isolation (UU PDP): the platform admin must NOT browse individual
+    // tenant transactions / omzet. Disabled entirely — admin only sees
+    // platform-level aggregate metrics on the dashboard.
+    public static function canViewAny(): bool
+    {
+        return false;
+    }
+
+    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return false;
+    }
+
     public static function canCreate(): bool
     {
         return false;
