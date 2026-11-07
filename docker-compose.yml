@@ -1,0 +1,95 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_NAME: ${APP_NAME:-SiKaMo}
+        VITE_REVERB_APP_KEY: ${REVERB_APP_KEY:-}
+        VITE_REVERB_HOST: ${REVERB_HOST:-}
+        VITE_REVERB_PORT: ${REVERB_PORT:-443}
+        VITE_REVERB_SCHEME: ${REVERB_SCHEME:-https}
+    image: sikamo-app:latest
+    container_name: sikamo-app
+    restart: unless-stopped
+    command: ["web"]
+    env_file:
+      - .env
+    environment:
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-false}
+    volumes:
+      - sikamo_storage:/var/www/html/storage/app/public
+      - sikamo_logs:/var/www/html/storage/logs
+    depends_on:
+      - redis
+    networks:
+      - sikamo-net
+      - tunnel-net
+
+  queue:
+    image: sikamo-app:latest
+    container_name: sikamo-queue
+    restart: unless-stopped
+    command: ["queue"]
+    env_file:
+      - .env
+    volumes:
+      - sikamo_storage:/var/www/html/storage/app/public
+      - sikamo_logs:/var/www/html/storage/logs
+    depends_on:
+      - app
+      - redis
+    networks:
+      - sikamo-net
+
+  reverb:
+    image: sikamo-app:latest
+    container_name: sikamo-reverb
+    restart: unless-stopped
+    command: ["reverb"]
+    env_file:
+      - .env
+    volumes:
+      - sikamo_logs:/var/www/html/storage/logs
+    depends_on:
+      - app
+      - redis
+    networks:
+      - sikamo-net
+
+  scheduler:
+    image: sikamo-app:latest
+    container_name: sikamo-scheduler
+    restart: unless-stopped
+    command: ["scheduler"]
+    env_file:
+      - .env
+    volumes:
+      - sikamo_storage:/var/www/html/storage/app/public
+      - sikamo_logs:/var/www/html/storage/logs
+    depends_on:
+      - app
+      - redis
+    networks:
+      - sikamo-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: sikamo-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - sikamo_redis:/data
+    networks:
+      - sikamo-net
+
+volumes:
+  sikamo_storage:
+  sikamo_logs:
+  sikamo_redis:
+
+networks:
+  sikamo-net:
+    driver: bridge
+  tunnel-net:
+    external: true
